@@ -1,3 +1,4 @@
+import { AccountSettingsScreen } from './components/account/AccountSettingsScreen'
 import { StrictMode } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router'
 import { createRoot } from 'react-dom/client'
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          <Route path="/settings" element={<AccountSettingsScreen />} />
           <Route path="/auth/recover" element={<PasswordRecoveryScreen />} />
           <Route path="/auth/login" element={<LoginScreen />} />
           <Route path="/auth/register" element={<RegistrationScreen />} />

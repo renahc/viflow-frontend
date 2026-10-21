@@ -132,3 +132,21 @@ local intacto. Con dos cuentas, verificar que la segunda no puede leer, subir ni
 archivos dentro de la carpeta de la primera; tampoco debe poder hacerlo sin sesión.
 Las pruebas automáticas de servicio cubren validación, rutas, orden de operaciones,
 errores y cambios de sesión, pero no reemplazan esta comprobación de RLS en Supabase.
+
+## Pantalla de configuración de cuenta
+
+`/settings` reúne perfil, seguridad y sesión. El menú del perfil de cuenta abre esta
+pantalla; el perfil local conserva su editor. El editor de nombre y foto se reutiliza
+para que la validación y el almacenamiento sigan el mismo flujo.
+
+La sección Seguridad valida la contraseña actual con `signInWithPassword`, comprueba
+la identidad y envía la nueva mediante `updateUser` con `current_password`. No depende
+de que la exigencia opcional de contraseña actual esté habilitada en el proyecto.
+Las contraseñas solo permanecen en memoria durante el envío; los campos se vacían al
+solicitar la operación y nunca se guardan en el almacenamiento ni en registros.
+Los errores de reautenticación remiten a la recuperación por correo ya implementada.
+La sesión permite cerrar únicamente la sesión de este navegador.
+
+Verificado: compilación, lint, pruebas de servicio y revisión visual en escritorio y
+390 px; acceso con cuenta real y guardado del perfil sin modificar su nombre.
+El cambio de contraseña real queda para una prueba realizada por el usuario.
