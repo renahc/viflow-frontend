@@ -321,3 +321,20 @@ a { color: inherit; text-decoration: none; }
 .column-options-popup button[aria-pressed="true"] { background: #eae2f3; color: #563776; }
 .column-options-divider { height: 1px; margin: 7px 0; background: #e5deeb; }
 .column-options-popup .column-delete-option { color: #873e60; }
+
+/* Keep the discussion composer and filters in place while browsing history. */
+.card-history-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding-right: 6px; }
+.card-history-scroll .card-timeline { padding-bottom: 8px; }
+@media (min-width: 801px) {
+  .card-details[open] { display: flex; flex-direction: column; height: min(780px, calc(100dvh - 32px)); overflow: hidden; }
+  .card-details-header, .card-details > .storage-warning { flex-shrink: 0; }
+  .card-details-layout { flex: 1; min-height: 0; }
+  .card-details-layout > form { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .card-details-layout > .card-discussion { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .card-discussion > h3, .card-discussion > .comment-composer, .card-discussion > .activity-filters { flex-shrink: 0; }
+  .card-details .comment-composer textarea { max-height: min(160px, 20dvh); }
+  .card-history-scroll { flex: 1; }
+}
+@media (max-width: 800px) {
+  .card-history-scroll { max-height: 45dvh; }
+}

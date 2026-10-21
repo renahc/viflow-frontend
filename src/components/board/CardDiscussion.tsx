@@ -39,6 +39,7 @@ export function CardDiscussion({ card, actor, onComment }: Props) {
           <button key={value} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)}>{title}</button>
         ))}
       </div>
+      <div className="card-history-scroll" role="region" aria-label="Historial de la tarjeta" tabIndex={0}>
       {entries.length === 0 ? <p className="activity-empty">{filter === 'comments' ? 'Todavía no hay comentarios.' : filter === 'activity' ? 'Los próximos cambios aparecerán aquí.' : 'Aquí aparecerán los comentarios y los próximos cambios de esta tarjeta.'}</p>
         : <ol className="card-timeline">{entries.map(entry => (
           <li key={entry.id} className={entry.kind === 'comment' ? 'timeline-comment' : 'timeline-activity'}>
@@ -51,6 +52,7 @@ export function CardDiscussion({ card, actor, onComment }: Props) {
             </div>
           </li>
         ))}</ol>}
+      </div>
     </section>
   )
 }
