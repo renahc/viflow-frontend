@@ -46,9 +46,7 @@ export function CardDetails({ card, column, labels, onClose, onSave, onToggleLab
         if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) onClose()
       }}>
       <header className="card-details-header">
-        <div><h2 id="card-details-title">Detalle de tarjeta</h2>
-          {column && <span className="card-details-column"><Kanban size={14} aria-hidden="true" />{column.title}</span>}
-        </div>
+        <h2 id="card-details-title" className="card-details-column"><Kanban size={14} aria-hidden="true" />{column?.title ?? 'Sin columna'}</h2>
         <button className="label-popup-icon" type="button" aria-label="Cerrar detalle de tarjeta" onClick={onClose}><X size={18} aria-hidden="true" /></button>
       </header>
       {storageError && <p className="storage-warning" role="alert">No pudimos guardar en este navegador. Los cambios se mantendrán solo mientras la página siga abierta.</p>}
