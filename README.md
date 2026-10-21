@@ -26,6 +26,7 @@ pnpm test
 - Creación de columnas personalizadas al extremo derecho del tablero, con elección del color del punto entre los mismos seis tonos fijos de las etiquetas. El color se conserva al recargar; las columnas anteriores mantienen su aspecto.
 - Eliminación de tarjetas y columnas con confirmación. Eliminar una columna elimina también sus tarjetas; se puede dejar el tablero vacío.
 - Creación de tarjetas con título y descripción opcional.
+- Detalle de tarjeta al pulsar su título o contenido: edición de título y descripción, columna actual y etiquetas visibles. Guardar aplica los cambios; Cancelar, Escape o cerrar descartan el borrador.
 - Arrastre entre columnas en escritorio. Selector de estado para teclado y pantallas táctiles.
 - Persistencia del espacio de trabajo en `viflow.workspace.v1`, con migración del tablero guardado en `viflow.board.v2` o `viflow.board.v1`. Los formatos anteriores se conservan.
 - El primer tablero muestra cuatro tarjetas de ejemplo si no hay datos previos; los tableros nuevos empiezan sin tarjetas.
@@ -65,7 +66,9 @@ El menú de tres puntos del perfil permite abrir Configuración y guardar nombre
 - `src/components/workspace/WorkspaceSidebar.tsx`: marca, navegación lateral y perfil.
 - `src/components/board/KanbanBoard.tsx`: vista del tablero y coordinación del formulario de columna, etiquetas y confirmaciones.
 - `src/components/board/KanbanColumn.tsx`: encabezado, lista de tarjetas y formulario de tarjeta.
-- `src/components/board/TaskCard.tsx`: presentación y controles de una tarjeta.
+- `src/components/board/TaskCard.tsx`: presentación y controles de una tarjeta; apertura del detalle sin interferir con etiquetas o arrastre.
+- `src/components/board/CardDetails.tsx`: modal de detalle y borrador de edición.
+- `src/lib/updateCard.ts`: validación y actualización del contenido, con pruebas en `tests/updateCard.test.ts`.
 - `src/hooks/useCardDrag.ts`: arrastre, indicador de destino y posición final al soltar.
 - `src/components/CardComposer.tsx`: formulario de creación.
 - `src/hooks/useBoard.ts`: estado del espacio de trabajo, operaciones sobre el tablero de la URL y sincronización de pestañas.

@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { Check, ChevronDown, ChevronUp, Circle, GripVertical } from 'lucide-react'
 import type { Card, Column, Status } from '../../lib/board'
 import type { Label } from '../../lib/labels'
@@ -17,10 +18,17 @@ type Props = {
   onChangeStatus: (status: Status) => void
   onOpenLabels: (anchor: HTMLButtonElement) => void
   onDelete: () => void
+  onOpenDetails: () => void
 }
 
 export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
-  onMoveUp, onMoveDown, onChangeStatus, onOpenLabels, onDelete }: Props) {
+  onMoveUp, onMoveDown, onChangeStatus, onOpenLabels, onDelete, onOpenDetails }: Props) {
+  const titleRef = useRef<HTMLButtonElement>(null)
+  const dragged = useRef(false)
+  function openDetails() {
+    titleRef.current?.focus()
+    onOpenDetails()
+  }
   const isDragging = drag.draggingId === card.id
   const isDropTarget = drag.draggingId && drag.dropTarget?.columnId === card.status
     && drag.dropTarget.beforeId === card.id
@@ -30,7 +38,13 @@ export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
       draggable
       data-card-id={card.id}
       className={`task-card ${isDragging ? 'is-dragging' : ''} ${isDropTarget ? 'drop-before' : ''}`}
-      onDragStart={event => drag.start(event, card.id)}
+      onPointerDown={() => { dragged.current = false }}
+      onClick={event => {
+        const target = event.target as HTMLElement
+        if (dragged.current || target.closest('button, a, input, textarea, select, label')) return
+        openDetails()
+      }}
+      onDragStart={event => { dragged.current = true; drag.start(event, card.id) }}
       onDragEnd={drag.reset}
     >
       <div className="card-topline">
@@ -41,7 +55,7 @@ export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
           <DeleteButton label={`Eliminar tarjeta ${card.title}`} onClick={onDelete} />
         </div>
       </div>
-      <h3>{card.title}</h3>
+      <h3><button ref={titleRef} type="button" className="task-title-button" aria-label={`Abrir tarjeta ${card.title}`} onClick={event => { if (!dragged.current || event.detail === 0) openDetails() }}>{card.title}</button></h3>
       {card.description && <p className="card-description">{card.description}</p>}
       <div className="card-footer">
         <div className="card-order-actions">

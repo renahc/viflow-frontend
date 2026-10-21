@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useMatch, useNavigate } from 'react-router'
 import { createCardLabel, deleteBoardLabel, isLabelColor, toggleCardLabel } from '../lib/labels'
 import type { LabelColor } from '../lib/labels'
+import { updateCardContent } from '../lib/updateCard'
 import { moveCardInBoard } from '../lib/moveCard'
 import { boardPath } from '../lib/routes'
 import { createBoard, loadWorkspace, workspaceStorageKey } from '../lib/workspace'
@@ -91,6 +92,12 @@ export function useBoard() {
     saveBoard({ ...board, cards: [...board.cards, { id: crypto.randomUUID(), title: title.trim(), description: description.trim(), status }] })
   }
 
+  function editCard(id: string, title: string, description: string) {
+    const result = updateCardContent(board, id, { title, description })
+    if (result.error) return result.error
+    if (result.board !== board) saveBoard(result.board)
+  }
+
   function moveCard(id: string, status: Status, beforeId?: string | null) {
     const nextBoard = moveCardInBoard(board, id, status, beforeId)
     if (nextBoard !== board) saveBoard(nextBoard)
@@ -130,5 +137,5 @@ export function useBoard() {
     })
   }
 
-  return { ...board, labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards, activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, deleteBoard, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn }
+  return { ...board, labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards, activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, deleteBoard, storageError, addCard, editCard, moveCard, addColumn, deleteCard, deleteColumn }
 }

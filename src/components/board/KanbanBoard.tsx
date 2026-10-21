@@ -6,6 +6,7 @@ import type { Status } from '../../lib/board'
 import { ColumnComposer } from '../ColumnComposer'
 import { ConfirmDeleteModal } from '../ConfirmDeleteModal'
 import { LabelPicker } from '../LabelPicker'
+import { CardDetails } from './CardDetails'
 import { KanbanColumn } from './KanbanColumn'
 
 type Props = { workspace: ReturnType<typeof useBoard> }
@@ -13,8 +14,10 @@ type PendingDelete = { kind: 'card' | 'column'; id: string; title: string }
 type LabelSelection = { cardId: string; anchor: HTMLButtonElement }
 
 export function KanbanBoard({ workspace }: Props) {
-  const { title, columns, cards, labels, storageError, addCard, moveCard, addColumn,
+  const { title, columns, cards, labels, storageError, addCard, editCard, moveCard, addColumn,
     deleteCard, deleteColumn, addLabel, toggleLabel, deleteLabel } = workspace
+  const [editingCardId, setEditingCardId] = useState<string | null>(null)
+  const editingCard = cards.find(card => card.id === editingCardId)
   const [composerId, setComposerId] = useState<string | null>(null)
   const [addingColumn, setAddingColumn] = useState(false)
   const [announcement, setAnnouncement] = useState('')
@@ -55,6 +58,7 @@ export function KanbanBoard({ workspace }: Props) {
               columns={columns} labels={labels} drag={drag} onAddCard={addCard} onMoveCard={move}
               composing={composerId === column.id} onOpenComposer={() => setComposerId(column.id)}
               onCloseComposer={() => setComposerId(null)}
+              onOpenCard={card => { setLabelSelection(null); setEditingCardId(card.id) }}
               onOpenLabels={(card, anchor) => setLabelSelection({ cardId: card.id, anchor })}
               onDeleteCard={card => setPendingDelete({ kind: 'card', id: card.id, title: card.title })}
               onDeleteColumn={column => setPendingDelete({ kind: 'column', id: column.id, title: column.title })} />
@@ -73,6 +77,12 @@ export function KanbanBoard({ workspace }: Props) {
         </footer>
         <p className="sr-only" role="status" aria-live="polite">{announcement}</p>
       </div>
+      {editingCard && <CardDetails key={editingCard.id} card={editingCard} column={columns.find(column => column.id === editingCard.status)} labels={labels}
+        onClose={() => setEditingCardId(null)} onSave={(title, description) => {
+          const error = editCard(editingCard.id, title, description)
+          if (!error) setAnnouncement(`Tarjeta ${title.trim()} actualizada.`)
+          return error
+        }} />}
       {labelCard && labelSelection && <LabelPicker key={labelCard.id} card={labelCard} labels={labels} anchor={labelSelection.anchor}
         onClose={() => setLabelSelection(null)} onDelete={deleteLabel}
         onToggle={labelId => toggleLabel(labelCard.id, labelId)}

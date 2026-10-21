@@ -20,11 +20,12 @@ type Props = {
   onMoveCard: (id: string, status: Status, beforeId?: string | null) => void
   onOpenLabels: (card: Card, anchor: HTMLButtonElement) => void
   onDeleteCard: (card: Card) => void
+  onOpenCard: (card: Card) => void
   onDeleteColumn: (column: Column) => void
 }
 
 export function KanbanColumn({ column, cards, columns, labels, drag, onAddCard,
-  onMoveCard, onOpenLabels, onDeleteCard, onDeleteColumn, composing, onOpenComposer, onCloseComposer }: Props) {
+  onMoveCard, onOpenLabels, onDeleteCard, onDeleteColumn, onOpenCard, composing, onOpenComposer, onCloseComposer }: Props) {
   const isOver = drag.dropTarget?.columnId === column.id
   const atEnd = drag.draggingId && isOver && drag.dropTarget?.beforeId === null
   const dotColor = labelColors.find(color => color.id === column.color)?.text
@@ -58,7 +59,7 @@ export function KanbanColumn({ column, cards, columns, labels, drag, onAddCard,
             onMoveDown={() => onMoveCard(card.id, column.id, cards[index + 2]?.id ?? null)}
             onChangeStatus={status => onMoveCard(card.id, status)}
             onOpenLabels={anchor => onOpenLabels(card, anchor)}
-            onDelete={() => onDeleteCard(card)} />
+            onDelete={() => onDeleteCard(card)} onOpenDetails={() => onOpenCard(card)} />
         ))}
         {cards.length === 0 && <p className="empty-column">Tu próximo avance empieza aquí.<br />Arrastra una tarjeta a esta columna.</p>}
       </div>
