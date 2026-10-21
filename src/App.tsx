@@ -56,167 +56,169 @@ export default function App() {
       </aside>
       <main id="board" className="main-content">
         <div className="board-content">
-          <div className="board-toolbar">
-            <span className="board-tab">
-              <span aria-hidden="true">▥</span>Tablero
-            </span>
-            <span className="task-summary">
-              {cards.length} tarjetas · {completed} completadas
-            </span>
-          </div>
-          {storageError && (
-            <p role="alert" className="storage-warning">
-              No pudimos guardar en este navegador. Los cambios solo se
-              mantendrán mientras esta página siga abierta.
-            </p>
-          )}
-          <div className="kanban-grid" role="region" aria-label="Columnas del tablero" tabIndex={0}>
-            {columns.map((column) => {
-              const columnCards = cards.filter(
-                (card) => card.status === column.id,
-              );
-              return (
-                <section
-                  key={column.id}
-                  className={`kanban-column ${over === column.id ? "drop-active" : ""}`}
-                  aria-labelledby={`heading-${column.id}`}
-                  onDragOver={(event) => {
-                    if (dragging) {
-                      event.preventDefault();
-                      event.dataTransfer.dropEffect = "move";
-                      setOver(column.id);
-                    }
-                  }}
-                  onDragLeave={(event) => {
-                    if (
-                      !event.currentTarget.contains(
-                        event.relatedTarget as Node | null,
+          <div className="board-panel">
+            <div className="board-toolbar">
+              <span className="board-tab">
+                <span aria-hidden="true">▥</span>Tablero
+              </span>
+              <span className="task-summary">
+                {cards.length} tarjetas · {completed} completadas
+              </span>
+            </div>
+            {storageError && (
+              <p role="alert" className="storage-warning">
+                No pudimos guardar en este navegador. Los cambios solo se
+                mantendrán mientras esta página siga abierta.
+              </p>
+            )}
+            <div className="kanban-grid" role="region" aria-label="Columnas del tablero" tabIndex={0}>
+              {columns.map((column) => {
+                const columnCards = cards.filter(
+                  (card) => card.status === column.id,
+                );
+                return (
+                  <section
+                    key={column.id}
+                    className={`kanban-column ${over === column.id ? "drop-active" : ""}`}
+                    aria-labelledby={`heading-${column.id}`}
+                    onDragOver={(event) => {
+                      if (dragging) {
+                        event.preventDefault();
+                        event.dataTransfer.dropEffect = "move";
+                        setOver(column.id);
+                      }
+                    }}
+                    onDragLeave={(event) => {
+                      if (
+                        !event.currentTarget.contains(
+                          event.relatedTarget as Node | null,
+                        )
                       )
-                    )
+                        setOver(null);
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      if (dragging) move(dragging, column.id);
+                      setDragging(null);
                       setOver(null);
-                  }}
-                  onDrop={(event) => {
-                    event.preventDefault();
-                    if (dragging) move(dragging, column.id);
-                    setDragging(null);
-                    setOver(null);
-                  }}
-                >
-                  <div className="column-heading">
-                    <h2 id={`heading-${column.id}`}>
-                      <span className={`status-dot ${column.id}`} />
-                      {column.title}
-                      <span className="column-count">{columnCards.length}</span>
-                    </h2>
-                    <button
-                      className="icon-button"
-                      aria-label={`Agregar tarjeta a ${column.title}`}
-                      onClick={() => setComposer(column.id)}
-                    >
-                      ＋
-                    </button>
-                  </div>
-                  {column.description && <p className="column-description">{column.description}</p>}
-                  <div className="card-list">
-                    {columnCards.map((card) => (
-                      <article
-                        key={card.id}
-                        draggable
-                        className={`task-card ${dragging === card.id ? "is-dragging" : ""}`}
-                        onDragStart={(event) => {
-                          event.dataTransfer.setData("text/plain", card.id);
-                          event.dataTransfer.effectAllowed = "move";
-                          setDragging(card.id);
-                        }}
-                        onDragEnd={() => {
-                          setDragging(null);
-                          setOver(null);
-                        }}
+                    }}
+                  >
+                    <div className="column-heading">
+                      <h2 id={`heading-${column.id}`}>
+                        <span className={`status-dot ${column.id}`} />
+                        {column.title}
+                        <span className="column-count">{columnCards.length}</span>
+                      </h2>
+                      <button
+                        className="icon-button"
+                        aria-label={`Agregar tarjeta a ${column.title}`}
+                        onClick={() => setComposer(column.id)}
                       >
-                        <div className="card-topline">
-                          <span className={`card-category ${column.id}`}>
-                            {column.id === "done"
-                              ? "Completado"
-                              : column.id === "in-progress"
-                                ? "En marcha"
-                                : column.id === "todo" ? "Por explorar" : column.title}
-                          </span>
-                          <span className="drag-handle" aria-hidden="true">
-                            ⠿
-                          </span>
-                        </div>
-                        <h3>{card.title}</h3>
-                        {card.description && (
-                          <p className="card-description">{card.description}</p>
-                        )}
-                        <div className="card-footer">
-                          <span
-                            className={`card-marker ${column.id}`}
-                            aria-hidden="true"
-                          >
-                            {column.id === "done" ? "✓" : "○"}
-                          </span>
-                          <select
-                            aria-label={`Estado de ${card.title}`}
-                            value={card.status}
-                            onChange={(event) =>
-                              move(card.id, event.target.value as Status)
-                            }
-                          >
-                            {columns.map((option) => (
-                              <option key={option.id} value={option.id}>
-                                {option.title}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </article>
-                    ))}
-                    {columnCards.length === 0 && (
-                      <p className="empty-column">
-                        Tu próximo avance empieza aquí.
-                        <br />
-                        Arrastra una tarjeta a esta columna.
-                      </p>
+                        ＋
+                      </button>
+                    </div>
+                    {column.description && <p className="column-description">{column.description}</p>}
+                    <div className="card-list">
+                      {columnCards.map((card) => (
+                        <article
+                          key={card.id}
+                          draggable
+                          className={`task-card ${dragging === card.id ? "is-dragging" : ""}`}
+                          onDragStart={(event) => {
+                            event.dataTransfer.setData("text/plain", card.id);
+                            event.dataTransfer.effectAllowed = "move";
+                            setDragging(card.id);
+                          }}
+                          onDragEnd={() => {
+                            setDragging(null);
+                            setOver(null);
+                          }}
+                        >
+                          <div className="card-topline">
+                            <span className={`card-category ${column.id}`}>
+                              {column.id === "done"
+                                ? "Completado"
+                                : column.id === "in-progress"
+                                  ? "En marcha"
+                                  : column.id === "todo" ? "Por explorar" : column.title}
+                            </span>
+                            <span className="drag-handle" aria-hidden="true">
+                              ⠿
+                            </span>
+                          </div>
+                          <h3>{card.title}</h3>
+                          {card.description && (
+                            <p className="card-description">{card.description}</p>
+                          )}
+                          <div className="card-footer">
+                            <span
+                              className={`card-marker ${column.id}`}
+                              aria-hidden="true"
+                            >
+                              {column.id === "done" ? "✓" : "○"}
+                            </span>
+                            <select
+                              aria-label={`Estado de ${card.title}`}
+                              value={card.status}
+                              onChange={(event) =>
+                                move(card.id, event.target.value as Status)
+                              }
+                            >
+                              {columns.map((option) => (
+                                <option key={option.id} value={option.id}>
+                                  {option.title}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </article>
+                      ))}
+                      {columnCards.length === 0 && (
+                        <p className="empty-column">
+                          Tu próximo avance empieza aquí.
+                          <br />
+                          Arrastra una tarjeta a esta columna.
+                        </p>
+                      )}
+                    </div>
+                    {composer === column.id ? (
+                      <CardComposer
+                        status={column.id}
+                        onAdd={addCard}
+                        onClose={() => setComposer(null)}
+                      />
+                    ) : (
+                      <button
+                        className="add-card"
+                        onClick={() => setComposer(column.id)}
+                      >
+                        <span aria-hidden="true">＋</span>Agregar tarjeta
+                      </button>
                     )}
-                  </div>
-                  {composer === column.id ? (
-                    <CardComposer
-                      status={column.id}
-                      onAdd={addCard}
-                      onClose={() => setComposer(null)}
-                    />
-                  ) : (
-                    <button
-                      className="add-card"
-                      onClick={() => setComposer(column.id)}
-                    >
-                      <span aria-hidden="true">＋</span>Agregar tarjeta
-                    </button>
-                  )}
-                </section>
-              );
-            })}
-            <div className="column-creator">
-              {addingColumn ? (
-                <form className="composer" onSubmit={(event) => {
-                  event.preventDefault();
-                  const id = addColumn(columnTitle);
-                  if (!id) return;
-                  setAnnouncement(`Columna ${columnTitle.trim()} creada.`);
-                  setColumnTitle("");
-                  setAddingColumn(false);
-                }} onKeyDown={(event) => {
-                  if (event.key === "Escape") { setAddingColumn(false); setColumnTitle(""); }
-                }}>
-                  <label htmlFor="column-title">Nombre de la columna</label>
-                  <input id="column-title" autoFocus required maxLength={80} value={columnTitle} onChange={(event) => setColumnTitle(event.target.value)} placeholder="Ej. En revisión" />
-                  <div className="flex gap-2">
-                    <button className="primary-button" disabled={!columnTitle.trim()}>Crear columna</button>
-                    <button className="quiet-button" type="button" onClick={() => { setAddingColumn(false); setColumnTitle(""); }}>Cancelar</button>
-                  </div>
-                </form>
-              ) : <button className="add-column" onClick={() => setAddingColumn(true)}><span aria-hidden="true">＋</span> Agregar columna</button>}
+                  </section>
+                );
+              })}
+              <div className="column-creator">
+                {addingColumn ? (
+                  <form className="composer" onSubmit={(event) => {
+                    event.preventDefault();
+                    const id = addColumn(columnTitle);
+                    if (!id) return;
+                    setAnnouncement(`Columna ${columnTitle.trim()} creada.`);
+                    setColumnTitle("");
+                    setAddingColumn(false);
+                  }} onKeyDown={(event) => {
+                    if (event.key === "Escape") { setAddingColumn(false); setColumnTitle(""); }
+                  }}>
+                    <label htmlFor="column-title">Nombre de la columna</label>
+                    <input id="column-title" autoFocus required maxLength={80} value={columnTitle} onChange={(event) => setColumnTitle(event.target.value)} placeholder="Ej. En revisión" />
+                    <div className="flex gap-2">
+                      <button className="primary-button" disabled={!columnTitle.trim()}>Crear columna</button>
+                      <button className="quiet-button" type="button" onClick={() => { setAddingColumn(false); setColumnTitle(""); }}>Cancelar</button>
+                    </div>
+                  </form>
+                ) : <button className="add-column" onClick={() => setAddingColumn(true)}><span aria-hidden="true">＋</span> Agregar columna</button>}
+              </div>
             </div>
           </div>
           <footer className="board-footer">
