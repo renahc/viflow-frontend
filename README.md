@@ -18,13 +18,14 @@ pnpm lint
 
 ## Primera versión
 
+- Creación de tableros independientes desde el menú lateral, con selección persistida y lista vertical.
 - Tres columnas iniciales: Por hacer, En progreso y Hecho.
 - Creación de columnas personalizadas al extremo derecho del tablero.
 - Eliminación de tarjetas y columnas con confirmación. Eliminar una columna elimina también sus tarjetas; se puede dejar el tablero vacío.
 - Creación de tarjetas con título y descripción opcional.
 - Arrastre entre columnas en escritorio. Selector de estado para teclado y pantallas táctiles.
-- Persistencia en `localStorage` bajo la clave `viflow.board.v2` (columnas y tarjetas), con lectura del formato anterior `viflow.board.v1`.
-- Cuatro tarjetas de ejemplo cuando todavía no hay un tablero válido guardado.
+- Persistencia del espacio de trabajo en `viflow.workspace.v1`, con migración del tablero guardado en `viflow.board.v2` o `viflow.board.v1`. Los formatos anteriores se conservan.
+- El primer tablero muestra cuatro tarjetas de ejemplo si no hay datos previos; los tableros nuevos empiezan sin tarjetas.
 - Las columnas tienen ancho fijo y se recorren con scroll horizontal en cualquier pantalla.
 - Cada columna crece hasta el alto disponible; al superar ese límite, su contenido tiene scroll vertical interno.
 
@@ -38,7 +39,9 @@ El menú de tres puntos del perfil permite abrir Configuración y guardar nombre
 
 - `src/App.tsx`: estructura visual e interacción del tablero.
 - `src/components/CardComposer.tsx`: formulario de creación.
-- `src/hooks/useBoard.ts`: estado y guardado del tablero.
+- `src/hooks/useBoard.ts`: selección, creación y guardado de tableros; operaciones sobre el tablero activo.
+- `src/lib/workspace.ts`: formato del espacio de trabajo y migración de datos anteriores.
+- `src/components/BoardNavigation.tsx`: lista lateral y formulario de nuevo tablero.
 - `src/lib/board.ts`: tipos, columnas, ejemplos y validación de datos guardados.
 - `src/index.css`: TailwindCSS y estilos visuales.
 
@@ -50,3 +53,5 @@ El menú de tres puntos del perfil permite abrir Configuración y guardar nombre
 4. Recargar y comprobar que las tarjetas y sus estados se conservan.
 5. Crear una columna al extremo derecho y comprobar el scroll horizontal.
 6. Crear y mover tarjetas a la columna nueva; recargar y comprobar que se conserva todo.
+
+7. Crear otro tablero, agregarle tarjetas y alternar entre ambos; comprobar su independencia y recargar para verificar la selección guardada.

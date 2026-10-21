@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BoardNavigation } from "./components/BoardNavigation";
 import { UserProfile } from "./components/UserProfile";
 import { ConfirmDeleteModal } from "./components/ConfirmDeleteModal";
 import { DeleteButton } from "./components/DeleteButton";
@@ -7,7 +8,7 @@ import { useBoard } from "./hooks/useBoard";
 import type { Status } from "./lib/board";
 
 export default function App() {
-  const { columns, cards, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = useBoard();
+  const { boards, activeBoardId, title: boardTitle, selectBoard, addBoard, columns, cards, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = useBoard();
   const [addingColumn, setAddingColumn] = useState(false);
   const [columnTitle, setColumnTitle] = useState("");
   const [composer, setComposer] = useState<Status | null>(null);
@@ -15,6 +16,16 @@ export default function App() {
   const [over, setOver] = useState<Status | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const [pendingDelete, setPendingDelete] = useState<{ kind: "card" | "column"; id: string; title: string } | null>(null);
+
+  function resetBoardControls() {
+    setAddingColumn(false);
+    setColumnTitle("");
+    setComposer(null);
+    setDragging(null);
+    setOver(null);
+    setPendingDelete(null);
+    setAnnouncement("");
+  }
 
   function confirmDelete() {
     if (!pendingDelete) return;
@@ -47,11 +58,9 @@ export default function App() {
           <span className="brand-dot">.</span>
         </a>
         <p className="nav-label">ESPACIO DE TRABAJO</p>
-        <a className="nav-item" href="#board" aria-current="page">
-          <span aria-hidden="true">▦</span>
-          <span className="nav-text">Mi tablero</span>
-          <span className="nav-count">1</span>
-        </a>
+        <BoardNavigation boards={boards} activeBoardId={activeBoardId}
+          onSelect={(id) => { resetBoardControls(); selectBoard(id); }}
+          onCreate={(title) => { resetBoardControls(); return addBoard(title); }} />
         <div className="sidebar-note">
           <span aria-hidden="true">✳</span>
           <strong>Un paso a la vez.</strong>
@@ -60,10 +69,10 @@ export default function App() {
         <UserProfile />
       </aside>
       <main id="board" className="main-content">
-        <div className="board-content">
+        <div className="board-content" key={activeBoardId}>
           <div className="board-toolbar">
             <span className="board-tab">
-              <span aria-hidden="true">▥</span>Tablero
+              <span aria-hidden="true">▥</span>{boardTitle}
             </span>
             <span className="task-summary">
               {cards.length} tarjetas · {completed} completadas

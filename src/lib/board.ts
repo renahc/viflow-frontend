@@ -83,6 +83,15 @@ function isColumn(value: unknown): value is Column {
     && typeof column.description === "string";
 }
 
+export function isBoard(value: unknown): value is Board {
+  if (typeof value !== "object" || value === null) return false;
+  const board = value as Record<string, unknown>;
+  return Array.isArray(board.columns) && board.columns.every(isColumn)
+    && hasUniqueIds(board.columns) && Array.isArray(board.cards)
+    && board.cards.every(card => isCard(card, board.columns as Column[]))
+    && hasUniqueIds(board.cards);
+}
+
 export function loadBoard(): Board {
   try {
     const stored = localStorage.getItem(storageKey);

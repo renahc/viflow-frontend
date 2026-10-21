@@ -1,19 +1,38 @@
 import { useState } from 'react'
-import { loadBoard, storageKey } from '../lib/board'
+import { createBoard, loadWorkspace, workspaceStorageKey } from '../lib/workspace'
+import type { Workspace } from '../lib/workspace'
 import type { Board, Status } from '../lib/board'
 
 export function useBoard() {
-  const [board, setBoard] = useState(loadBoard)
+  const [workspace, setWorkspace] = useState(loadWorkspace)
+  const board = workspace.boards.find(board => board.id === workspace.activeBoardId) ?? workspace.boards[0]
   const [storageError, setStorageError] = useState(false)
 
-  function saveBoard(nextBoard: Board) {
-    setBoard(nextBoard)
+  function saveWorkspace(nextWorkspace: Workspace) {
+    setWorkspace(nextWorkspace)
     try {
-      localStorage.setItem(storageKey, JSON.stringify(nextBoard))
+      localStorage.setItem(workspaceStorageKey, JSON.stringify(nextWorkspace))
       setStorageError(false)
     } catch {
       setStorageError(true)
     }
+  }
+
+  function saveBoard(nextBoard: Board) {
+    saveWorkspace({ ...workspace, boards: workspace.boards.map(current =>
+      current.id === board.id ? { ...current, ...nextBoard } : current) })
+  }
+
+  function selectBoard(id: string) {
+    if (!workspace.boards.some(board => board.id === id)) return
+    saveWorkspace({ ...workspace, activeBoardId: id })
+  }
+
+  function addBoard(title: string) {
+    if (!title.trim()) return
+    const nextBoard = createBoard(title)
+    saveWorkspace({ boards: [...workspace.boards, nextBoard], activeBoardId: nextBoard.id })
+    return nextBoard.id
   }
 
   function addCard(title: string, description: string, status: Status) {
@@ -44,5 +63,5 @@ export function useBoard() {
     })
   }
 
-  return { ...board, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn }
+  return { ...board, boards: workspace.boards, activeBoardId: board.id, selectBoard, addBoard, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn }
 }
