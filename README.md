@@ -60,7 +60,13 @@ El menú de tres puntos del perfil permite abrir Configuración y guardar nombre
 
 ## Código
 
-- `src/App.tsx`: estructura visual e interacción del tablero.
+- `src/App.tsx`: conecta `useBoard` con la pantalla; mantiene los datos por encima del reinicio de la interfaz al cambiar de ruta.
+- `src/components/workspace/WorkspaceScreen.tsx`: estructura del espacio de trabajo, pestañas y pantallas vacías o de error.
+- `src/components/workspace/WorkspaceSidebar.tsx`: marca, navegación lateral y perfil.
+- `src/components/board/KanbanBoard.tsx`: vista del tablero y coordinación del formulario de columna, etiquetas y confirmaciones.
+- `src/components/board/KanbanColumn.tsx`: encabezado, lista de tarjetas y formulario de tarjeta.
+- `src/components/board/TaskCard.tsx`: presentación y controles de una tarjeta.
+- `src/hooks/useCardDrag.ts`: arrastre, indicador de destino y posición final al soltar.
 - `src/components/CardComposer.tsx`: formulario de creación.
 - `src/hooks/useBoard.ts`: estado del espacio de trabajo, operaciones sobre el tablero de la URL y sincronización de pestañas.
 - `src/main.tsx`: BrowserRouter y rutas.
@@ -86,3 +92,7 @@ El menú de tres puntos del perfil permite abrir Configuración y guardar nombre
 7. Crear otro tablero, agregarle tarjetas y alternar entre ambos; comprobar su independencia y recargar para verificar la selección guardada.
 
 8. Abrir dos tableros, comprobar sus URLs y navegar con Atrás/Adelante. Recargar una URL directa, cerrar la pestaña activa y probar una ruta inexistente.
+
+## Organización del estado de interfaz
+
+`useBoard` conserva el espacio de trabajo y su persistencia. La pantalla se identifica por la ruta, de modo que al navegar se reinician formularios, dropdowns y confirmaciones sin descartar datos. El tablero coordina una sola creación de tarjeta a la vez y mantiene juntas la tarjeta seleccionada para etiquetas y su anclaje. Los componentes de columna y tarjeta reciben datos y callbacks; no leen localStorage ni deciden la navegación.
