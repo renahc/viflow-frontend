@@ -25,6 +25,7 @@ pnpm lint
 - Persistencia en `localStorage` bajo la clave `viflow.board.v2` (columnas y tarjetas), con lectura del formato anterior `viflow.board.v1`.
 - Cuatro tarjetas de ejemplo cuando todavía no hay un tablero válido guardado.
 - Las columnas tienen ancho fijo y se recorren con scroll horizontal en cualquier pantalla.
+- Cada columna crece hasta el alto disponible; al superar ese límite, su contenido tiene scroll vertical interno.
 
 Los datos pertenecen a este navegador y origen; todavía no hay backend, cuentas ni sincronización entre dispositivos. Si el almacenamiento falla, se muestra una advertencia y se puede seguir trabajando en memoria. Mover una tarjeta conserva su posición relativa en la lista original; esta versión no incluye reordenamiento dentro de una columna.
 
