@@ -49,6 +49,14 @@ Los tableros siguen siendo locales a este navegador y origen: compartir una URL 
 
 `vercel.json` incluye la reescritura de rutas SPA hacia `index.html`, excluyendo `/api/`. El frontend debe desplegarse con esta carpeta como raíz y `dist` como directorio de salida. Esta configuración todavía debe comprobarse en un despliegue real.
 
+## Comentarios y actividad
+
+El detalle de tarjeta permite publicar comentarios de hasta 2000 caracteres, con autor del perfil local, fecha y saltos de línea. Se guardan inmediatamente, independientemente del borrador de título y descripción. La tarjeta muestra su cantidad de comentarios y permite abrir el detalle desde ese indicador.
+
+El historial registra a partir de esta versión: creación de tarjetas, movimientos entre columnas, reordenamiento, cambios de título o descripción y asignación/eliminación de etiquetas. Los filtros Todo, Comentarios y Actividad permiten revisar cada tipo de entrada. No se inventa actividad anterior ni se generan eventos al cancelar o guardar sin cambios.
+
+Los registros conservan el nombre del autor y el contexto del cambio tal como eran al realizarlo. Todo pertenece a este navegador: todavía no hay colaboración entre cuentas. Los tableros antiguos, sin comentarios ni actividad, se siguen cargando sin migración destructiva.
+
 ## Etiquetas
 
 Cada tablero tiene sus propias etiquetas reutilizables. El selector se abre como un dropdown junto al badge, con buscador (sin distinguir tildes), lista de etiquetas y un botón «Crear etiqueta». La creación ocurre en una segunda vista del mismo dropdown, con vista previa sobre el título, paleta fija y botón para volver a la lista. Desde «Agregar etiqueta» se puede crear una etiqueta con nombre (hasta 32 caracteres), elegir uno de seis colores fijos y asignarla a la tarjeta. Los checkboxes permiten asignar o quitar etiquetas existentes. La papelera al final de cada fila elimina la etiqueta del tablero y de todas las tarjetas donde estaba asignada. Una tarjeta admite varias etiquetas; los nombres duplicados se rechazan dentro del tablero.
@@ -70,6 +78,8 @@ El menú de tres puntos del perfil permite abrir Configuración y guardar nombre
 - `src/components/board/KanbanColumn.tsx`: encabezado, lista de tarjetas y formulario de tarjeta.
 - `src/components/board/TaskCard.tsx`: presentación y controles de una tarjeta; apertura del detalle sin interferir con etiquetas o arrastre.
 - `src/components/board/CardDetails.tsx`: modal de detalle y borrador de edición.
+- `src/components/board/CardDiscussion.tsx`: formulario de comentarios y timeline filtrable.
+- `src/lib/cardActivity.ts`: comentarios, eventos, autor local y validación de registros, con pruebas en `tests/cardActivity.test.ts`.
 - `src/lib/updateCard.ts`: validación y actualización del contenido, con pruebas en `tests/updateCard.test.ts`.
 - `src/hooks/useCardDrag.ts`: arrastre, indicador de destino y posición final al soltar.
 - `src/components/CardComposer.tsx`: formulario de creación.

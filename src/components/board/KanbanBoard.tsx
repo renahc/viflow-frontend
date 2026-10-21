@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ArrowLeftRight, Kanban, Plus } from 'lucide-react'
 import type { useBoard } from '../../hooks/useBoard'
+import { readActivityActor } from '../../lib/cardActivity'
 import { useCardDrag } from '../../hooks/useCardDrag'
 import type { Status } from '../../lib/board'
 import { ColumnComposer } from '../ColumnComposer'
@@ -14,7 +15,7 @@ type PendingDelete = { kind: 'card' | 'column'; id: string; title: string }
 type LabelSelection = { cardId: string; anchor: HTMLButtonElement }
 
 export function KanbanBoard({ workspace }: Props) {
-  const { title, columns, cards, labels, storageError, addCard, editCard, moveCard, addColumn,
+  const { title, columns, cards, labels, storageError, commentOnCard, addCard, editCard, moveCard, addColumn,
     deleteCard, deleteColumn, addLabel, toggleLabel, deleteLabel } = workspace
   const [editingCardId, setEditingCardId] = useState<string | null>(null)
   const editingCard = cards.find(card => card.id === editingCardId)
@@ -77,7 +78,8 @@ export function KanbanBoard({ workspace }: Props) {
         </footer>
         <p className="sr-only" role="status" aria-live="polite">{announcement}</p>
       </div>
-      {editingCard && <CardDetails key={editingCard.id} card={editingCard} column={columns.find(column => column.id === editingCard.status)} labels={labels}
+      {editingCard && <CardDetails key={editingCard.id} actor={readActivityActor()} storageError={storageError}
+        onComment={body => commentOnCard(editingCard.id, body)} card={editingCard} column={columns.find(column => column.id === editingCard.status)} labels={labels}
         onToggleLabel={labelId => toggleLabel(editingCard.id, labelId)} onDeleteLabel={deleteLabel}
         onCreateLabel={(name, color) => addLabel(editingCard.id, name, color)}
         onClose={() => setEditingCardId(null)} onSave={(title, description) => {

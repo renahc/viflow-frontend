@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Check, ChevronDown, ChevronUp, Circle, GripVertical } from 'lucide-react'
+import { Check, ChevronDown, ChevronUp, Circle, GripVertical, MessageSquare } from 'lucide-react'
 import type { Card, Column, Status } from '../../lib/board'
 import type { Label } from '../../lib/labels'
 import type { CardDrag } from '../../hooks/useCardDrag'
@@ -71,6 +71,7 @@ export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
             <ChevronDown size={14} aria-hidden="true" />
           </button>
         </div>
+        {(card.comments?.length ?? 0) > 0 && <button className="card-comment-count" type="button" aria-label={`Ver ${card.comments!.length} ${card.comments!.length === 1 ? 'comentario' : 'comentarios'} de ${card.title}`} onClick={openDetails}><MessageSquare size={13} aria-hidden="true" />{card.comments!.length}</button>}
         <div className="card-status-select">
           <select aria-label={`Estado de ${card.title}`} value={card.status}
             onChange={event => onChangeStatus(event.target.value)}>

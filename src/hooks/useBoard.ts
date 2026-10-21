@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useMatch, useNavigate } from 'react-router'
 import { createCardLabel, deleteBoardLabel, isLabelColor, toggleCardLabel } from '../lib/labels'
 import type { LabelColor } from '../lib/labels'
+import { addCardComment, appendCardActivity, readActivityActor } from '../lib/cardActivity'
 import { updateCardContent } from '../lib/updateCard'
 import { moveCardInBoard } from '../lib/moveCard'
 import { boardPath } from '../lib/routes'
@@ -89,18 +90,31 @@ export function useBoard() {
 
   function addCard(title: string, description: string, status: Status) {
     if (!title.trim() || !board.columns.some(column => column.id === status)) return
-    saveBoard({ ...board, cards: [...board.cards, { id: crypto.randomUUID(), title: title.trim(), description: description.trim(), status }] })
+    const card = { id: crypto.randomUUID(), title: title.trim(), description: description.trim(), status }
+    const nextBoard = { ...board, cards: [...board.cards, card] }
+    saveBoard(appendCardActivity(nextBoard, card.id, 'created', `creó la tarjeta en «${board.columns.find(column => column.id === status)?.title}».`, readActivityActor()))
   }
 
   function editCard(id: string, title: string, description: string) {
     const result = updateCardContent(board, id, { title, description })
     if (result.error) return result.error
-    if (result.board !== board) saveBoard(result.board)
+    if (result.board === board) return
+    const previous = board.cards.find(card => card.id === id)!
+    const actor = readActivityActor()
+    let nextBoard = result.board
+    if (previous.title !== title.trim()) nextBoard = appendCardActivity(nextBoard, id, 'title-edited', `cambió el título a «${title.trim()}».`, actor)
+    if (previous.description !== description.trim()) nextBoard = appendCardActivity(nextBoard, id, 'description-edited', 'actualizó la descripción.', actor)
+    saveBoard(nextBoard)
   }
 
   function moveCard(id: string, status: Status, beforeId?: string | null) {
     const nextBoard = moveCardInBoard(board, id, status, beforeId)
-    if (nextBoard !== board) saveBoard(nextBoard)
+    if (nextBoard === board) return
+    const previous = board.cards.find(card => card.id === id)!
+    const destination = board.columns.find(column => column.id === status)!.title
+    const message = previous.status === status ? `reordenó la tarjeta en «${destination}».`
+      : `movió la tarjeta de «${board.columns.find(column => column.id === previous.status)?.title}» a «${destination}».`
+    saveBoard(appendCardActivity(nextBoard, id, previous.status === status ? 'reordered' : 'moved', message, readActivityActor()))
   }
 
   function addColumn(title: string, color: LabelColor = 'purple') {
@@ -113,17 +127,31 @@ export function useBoard() {
   function addLabel(cardId: string, name: string, color: LabelColor) {
     const result = createCardLabel(board, cardId, name, color)
     if (result.error) return result.error
-    saveBoard(result.board)
+    saveBoard(appendCardActivity(result.board, cardId, 'label-added', `agregó la etiqueta «${name.trim()}».`, readActivityActor()))
   }
 
   function toggleLabel(cardId: string, labelId: string) {
     const nextBoard = toggleCardLabel(board, cardId, labelId)
-    if (nextBoard !== board) saveBoard(nextBoard)
+    if (nextBoard === board) return
+    const removed = board.cards.find(card => card.id === cardId)?.labelIds?.includes(labelId)
+    const name = board.labels?.find(label => label.id === labelId)?.name
+    saveBoard(appendCardActivity(nextBoard, cardId, removed ? 'label-removed' : 'label-added', `${removed ? 'quitó' : 'agregó'} la etiqueta «${name}».`, readActivityActor()))
   }
 
   function deleteLabel(labelId: string) {
     const nextBoard = deleteBoardLabel(board, labelId)
-    if (nextBoard !== board) saveBoard(nextBoard)
+    if (nextBoard === board) return
+    const name = board.labels?.find(label => label.id === labelId)?.name
+    const actor = readActivityActor()
+    const audited = board.cards.filter(card => card.labelIds?.includes(labelId)).reduce((current, card) =>
+      appendCardActivity(current, card.id, 'label-removed', `eliminó la etiqueta «${name}» del tablero.`, actor), nextBoard)
+    saveBoard(audited)
+  }
+
+  function commentOnCard(cardId: string, body: string) {
+    const result = addCardComment(board, cardId, body, readActivityActor())
+    if (result.error) return result.error
+    saveBoard(result.board)
   }
 
   function deleteCard(id: string) {
@@ -137,5 +165,5 @@ export function useBoard() {
     })
   }
 
-  return { ...board, labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards, activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, deleteBoard, storageError, addCard, editCard, moveCard, addColumn, deleteCard, deleteColumn }
+  return { ...board, labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards, activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, deleteBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, deleteCard, deleteColumn }
 }

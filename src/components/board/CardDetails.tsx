@@ -3,6 +3,7 @@ import { AlignLeft, Kanban, X } from 'lucide-react'
 import type { Card, Column } from '../../lib/board'
 import type { Label, LabelColor } from '../../lib/labels'
 import { CardLabels } from '../CardLabels'
+import { CardDiscussion } from './CardDiscussion'
 import { LabelPicker } from '../LabelPicker'
 
 type Props = {
@@ -10,13 +11,16 @@ type Props = {
   column?: Column
   labels: Label[]
   onClose: () => void
+  actor: string
+  storageError: boolean
+  onComment: (body: string) => string | undefined
   onToggleLabel: (labelId: string) => void
   onDeleteLabel: (labelId: string) => void
   onCreateLabel: (name: string, color: LabelColor) => string | undefined
   onSave: (title: string, description: string) => string | undefined
 }
 
-export function CardDetails({ card, column, labels, onClose, onSave, onToggleLabel, onDeleteLabel, onCreateLabel }: Props) {
+export function CardDetails({ card, column, labels, onClose, onSave, onToggleLabel, onDeleteLabel, onCreateLabel, actor, onComment, storageError }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const titleRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState(card.title)
@@ -47,6 +51,7 @@ export function CardDetails({ card, column, labels, onClose, onSave, onToggleLab
         </div>
         <button className="label-popup-icon" type="button" aria-label="Cerrar detalle de tarjeta" onClick={onClose}><X size={18} aria-hidden="true" /></button>
       </header>
+      {storageError && <p className="storage-warning" role="alert">No pudimos guardar en este navegador. Los cambios se mantendrán solo mientras la página siga abierta.</p>}
       <form onSubmit={event => {
         event.preventDefault()
         if (!title.trim()) return
@@ -72,6 +77,7 @@ export function CardDetails({ card, column, labels, onClose, onSave, onToggleLab
           <button className="primary-button" disabled={!title.trim() || !changed}>Guardar cambios</button>
         </div>
       </form>
+      <CardDiscussion card={card} actor={actor} onComment={onComment} />
       {labelAnchor && <LabelPicker card={card} labels={labels} anchor={labelAnchor}
         onClose={() => setLabelAnchor(null)} onToggle={onToggleLabel}
         onDelete={onDeleteLabel} onCreate={onCreateLabel} />}

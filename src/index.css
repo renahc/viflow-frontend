@@ -264,3 +264,25 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 600px) { .card-details { padding: 20px; } }
 
 .card-details-label-hint { display: block; margin-top: 8px; font-size: 10px; color: #81718e; }
+
+.card-discussion { border-top: 1px solid #dfd9e5; margin-top: 26px; padding-top: 22px; }
+.card-discussion > h3 { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+.comment-composer > label { display: block; font-size: 12px; margin-bottom: 8px; }
+.card-details .comment-composer textarea { min-height: 80px; }
+.comment-composer-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+.comment-composer-footer > span { color: #81718e; font-size: 10px; overflow-wrap: anywhere; }
+.activity-filters { display: flex; gap: 5px; border-bottom: 1px solid #e5dfeb; padding-bottom: 10px; margin-top: 22px; }
+.activity-filters button { border: 0; background: transparent; color: #746880; border-radius: 5px; padding: 6px 9px; font-size: 11px; }
+.activity-filters button[aria-pressed="true"] { background: #eae2f3; color: #563776; }
+.activity-empty { font-size: 12px; line-height: 1.7; color: #81718e; padding: 16px 0; }
+.card-timeline { list-style: none; padding: 0; margin-top: 16px; display: flex; flex-direction: column; gap: 18px; }
+.card-timeline > li { display: flex; align-items: flex-start; gap: 10px; }
+.timeline-icon { display: grid; place-items: center; border-radius: 50%; width: 27px; height: 27px; flex-shrink: 0; background: #eee8f4; color: #87719e; }
+.timeline-content { min-width: 0; flex: 1; }
+.timeline-meta { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.timeline-meta strong { font-size: 11px; font-weight: 600; overflow-wrap: anywhere; }
+.timeline-meta time { color: #81718e; font-size: 10px; }
+.card-details .timeline-content > p { margin: 5px 0 0; font-size: 12px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+.timeline-comment .timeline-content > p { background: white; border: 1px solid #e5dfeb; border-radius: 7px; padding: 10px; }
+.card-comment-count { display: inline-flex; align-items: center; gap: 4px; border: 0; border-radius: 4px; background: transparent; color: #81718e; font-size: 10px; padding: 4px; }
+.card-comment-count:hover { background: #eae2f3; }

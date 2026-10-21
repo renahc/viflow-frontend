@@ -1,3 +1,5 @@
+import { isCardActivity, isCardComment } from "./cardActivity";
+import type { CardActivity, CardComment } from "./cardActivity";
 import { isLabel, isLabelColor } from "./labels";
 import type { Label, LabelColor } from "./labels";
 
@@ -29,6 +31,8 @@ export type Card = {
   description: string;
   status: Status;
   labelIds?: string[];
+  comments?: CardComment[];
+  activity?: CardActivity[];
 };
 
 export const storageKey = "viflow.board.v2";
@@ -71,7 +75,9 @@ function isCard(value: unknown, columns: Column[]): value is Card {
     typeof card.title === "string" &&
     !!card.title.trim() &&
     typeof card.description === "string" &&
-    columns.some((column) => column.id === card.status)
+    columns.some((column) => column.id === card.status) &&
+    (card.comments === undefined || (Array.isArray(card.comments) && card.comments.every(isCardComment) && hasUniqueIds(card.comments))) &&
+    (card.activity === undefined || (Array.isArray(card.activity) && card.activity.every(isCardActivity) && hasUniqueIds(card.activity)))
   );
 }
 
