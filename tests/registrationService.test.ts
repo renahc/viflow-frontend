@@ -11,8 +11,8 @@ function fixture(result: unknown) {
 }
 test('registers with the supplied password without treating an unverified user as a session', async () => {
   const { service, calls } = fixture({ data: { session: null, user: { id: 'id', identities: [] } }, error: null })
-  assert.deepEqual(await service.register(' person@domain.com ', ' ExamplePassword9! '), { confirmed: false })
-  assert.deepEqual(calls, [{ method: 'signUp', payload: { email: 'person@domain.com', password: ' ExamplePassword9! ' } }])
+  assert.deepEqual(await service.register(' person@domain.com ', ' ExamplePassword9! ', ' Rena '), { confirmed: false })
+  assert.deepEqual(calls, [{ method: 'signUp', payload: { email: 'person@domain.com', password: ' ExamplePassword9! ', options: { data: { display_name: 'Rena' } } } }])
 })
 test('verifies the actual supplied code and requires a confirmed user plus session', async () => {
   const { service, calls } = fixture({ data: { session: { access_token: 'example' }, user: { email_confirmed_at: '2026-10-21T12:00:00Z' } }, error: null })
@@ -31,7 +31,7 @@ test('propagates service errors; no hard-coded demonstration code can bypass an 
   const error = { code: 'otp_expired', message: 'Provider detail that should not be displayed' }
   const { service } = fixture({ data: { session: null, user: null }, error })
   await assert.rejects(service.verify('person@domain.com', '123456'), value => value === error)
-  await assert.rejects(service.register('person@domain.com', 'ExamplePassword9!'), value => value === error)
+  await assert.rejects(service.register('person@domain.com', 'ExamplePassword9!', 'Rena'), value => value === error)
   await assert.rejects(service.resend('person@domain.com'), value => value === error)
   assert.match(registrationError(error), /no es válido o venció/)
   assert.match(registrationError({ status: 429 }), /límite/)
@@ -43,4 +43,10 @@ test('resumes only email and bounded resend time; credentials are never restored
   assert.deepEqual(parsePendingRegistration(JSON.stringify({ email: 'person@domain.com', resendAt: now + 120000, password: 'ignored', code: 'ignored' }), now), { email: 'person@domain.com', resendAt: now + 60000 })
   for (const value of [null, '{', '{}', '{"email":"invalid"}']) assert.equal(parsePendingRegistration(value, now), null)
   assert.deepEqual(parsePendingRegistration('{"email":"person@domain.com","resendAt":0}', now), { email: 'person@domain.com', resendAt: 0 })
+})
+
+test('rejects invalid display names before submitting signup', async () => {
+  const { service, calls } = fixture({})
+  for (const name of ['   ', 'x'.repeat(61)]) await assert.rejects(service.register('person@domain.com', 'ExamplePassword9!', name))
+  assert.deepEqual(calls, [])
 })

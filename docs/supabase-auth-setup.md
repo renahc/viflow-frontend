@@ -86,3 +86,18 @@ actualizar: un cambio de cuenta invalida la autorización de recuperación.
 
 Las pruebas de servicio simulan el SDK y no cambian contraseñas reales. La prueba
 completa queda a cargo del usuario después de configurar la plantilla.
+
+## Nombre de la cuenta
+
+El registro solicita un nombre para mostrar de 1 a 60 caracteres, sin exigir unicidad.
+Se guarda en `user_metadata.display_name` de Supabase Auth; no requiere tablas ni migraciones.
+El perfil lateral usa el nombre y la inicial de la cuenta, con el correo como texto secundario.
+Las cuentas anteriores pueden usar «Completar perfil» en el menú de tres puntos para agregar su nombre.
+«Configuración» permite editarlo después y refleja los errores sin cerrar el formulario.
+Al cerrar sesión vuelve el perfil local, conservando su nombre y foto originales.
+La foto de la cuenta y la identidad de los autores de comentarios quedan para otra entrega.
+Los metadatos de usuario son datos de presentación; nunca deben utilizarse para permisos.
+
+Validación manual: registrar con nombre, verificar correo, comprobar nombre en la barra lateral,
+editarlo, recargar, cerrar sesión y comprobar que reaparece el perfil local. Para una cuenta
+anterior, comprobar también «Completar perfil». El cambio real de nombre requiere una sesión conectada.

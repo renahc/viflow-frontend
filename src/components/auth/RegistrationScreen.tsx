@@ -6,6 +6,7 @@ import { useRegistration } from '../../hooks/useRegistration'
 export function RegistrationScreen() {
   const registration = useRegistration()
   const { email, setEmail, verifying, confirmed, busy, loading, error, notice, cooldown, configurationError, sessionError } = registration
+  const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [code, setCode] = useState('')
@@ -54,11 +55,14 @@ export function RegistrationScreen() {
           <p className="auth-intro">Regístrate con tu correo y confirma tu dirección con un código.</p>
           <form className="auth-form" aria-busy={Boolean(busy)} onSubmit={event => {
             event.preventDefault()
-            if (blocked) return
+            if (blocked || !displayName.trim()) return
             const submitted = password
             setPassword(''); setShowPassword(false)
-            void registration.register(submitted)
+            void registration.register(submitted, displayName)
           }}>
+            <label htmlFor="registration-name">Nombre para mostrar</label>
+            <input id="registration-name" autoComplete="nickname" required maxLength={60} placeholder="¿Cómo te llamas?" disabled={blocked} value={displayName} onChange={event => setDisplayName(event.target.value)} />
+            <small>No tiene que ser único. Puedes cambiarlo después.</small>
             <label htmlFor="registration-email">Correo electrónico</label>
             <input id="registration-email" type="email" inputMode="email" autoComplete="email" required maxLength={254} placeholder="tu@correo.com" disabled={blocked} value={email} onChange={event => { setEmail(event.target.value); registration.clearError() }} />
             <label htmlFor="registration-password">Contraseña</label>

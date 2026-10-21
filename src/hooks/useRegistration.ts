@@ -74,10 +74,10 @@ export function useRegistration() {
     ...auth, email, setEmail, verifying, busy, error, notice, cooldown, confirmed,
     clearError: () => setError(''),
     changeEmail() { if (busy) return; setVerifying(false); setError(''); setNotice(''); remember(null) },
-    register(password: string) {
+    register(password: string, displayName: string) {
       return run('register', async () => {
         const version = operationRef.current.version
-        const result = await service!.register(email, password)
+        const result = await service!.register(email, password, displayName)
         if (version !== operationRef.current.version) return
         if (!result.confirmed) { setEmail(email.trim()); setVerifying(true); nextSend() }
       })

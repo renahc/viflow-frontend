@@ -1,3 +1,4 @@
+import { accountDisplayName, createAccountProfileService } from '../services/accountProfileService';
 import { useAuth } from '../hooks/useAuth';
 import { registrationError } from '../services/registrationService';
 import { Ellipsis, LogOut, Settings } from "lucide-react";
@@ -28,17 +29,21 @@ function Avatar({ profile }: { profile: Profile }) {
     : <span className="avatar" aria-label={`Perfil de ${profile.name}`}>{profile.name.trim().charAt(0).toUpperCase()}</span>;
 }
 
-function ProfileSettings({ profile, onClose, onSave }: { profile: Profile; onClose: () => void; onSave: (profile: Profile) => void }) {
+function ProfileSettings({ profile, account, onClose, onSave }: { profile: Profile; account: boolean; onClose: () => void; onSave: (profile: Profile) => Promise<void> }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [draft, setDraft] = useState(profile);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
+  const mounted = useRef(false);
   const [reading, setReading] = useState(false);
   const readVersion = useRef(0);
 
   useEffect(() => {
+    mounted.current = true;
     const dialog = dialogRef.current;
     dialog?.showModal();
-    return () => { dialog?.close(); readVersion.current += 1; };
+    return () => { mounted.current = false; dialog?.close(); readVersion.current += 1; };
   }, []);
 
   async function readPhoto(file: File | undefined) {
@@ -69,28 +74,35 @@ function ProfileSettings({ profile, onClose, onSave }: { profile: Profile; onClo
   }
 
   return <dialog ref={dialogRef} className="confirm-modal profile-settings" aria-labelledby="profile-settings-title"
-    onCancel={event => { event.preventDefault(); onClose(); }}>
+    onCancel={event => { event.preventDefault(); if (!savingRef.current) onClose(); }}>
     <h2 id="profile-settings-title">Configuración del perfil</h2>
-    <form onSubmit={event => {
+    <form aria-busy={saving} onSubmit={async event => {
       event.preventDefault();
-      if (!draft.name.trim() || reading) return;
-      const nextProfile = { ...draft, name: draft.name.trim() };
+      if (!draft.name.trim() || reading || savingRef.current) return;
+      savingRef.current = true; setSaving(true); setError("");
       try {
-        localStorage.setItem(storageKey, JSON.stringify(nextProfile));
-        onSave(nextProfile);
-      } catch { setError("No pudimos guardar tu perfil. Revisa el espacio disponible del navegador e inténtalo de nuevo."); }
+        await onSave({ ...draft, name: draft.name.trim() });
+        if (mounted.current) onClose();
+      } catch (error) {
+        if (mounted.current) setError(account ? registrationError(error) : "No pudimos guardar tu perfil. Revisa el espacio disponible del navegador e inténtalo de nuevo.");
+      } finally {
+        savingRef.current = false;
+        if (mounted.current) setSaving(false);
+      }
     }}>
-      <div className="profile-photo-editor"><Avatar profile={draft} /><div>
+      {!account && <><div className="profile-photo-editor"><Avatar profile={draft} /><div>
         <label className="photo-label" htmlFor="profile-photo">Foto de perfil</label>
         <input id="profile-photo" type="file" accept="image/png,image/jpeg,image/webp" onChange={event => { void readPhoto(event.target.files?.[0]); event.target.value = ""; }} />
         <small>PNG, JPG o WebP · Hasta 1 MB</small>
       </div></div>
       {draft.photo && <button className="quiet-button" type="button" onClick={() => { readVersion.current += 1; setReading(false); setDraft(current => ({ ...current, photo: "" })); }}>Quitar foto</button>}
-      <label className="profile-name-label" htmlFor="profile-name">Nombre de usuario</label>
-      <input className="profile-name-input" id="profile-name" autoFocus required maxLength={60} value={draft.name} onChange={event => setDraft(current => ({ ...current, name: event.target.value }))} />
+      </>}
+      {account && <p>Este nombre se mostrará en tu cuenta. No tiene que ser único.</p>}
+      <label className="profile-name-label" htmlFor="profile-name">Nombre para mostrar</label>
+      <input className="profile-name-input" id="profile-name" disabled={saving} autoFocus required maxLength={60} value={draft.name} onChange={event => setDraft(current => ({ ...current, name: event.target.value }))} />
       {reading && <p role="status">Cargando imagen…</p>}
       {error && <p className="profile-error" role="alert">{error}</p>}
-      <div className="confirm-modal-actions"><button className="modal-cancel" type="button" onClick={onClose}>Cancelar</button><button className="primary-button" disabled={!draft.name.trim() || reading}>Guardar cambios</button></div>
+      <div className="confirm-modal-actions"><button className="modal-cancel" type="button" disabled={saving} onClick={onClose}>Cancelar</button><button className="primary-button" disabled={!draft.name.trim() || reading || saving}>{saving ? 'Guardando…' : 'Guardar cambios'}</button></div>
     </form>
   </dialog>;
 }
@@ -99,7 +111,10 @@ export function UserProfile() {
   const { client, session } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
-  const [profile, setProfile] = useState(loadProfile);
+  const [localProfile, setProfile] = useState(loadProfile);
+  const connected = Boolean(session?.user.email_confirmed_at);
+  const name = accountDisplayName(session?.user.user_metadata);
+  const profile = connected ? { name: name || 'Tu cuenta', photo: '' } : localProfile;
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -124,10 +139,10 @@ export function UserProfile() {
       if (event.key === "Escape") { setOpen(false); triggerRef.current?.focus(); }
     }} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false); }}>
       <Avatar profile={profile} />
-      <div className="profile-identity"><strong title={profile.name}>{profile.name}</strong><small>Perfil local</small></div>
+      <div className="profile-identity"><strong title={profile.name}>{profile.name}</strong><small title={connected ? session?.user.email : undefined}>{connected ? session?.user.email : 'Perfil local'}</small></div>
       <button ref={triggerRef} className="profile-menu-trigger" type="button" aria-label="Opciones de usuario" aria-expanded={open} aria-controls="profile-options" onClick={() => setOpen(current => !current)}><Ellipsis size={18} aria-hidden="true" /></button>
       {open && <div className="profile-menu" id="profile-options" aria-label="Opciones de usuario">
-        <button type="button" onClick={() => { setOpen(false); setSettings(true); }}><Settings size={15} aria-hidden="true" />Configuración</button>
+        <button type="button" onClick={() => { setOpen(false); setSettings(true); }}><Settings size={15} aria-hidden="true" />{connected && !name ? 'Completar perfil' : 'Configuración'}</button>
         <button type="button" disabled={!session || !client || loggingOut} aria-describedby={!session ? "logout-description" : undefined} onClick={async () => {
           if (!client || loggingOut) return;
           setLoggingOut(true); setLogoutError("");
@@ -142,6 +157,14 @@ export function UserProfile() {
         {logoutError && <small role="alert">{logoutError}</small>}
       </div>}
     </div>
-    {settings && <ProfileSettings profile={profile} onClose={closeSettings} onSave={next => { setProfile(next); closeSettings(); }} />}
+    {settings && <ProfileSettings key={connected ? session?.user.id : 'local'} profile={connected ? { ...profile, name } : profile} account={connected} onClose={closeSettings} onSave={async next => {
+      if (connected) {
+        if (!client) throw new Error('session_missing');
+        await createAccountProfileService(client.auth).saveName(next.name);
+      } else {
+        localStorage.setItem(storageKey, JSON.stringify(next));
+        setProfile(next);
+      }
+    }} />}
   </>;
 }

@@ -1,10 +1,11 @@
+import { validateDisplayName } from './accountProfileService.ts'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 type AuthApi = Pick<SupabaseClient['auth'], 'signUp' | 'verifyOtp' | 'resend'>
 export function createRegistrationService(auth: AuthApi) {
   return {
-    async register(email: string, password: string) {
-      const { data, error } = await auth.signUp({ email: email.trim(), password })
+    async register(email: string, password: string, displayName: string) {
+      const { data, error } = await auth.signUp({ email: email.trim(), password, options: { data: { display_name: validateDisplayName(displayName) } } })
       if (error) throw error
       // Supabase may deliberately conceal an existing account. Do not infer
       // successful verification from a user object or an empty identities array.
