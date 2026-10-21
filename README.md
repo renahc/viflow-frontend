@@ -146,7 +146,7 @@ una versión no admitida y comprobar que el espacio actual no cambia.
 
 La ruta `/auth/preview`, accesible desde **Crear cuenta · Vista previa** en el menú
 lateral, presenta el diseño de registro y verificación de correo. Es una
-simulación explícita: no llama a un proveedor, no crea usuarios, no envía correos
+simulación explícita: no ejecuta solicitudes de registro, no crea usuarios, no envía correos
 ni guarda credenciales. Los campos se mantienen solo en memoria y la contraseña
 se limpia al cambiar de pantalla.
 
@@ -172,12 +172,36 @@ variables en el entorno correspondiente antes de compilar.
 
 `src/services/supabaseConfig.ts` valida la configuración sin mostrar sus valores.
 `src/services/supabaseClient.ts` ofrece `getSupabaseClient()`, una única instancia
-creada bajo demanda. El modo invitado y la vista previa no la invocan: siguen
-funcionando sin configurar Supabase. No se han conectado registro, códigos ni
-consultas a datos remotos. La sesión futura tendrá persistencia y renovación del
+creada bajo demanda. El modo invitado sigue funcionando sin configurar Supabase. Con configuración
+válida, `AuthProvider` carga el SDK por separado y consulta la sesión del usuario.
+Las operaciones de registro se describen en la sección siguiente; los tableros
+todavía no se consultan ni guardan en Supabase. La sesión futura tendrá persistencia y renovación del
 SDK, con verificación explícita de códigos; no se procesan tokens desde la URL.
 
 `.env.local` queda excluido de Git. Las variables `VITE_` se incluyen en el código
 que recibe el navegador: usar solo la clave publishable, nunca claves secretas o
 `service_role`. Las futuras tablas necesitarán permisos propios; la clave pública
 no sustituye los controles de acceso.
+
+## Registro y verificación reales
+
+`/auth/register` usa `signUp`, `verifyOtp` con tipo `email` y `resend` con tipo
+`signup`. El acceso **Crear cuenta** del lateral abre este flujo. La demostración
+sigue en `/auth/preview`, separada del flujo real: `123456` no tiene ningún trato
+especial en el formulario conectado.
+
+La confirmación exige una sesión y un correo verificado devueltos por Supabase.
+Los errores se traducen sin mostrar respuestas internas. El reenvío respeta una
+espera visual de 60 segundos; los límites reales son responsabilidad de Supabase.
+Una respuesta de registro puede ocultar que una cuenta ya existe; la pantalla
+no afirma que el correo haya sido entregado por recibir una respuesta exitosa.
+
+Solo correo pendiente y momento del próximo reenvío se guardan en sessionStorage
+para retomar la verificación al recargar. Contraseña y código no se persisten. El
+SDK gestiona la sesión autenticada por separado; el proveedor escucha cambios y
+el acceso lateral refleja **Tu cuenta**. Se puede cerrar sesión desde esa página
+o el menú del perfil, sin borrar tableros ni el perfil local.
+
+La cuenta todavía no incluye login por contraseña, recuperación ni sincronización
+de tableros. Tras salir se puede continuar como invitado; el inicio de sesión
+será una entrega posterior. Véase [configuración y prueba de correo](docs/supabase-auth-setup.md).

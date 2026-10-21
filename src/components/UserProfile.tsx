@@ -1,3 +1,5 @@
+import { useAuth } from '../hooks/useAuth';
+import { registrationError } from '../services/registrationService';
 import { Ellipsis, LogOut, Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -94,6 +96,9 @@ function ProfileSettings({ profile, onClose, onSave }: { profile: Profile; onClo
 }
 
 export function UserProfile() {
+  const { client, session } = useAuth();
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
   const [profile, setProfile] = useState(loadProfile);
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState(false);
@@ -123,8 +128,18 @@ export function UserProfile() {
       <button ref={triggerRef} className="profile-menu-trigger" type="button" aria-label="Opciones de usuario" aria-expanded={open} aria-controls="profile-options" onClick={() => setOpen(current => !current)}><Ellipsis size={18} aria-hidden="true" /></button>
       {open && <div className="profile-menu" id="profile-options" aria-label="Opciones de usuario">
         <button type="button" onClick={() => { setOpen(false); setSettings(true); }}><Settings size={15} aria-hidden="true" />Configuración</button>
-        <button type="button" disabled aria-describedby="logout-description"><LogOut size={15} aria-hidden="true" />Cerrar sesión</button>
-        <small id="logout-description">Disponible cuando agreguemos el inicio de sesión.</small>
+        <button type="button" disabled={!session || !client || loggingOut} aria-describedby={!session ? "logout-description" : undefined} onClick={async () => {
+          if (!client || loggingOut) return;
+          setLoggingOut(true); setLogoutError("");
+          try {
+            const { error } = await client.auth.signOut({ scope: 'local' });
+            if (error) throw error;
+            setOpen(false);
+          } catch (error) { setLogoutError(registrationError(error)); }
+          finally { setLoggingOut(false); }
+        }}><LogOut size={15} aria-hidden="true" />{loggingOut ? 'Cerrando sesión…' : 'Cerrar sesión'}</button>
+        {!session && <small id="logout-description">Estás usando el perfil local, sin una sesión conectada.</small>}
+        {logoutError && <small role="alert">{logoutError}</small>}
       </div>}
     </div>
     {settings && <ProfileSettings profile={profile} onClose={closeSettings} onSave={next => { setProfile(next); closeSettings(); }} />}
