@@ -102,21 +102,23 @@ export default function App() {
                     setOver(null);
                   }}
                 >
-                  <div className="column-heading">
-                    <h2 id={`heading-${column.id}`}>
-                      <span className={`status-dot ${column.id}`} />
-                      {column.title}
-                      <span className="column-count">{columnCards.length}</span>
-                    </h2>
-                    <button
-                      className="icon-button"
-                      aria-label={`Agregar tarjeta a ${column.title}`}
-                      onClick={() => setComposer(column.id)}
-                    >
-                      ＋
-                    </button>
+                  <div className="column-header">
+                    <div className="column-heading">
+                      <h2 id={`heading-${column.id}`}>
+                        <span className={`status-dot ${column.id}`} />
+                        {column.title}
+                        <span className="column-count">{columnCards.length}</span>
+                      </h2>
+                      <button
+                        className="icon-button"
+                        aria-label={`Agregar tarjeta a ${column.title}`}
+                        onClick={() => setComposer(column.id)}
+                      >
+                        ＋
+                      </button>
+                    </div>
+                    {column.description && <p className="column-description">{column.description}</p>}
                   </div>
-                  {column.description && <p className="column-description">{column.description}</p>}
                   <div className="card-list">
                     {columnCards.map((card) => (
                       <article
