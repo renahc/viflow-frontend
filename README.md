@@ -18,12 +18,13 @@ pnpm lint
 
 ## Primera versión
 
-- Tres estados: Por hacer, En progreso y Hecho.
+- Tres columnas iniciales: Por hacer, En progreso y Hecho.
+- Creación de columnas personalizadas al extremo derecho del tablero.
 - Creación de tarjetas con título y descripción opcional.
 - Arrastre entre columnas en escritorio. Selector de estado para teclado y pantallas táctiles.
-- Persistencia en `localStorage` bajo la clave `viflow.board.v1`.
+- Persistencia en `localStorage` bajo la clave `viflow.board.v2` (columnas y tarjetas), con lectura del formato anterior `viflow.board.v1`.
 - Cuatro tarjetas de ejemplo cuando todavía no hay un tablero válido guardado.
-- En pantallas pequeñas, las columnas se recorren horizontalmente.
+- Las columnas tienen ancho fijo y se recorren con scroll horizontal en cualquier pantalla.
 
 Los datos pertenecen a este navegador y origen; todavía no hay backend, cuentas ni sincronización entre dispositivos. Si el almacenamiento falla, se muestra una advertencia y se puede seguir trabajando en memoria. Mover una tarjeta conserva su posición relativa en la lista original; esta versión no incluye reordenamiento dentro de una columna.
 
@@ -41,4 +42,5 @@ Los datos pertenecen a este navegador y origen; todavía no hay backend, cuentas
 2. Arrastrar tarjetas entre los tres estados y comprobar sus contadores.
 3. Cambiar el estado con el selector usando teclado o móvil.
 4. Recargar y comprobar que las tarjetas y sus estados se conservan.
-5. Revisar el desplazamiento horizontal de columnas en una pantalla estrecha.
+5. Crear una columna al extremo derecho y comprobar el scroll horizontal.
+6. Crear y mover tarjetas a la columna nueva; recargar y comprobar que se conserva todo.
