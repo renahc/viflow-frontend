@@ -1,12 +1,12 @@
 import { sortColumnCards } from '../../lib/columnSort'
 import type { ColumnSort } from '../../lib/columnSort'
-import { ChevronDown, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import type { Card, Column, Status } from '../../lib/board'
 import type { Label } from '../../lib/labels'
 import { labelColors } from '../../lib/labels'
 import type { CardDrag } from '../../hooks/useCardDrag'
 import { CardComposer } from '../CardComposer'
-import { DeleteButton } from '../DeleteButton'
+import { ColumnOptions } from './ColumnOptions'
 import { TaskCard } from './TaskCard'
 
 type Props = {
@@ -54,15 +54,10 @@ export function KanbanColumn({ column, cards: manualCards, onSort, columns, labe
             <button className="icon-button" aria-label={`Agregar tarjeta a ${column.title}`} onClick={onOpenComposer}>
               <Plus size={18} aria-hidden="true" />
             </button>
-            <DeleteButton label={`Eliminar columna ${column.title}`} onClick={() => onDeleteColumn(column)} />
+            <ColumnOptions column={column} onSort={onSort} onDelete={() => onDeleteColumn(column)} />
           </div>
         </div>
         {column.description && <p className="column-description">{column.description}</p>}
-        <label className="column-sort">Ordenar por
-          <span><select aria-label={`Ordenar tarjetas de ${column.title}`} value={column.sort ?? 'manual'} onChange={event => onSort(event.target.value as ColumnSort)}>
-            <option value="manual">Manual</option><option value="priority">Prioridad</option>
-          </select><ChevronDown size={12} aria-hidden="true" /></span>
-        </label>
         {sorted && <p className="column-sort-hint">Orden automático por prioridad</p>}
       </div>
       <div className={`card-list ${atEnd ? 'drop-at-end' : ''}`}>
