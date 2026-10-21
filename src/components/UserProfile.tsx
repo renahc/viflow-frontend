@@ -1,4 +1,6 @@
-import { accountDisplayName, createAccountProfileService } from '../services/accountProfileService';
+import { useAccountAvatar } from '../hooks/useAccountAvatar';
+import { accountAvatarPath, avatarSaveError, createAccountAvatarService, validateAvatar } from '../services/accountAvatarService';
+import { accountDisplayName } from '../services/accountProfileService';
 import { useAuth } from '../hooks/useAuth';
 import { registrationError } from '../services/registrationService';
 import { Ellipsis, LogOut, Settings } from "lucide-react";
@@ -24,14 +26,18 @@ function loadProfile(): Profile {
 }
 
 function Avatar({ profile }: { profile: Profile }) {
-  return profile.photo
-    ? <img className="avatar profile-photo" src={profile.photo} alt={`Foto de ${profile.name}`} />
-    : <span className="avatar" aria-label={`Perfil de ${profile.name}`}>{profile.name.trim().charAt(0).toUpperCase()}</span>;
+  const [failedPhoto, setFailedPhoto] = useState("");
+  return profile.photo && profile.photo !== failedPhoto
+    ? <img className="avatar profile-photo" src={profile.photo} onError={() => setFailedPhoto(profile.photo)} alt={`Foto de ${profile.name}`} />
+    : <span className="avatar" aria-label={`Perfil de ${profile.name}`}>{profile.name.trim().charAt(0).toUpperCase() || 'T'}</span>;
 }
 
-function ProfileSettings({ profile, account, onClose, onSave }: { profile: Profile; account: boolean; onClose: () => void; onSave: (profile: Profile) => Promise<void> }) {
+function ProfileSettings({ profile, account, hasPhoto, onClose, onSave }: { profile: Profile; account: boolean; hasPhoto: boolean; onClose: () => void; onSave: (profile: Profile, photo: File | null | undefined) => Promise<{ cleanupPending?: boolean } | void> }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [draft, setDraft] = useState(profile);
+  const [photoChange, setPhotoChange] = useState<File | null | undefined>(undefined);
+  const [notice, setNotice] = useState('');
+  const preview = account && photoChange === undefined ? { ...draft, photo: profile.photo } : draft;
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const savingRef = useRef(false);
@@ -47,11 +53,9 @@ function ProfileSettings({ profile, account, onClose, onSave }: { profile: Profi
   }, []);
 
   async function readPhoto(file: File | undefined) {
-    if (!file) return;
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 1024 * 1024) {
-      setError("Elige una imagen PNG, JPG o WebP de hasta 1 MB.");
-      return;
-    }
+    if (!file || savingRef.current) return;
+    try { validateAvatar(file); }
+    catch { setError("Elige una imagen PNG, JPG o WebP de hasta 1 MB."); return; }
     const version = ++readVersion.current;
     setReading(true);
     setError("");
@@ -65,7 +69,7 @@ function ProfileSettings({ profile, account, onClose, onSave }: { profile: Profi
       const image = new Image();
       image.src = photo;
       await image.decode();
-      if (version === readVersion.current) setDraft(current => ({ ...current, photo }));
+      if (version === readVersion.current) { setDraft(current => ({ ...current, photo })); setPhotoChange(file); }
     } catch {
       if (version === readVersion.current) setError("No pudimos abrir esta imagen. Prueba con otra.");
     } finally {
@@ -81,26 +85,31 @@ function ProfileSettings({ profile, account, onClose, onSave }: { profile: Profi
       if (!draft.name.trim() || reading || savingRef.current) return;
       savingRef.current = true; setSaving(true); setError("");
       try {
-        await onSave({ ...draft, name: draft.name.trim() });
-        if (mounted.current) onClose();
+        const result = await onSave({ ...draft, name: draft.name.trim() }, photoChange);
+        if (mounted.current) {
+          if (result?.cleanupPending) {
+            setPhotoChange(undefined);
+            setNotice('El perfil se guardó, pero no pudimos borrar la foto anterior del almacenamiento. Puedes cerrar esta ventana.');
+          } else onClose();
+        }
       } catch (error) {
-        if (mounted.current) setError(account ? registrationError(error) : "No pudimos guardar tu perfil. Revisa el espacio disponible del navegador e inténtalo de nuevo.");
+        if (mounted.current) setError(account ? avatarSaveError(error) : "No pudimos guardar tu perfil. Revisa el espacio disponible del navegador e inténtalo de nuevo.");
       } finally {
         savingRef.current = false;
         if (mounted.current) setSaving(false);
       }
     }}>
-      {!account && <><div className="profile-photo-editor"><Avatar profile={draft} /><div>
+      <div className="profile-photo-editor"><Avatar profile={preview} /><div>
         <label className="photo-label" htmlFor="profile-photo">Foto de perfil</label>
-        <input id="profile-photo" type="file" accept="image/png,image/jpeg,image/webp" onChange={event => { void readPhoto(event.target.files?.[0]); event.target.value = ""; }} />
+        <input id="profile-photo" disabled={saving} type="file" accept="image/png,image/jpeg,image/webp" onChange={event => { void readPhoto(event.target.files?.[0]); event.target.value = ""; }} />
         <small>PNG, JPG o WebP · Hasta 1 MB</small>
       </div></div>
-      {draft.photo && <button className="quiet-button" type="button" onClick={() => { readVersion.current += 1; setReading(false); setDraft(current => ({ ...current, photo: "" })); }}>Quitar foto</button>}
-      </>}
+      {(preview.photo || (account && hasPhoto && photoChange !== null)) && <button className="quiet-button" type="button" disabled={saving} onClick={() => { readVersion.current += 1; setReading(false); setDraft(current => ({ ...current, photo: "" })); setPhotoChange(null); setError(""); }}>Quitar foto</button>}
       {account && <p>Este nombre se mostrará en tu cuenta. No tiene que ser único.</p>}
       <label className="profile-name-label" htmlFor="profile-name">Nombre para mostrar</label>
       <input className="profile-name-input" id="profile-name" disabled={saving} autoFocus required maxLength={60} value={draft.name} onChange={event => setDraft(current => ({ ...current, name: event.target.value }))} />
       {reading && <p role="status">Cargando imagen…</p>}
+      {notice && <p role="status">{notice}</p>}
       {error && <p className="profile-error" role="alert">{error}</p>}
       <div className="confirm-modal-actions"><button className="modal-cancel" type="button" disabled={saving} onClick={onClose}>Cancelar</button><button className="primary-button" disabled={!draft.name.trim() || reading || saving}>{saving ? 'Guardando…' : 'Guardar cambios'}</button></div>
     </form>
@@ -114,7 +123,9 @@ export function UserProfile() {
   const [localProfile, setProfile] = useState(loadProfile);
   const connected = Boolean(session?.user.email_confirmed_at);
   const name = accountDisplayName(session?.user.user_metadata);
-  const profile = connected ? { name: name || 'Tu cuenta', photo: '' } : localProfile;
+  const accountPhoto = useAccountAvatar();
+  const hasPhoto = Boolean(session && accountAvatarPath(session.user.id, session.user.user_metadata));
+  const profile = connected ? { name: name || 'Tu cuenta', photo: accountPhoto } : localProfile;
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -157,10 +168,10 @@ export function UserProfile() {
         {logoutError && <small role="alert">{logoutError}</small>}
       </div>}
     </div>
-    {settings && <ProfileSettings key={connected ? session?.user.id : 'local'} profile={connected ? { ...profile, name } : profile} account={connected} onClose={closeSettings} onSave={async next => {
+    {settings && <ProfileSettings key={connected ? session?.user.id : 'local'} profile={connected ? { ...profile, name } : profile} account={connected} hasPhoto={hasPhoto} onClose={closeSettings} onSave={async (next, photo) => {
       if (connected) {
         if (!client) throw new Error('session_missing');
-        await createAccountProfileService(client.auth).saveName(next.name);
+        return await createAccountAvatarService(client).save(session!.user.id, next.name, photo);
       } else {
         localStorage.setItem(storageKey, JSON.stringify(next));
         setProfile(next);

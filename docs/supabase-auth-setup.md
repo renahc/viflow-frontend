@@ -95,9 +95,40 @@ El perfil lateral usa el nombre y la inicial de la cuenta, con el correo como te
 Las cuentas anteriores pueden usar «Completar perfil» en el menú de tres puntos para agregar su nombre.
 «Configuración» permite editarlo después y refleja los errores sin cerrar el formulario.
 Al cerrar sesión vuelve el perfil local, conservando su nombre y foto originales.
-La foto de la cuenta queda para otra entrega. Los comentarios y registros de actividad nuevos usan el nombre de la cuenta verificada; sin sesión usan el perfil local. Las cuentas sin nombre aparecen como «Tu cuenta», sin exponer el correo ni atribuir acciones al perfil local. Los nombres históricos se conservan aunque cambie el perfil.
+La foto de la cuenta se guarda en el contenedor privado descrito abajo. Los comentarios y registros de actividad nuevos usan el nombre de la cuenta verificada; sin sesión usan el perfil local. Las cuentas sin nombre aparecen como «Tu cuenta», sin exponer el correo ni atribuir acciones al perfil local. Los nombres históricos se conservan aunque cambie el perfil.
 Los metadatos de usuario son datos de presentación; nunca deben utilizarse para permisos.
 
 Validación manual: registrar con nombre, verificar correo, comprobar nombre en la barra lateral,
 editarlo, recargar, cerrar sesión y comprobar que reaparece el perfil local. Para una cuenta
 anterior, comprobar también «Completar perfil». El cambio real de nombre requiere una sesión conectada.
+
+## Foto de perfil de la cuenta
+
+Preparación única en el proyecto remoto:
+
+1. Abrir **SQL Editor → New query** en Supabase.
+2. Copiar y ejecutar `supabase/migrations/202610220001_account_avatars.sql`.
+3. Comprobar en **Storage** que existe `account-avatars` y figura como privado.
+
+El script crea el contenedor, limita los archivos a PNG/JPEG/WebP y 1 MB y crea
+permisos SELECT/INSERT/DELETE para la carpeta cuyo nombre coincide con `auth.uid()`.
+No concede UPDATE ni acceso anónimo. El script puede ejecutarse de nuevo.
+No se ha aplicado automáticamente: se necesita acceso administrativo al proyecto.
+
+La aplicación permite elegir una foto y verla antes de guardar. Seleccionar una imagen
+o cancelar la ventana no sube archivos. Al guardar se usa una ruta nueva dentro de la
+carpeta del usuario, se actualiza `user_metadata.avatar_path` y después se elimina la
+foto anterior. Quitar foto limpia primero los metadatos y después borra el archivo.
+Si falla la actualización del perfil se intenta limpiar solo la nueva subida; si falla
+la limpieza posterior se informa al usuario sin presentar el guardado como fallido.
+Las imágenes se descargan con la sesión autenticada; el navegador utiliza una URL de
+objeto temporal que se libera al cambiar de foto o sesión. Nunca se guarda una URL
+pública, una URL firmada ni una imagen base64 en los metadatos de la cuenta.
+
+Prueba real después de ejecutar el SQL: iniciar sesión, abrir Configuración, subir una
+imagen, guardar, recargar y comprobar que persiste. Repetir en otro navegador con la
+misma cuenta; reemplazarla y quitarla. Cerrar sesión y comprobar que reaparece el perfil
+local intacto. Con dos cuentas, verificar que la segunda no puede leer, subir ni borrar
+archivos dentro de la carpeta de la primera; tampoco debe poder hacerlo sin sesión.
+Las pruebas automáticas de servicio cubren validación, rutas, orden de operaciones,
+errores y cambios de sesión, pero no reemplazan esta comprobación de RLS en Supabase.
