@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 import type { Card } from '../lib/board'
 import { labelColors } from '../lib/labels'
 import type { Label, LabelColor } from '../lib/labels'
+import { DeleteButton } from './DeleteButton'
 import { LabelBadge } from './CardLabels'
 
 type Props = {
@@ -12,12 +13,13 @@ type Props = {
   anchor: HTMLElement
   onClose: () => void
   onToggle: (labelId: string) => void
+  onDelete: (labelId: string) => void
   onCreate: (name: string, color: LabelColor) => string | undefined
 }
 
 const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase()
 
-export function LabelPicker({ card, labels, anchor, onClose, onToggle, onCreate }: Props) {
+export function LabelPicker({ card, labels, anchor, onClose, onToggle, onDelete, onCreate }: Props) {
   const popupRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
   const nameRef = useRef<HTMLInputElement>(null)
@@ -84,10 +86,13 @@ export function LabelPicker({ card, labels, anchor, onClose, onToggle, onCreate 
       </div><button type="button" className="label-popup-icon" aria-label="Cerrar etiquetas" onClick={closeAndFocus}><X size={15} aria-hidden="true" /></button></div>
       <div className="label-dropdown-list" aria-label="Etiquetas disponibles">
         {filtered.length === 0 ? <p className="label-empty">{labels.length === 0 ? 'Aún no hay etiquetas en este tablero.' : 'No encontramos etiquetas con ese nombre.'}</p>
-          : filtered.map(label => <label className="label-option" key={label.id}>
-            <input type="checkbox" checked={card.labelIds?.includes(label.id) ?? false} onChange={() => onToggle(label.id)} />
-            <LabelBadge label={label} />
-          </label>)}
+          : filtered.map(label => <div className="label-option-row" key={label.id}>
+            <label className="label-option">
+              <input type="checkbox" checked={card.labelIds?.includes(label.id) ?? false} onChange={() => onToggle(label.id)} />
+              <LabelBadge label={label} />
+            </label>
+            <DeleteButton label={`Eliminar etiqueta ${label.name} del tablero`} onClick={() => { onDelete(label.id); searchRef.current?.focus() }} />
+          </div>)}
       </div>
       <button type="button" className="label-create-link" onClick={() => { setName(query.trim().slice(0, 32)); setError(''); setView('create') }}><Plus size={15} aria-hidden="true" />Crear etiqueta</button>
     </> : <>

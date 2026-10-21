@@ -238,3 +238,8 @@ a { color: inherit; text-decoration: none; }
 .label-dropdown .label-swatch { width: 36px; height: 32px; }
 .label-save { margin-top: 18px; width: 100%; }
 .label-error { margin-top: 12px; color: #a4384b; font-size: 11px; line-height: 1.5; }
+
+.label-option-row { display: flex; align-items: center; gap: 6px; border-radius: 5px; }
+.label-option-row:hover { background: #eee8f4; }
+.label-option-row .label-option { flex: 1; min-width: 0; margin: 0; }
+.label-option-row .delete-button { flex-shrink: 0; margin-right: 3px; }

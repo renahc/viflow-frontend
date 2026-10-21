@@ -19,7 +19,7 @@ export default function App() {
 }
 
 function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard> }) {
-  const { boards, activeBoardId, openBoardIds, closeBoard, title: boardTitle, routeError, addBoard, renameBoard, deleteBoard, columns, cards, labels, addLabel, toggleLabel, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = workspace;
+  const { boards, activeBoardId, openBoardIds, closeBoard, title: boardTitle, routeError, addBoard, renameBoard, deleteBoard, columns, cards, labels, addLabel, toggleLabel, deleteLabel, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = workspace;
   const [labelAnchor, setLabelAnchor] = useState<HTMLElement | null>(null);
   const [labelCardId, setLabelCardId] = useState<string | null>(null);
   const labelCard = cards.find(card => card.id === labelCardId);
@@ -291,7 +291,7 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
         </div>}
       </main>
       {labelCard && labelAnchor && <LabelPicker key={labelCard.id} anchor={labelAnchor} card={labelCard} labels={labels} onClose={() => setLabelCardId(null)}
-        onToggle={(labelId) => toggleLabel(labelCard.id, labelId)} onCreate={(name, color) => addLabel(labelCard.id, name, color)} />}
+        onDelete={deleteLabel} onToggle={(labelId) => toggleLabel(labelCard.id, labelId)} onCreate={(name, color) => addLabel(labelCard.id, name, color)} />}
       {pendingDelete && (
         <ConfirmDeleteModal
           title={pendingDelete.kind === "column" ? "Eliminar columna" : "Eliminar tarjeta"}

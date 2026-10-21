@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { createCardLabel, toggleCardLabel, isLabel, labelColors } from '../src/lib/labels.ts'
+import { createCardLabel, deleteBoardLabel, toggleCardLabel, isLabel, labelColors } from '../src/lib/labels.ts'
 import { moveCardInBoard } from '../src/lib/moveCard.ts'
 import type { Board } from '../src/lib/board.ts'
 import type { LabelColor } from '../src/lib/labels.ts'
@@ -46,4 +46,20 @@ test('keeps labels when moving cards and serializing the board', () => {
   const restored = JSON.parse(JSON.stringify(moved)) as Board
   assert.deepEqual(restored.labels, created.labels)
   assert.deepEqual(restored.cards.find(card => card.id === 'a')?.labelIds, created.cards[0].labelIds)
+})
+
+
+test('deleting a label removes it from all cards and preserves other labels', () => {
+  const first = createCardLabel(board, 'a', 'Diseño', 'purple').board
+  const removedId = first.labels![0].id
+  const shared = toggleCardLabel(first, 'b', removedId)
+  const second = createCardLabel(shared, 'a', 'Urgente', 'rose').board
+  const keptId = second.labels![1].id
+  const deleted = deleteBoardLabel(second, removedId)
+  assert.deepEqual(deleted.labels?.map(label => label.id), [keptId])
+  assert.deepEqual(deleted.cards[0].labelIds, [keptId])
+  assert.deepEqual(deleted.cards[1].labelIds, [])
+  assert.equal(second.labels?.length, 2)
+  assert.equal(deleteBoardLabel(board, 'missing'), board)
+  assert.deepEqual(JSON.parse(JSON.stringify(deleted)), deleted)
 })

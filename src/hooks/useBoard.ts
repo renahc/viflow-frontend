@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useMatch, useNavigate } from 'react-router'
-import { createCardLabel, toggleCardLabel } from '../lib/labels'
+import { createCardLabel, deleteBoardLabel, toggleCardLabel } from '../lib/labels'
 import type { LabelColor } from '../lib/labels'
 import { moveCardInBoard } from '../lib/moveCard'
 import { boardPath } from '../lib/routes'
@@ -114,6 +114,11 @@ export function useBoard() {
     if (nextBoard !== board) saveBoard(nextBoard)
   }
 
+  function deleteLabel(labelId: string) {
+    const nextBoard = deleteBoardLabel(board, labelId)
+    if (nextBoard !== board) saveBoard(nextBoard)
+  }
+
   function deleteCard(id: string) {
     saveBoard({ ...board, cards: board.cards.filter(card => card.id !== id) })
   }
@@ -125,5 +130,5 @@ export function useBoard() {
     })
   }
 
-  return { ...board, labels: board.labels ?? [], addLabel, toggleLabel, boards: workspace.boards, activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, deleteBoard, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn }
+  return { ...board, labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards, activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, deleteBoard, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn }
 }

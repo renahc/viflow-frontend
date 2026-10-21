@@ -45,3 +45,13 @@ export function toggleCardLabel(board: Board, cardId: string, labelId: string): 
     return { ...card, labelIds: ids.includes(labelId) ? ids.filter(id => id !== labelId) : [...ids, labelId] }
   }) }
 }
+
+export function deleteBoardLabel(board: Board, labelId: string): Board {
+  if (!board.labels?.some(label => label.id === labelId)) return board
+  return {
+    ...board,
+    labels: board.labels.filter(label => label.id !== labelId),
+    cards: board.cards.map(card => card.labelIds?.includes(labelId)
+      ? { ...card, labelIds: card.labelIds.filter(id => id !== labelId) } : card),
+  }
+}
