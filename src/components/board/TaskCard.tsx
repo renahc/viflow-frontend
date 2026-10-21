@@ -38,7 +38,7 @@ export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
     onOpenDetails()
   }
   const isDragging = drag.draggingId === card.id
-  const isDropTarget = drag.draggingId && drag.dropTarget?.columnId === card.status
+  const isDropTarget = columns.find(column => column.id === card.status)?.sort !== 'priority' && drag.draggingId && drag.dropTarget?.columnId === card.status
     && drag.dropTarget.beforeId === card.id
 
   return (

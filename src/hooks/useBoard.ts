@@ -1,3 +1,4 @@
+import type { ColumnSort } from '../lib/columnSort'
 import { formatDueDate, priorities } from '../lib/cardSchedule'
 import type { CardSchedule } from '../lib/cardSchedule'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -112,6 +113,10 @@ export function useBoard() {
   }
 
   function moveCard(id: string, status: Status, beforeId?: string | null) {
+    if (board.columns.find(column => column.id === status)?.sort === 'priority') {
+      if (board.cards.find(card => card.id === id)?.status === status) return
+      beforeId = null
+    }
     const nextBoard = moveCardInBoard(board, id, status, beforeId)
     if (nextBoard === board) return
     const previous = board.cards.find(card => card.id === id)!
@@ -119,6 +124,11 @@ export function useBoard() {
     const message = previous.status === status ? `reordenó la tarjeta en «${destination}».`
       : `movió la tarjeta de «${board.columns.find(column => column.id === previous.status)?.title}» a «${destination}».`
     saveBoard(appendCardActivity(nextBoard, id, previous.status === status ? 'reordered' : 'moved', message, readActivityActor()))
+  }
+
+  function setColumnSort(id: string, sort: ColumnSort) {
+    if (sort !== 'manual' && sort !== 'priority') return
+    saveBoard({ ...board, columns: board.columns.map(column => column.id === id ? { ...column, sort } : column) })
   }
 
   function addColumn(title: string, color: LabelColor = 'purple') {
@@ -169,5 +179,5 @@ export function useBoard() {
     })
   }
 
-  return { ...board, labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards, activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, deleteBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, deleteCard, deleteColumn }
+  return { ...board, labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards, activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, deleteBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort, deleteCard, deleteColumn }
 }

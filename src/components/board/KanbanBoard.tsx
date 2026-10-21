@@ -15,7 +15,7 @@ type PendingDelete = { kind: 'card' | 'column'; id: string; title: string }
 type LabelSelection = { cardId: string; anchor: HTMLButtonElement }
 
 export function KanbanBoard({ workspace }: Props) {
-  const { title, columns, cards, labels, storageError, commentOnCard, addCard, editCard, moveCard, addColumn,
+  const { title, columns, cards, labels, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort,
     deleteCard, deleteColumn, addLabel, toggleLabel, deleteLabel } = workspace
   const [editingCardId, setEditingCardId] = useState<string | null>(null)
   const editingCard = cards.find(card => card.id === editingCardId)
@@ -56,7 +56,7 @@ export function KanbanBoard({ workspace }: Props) {
         <div className="kanban-grid" role="region" aria-label="Columnas del tablero" tabIndex={0}>
           {columns.map(column => (
             <KanbanColumn key={column.id} column={column} cards={cards.filter(card => card.status === column.id)}
-              columns={columns} labels={labels} drag={drag} onAddCard={addCard} onMoveCard={move}
+              columns={columns} labels={labels} drag={drag} onSort={sort => { drag.reset(); setColumnSort(column.id, sort) }} onAddCard={addCard} onMoveCard={move}
               composing={composerId === column.id} onOpenComposer={() => setComposerId(column.id)}
               onCloseComposer={() => setComposerId(null)}
               onOpenCard={card => { setLabelSelection(null); setEditingCardId(card.id) }}

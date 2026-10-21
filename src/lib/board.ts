@@ -5,7 +5,7 @@ import type { CardActivity, CardComment } from "./cardActivity";
 import { isLabel, isLabelColor } from "./labels";
 import type { Label, LabelColor } from "./labels";
 
-export type Column = { id: string; title: string; description: string; color?: LabelColor };
+export type Column = { id: string; title: string; description: string; color?: LabelColor; sort?: 'manual' | 'priority' };
 export type Status = string;
 export type Board = { columns: Column[]; cards: Card[]; labels?: Label[] };
 
@@ -97,6 +97,7 @@ function isColumn(value: unknown): value is Column {
   return typeof column.id === "string" && !!column.id.trim()
     && typeof column.title === "string" && !!column.title.trim()
     && typeof column.description === "string"
+    && (column.sort === undefined || column.sort === 'manual' || column.sort === 'priority')
     && (column.color === undefined || isLabelColor(column.color));
 }
 

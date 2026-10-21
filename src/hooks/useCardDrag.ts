@@ -6,6 +6,7 @@ type DropTarget = { columnId: string; beforeId: string | null }
 type MoveCard = (id: string, status: Status, beforeId?: string | null) => void
 
 function findBeforeId(column: HTMLElement, draggingId: string, pointerY: number) {
+  if (column.dataset.sort === 'priority') return null
   const cards = Array.from(column.querySelectorAll<HTMLElement>('[data-card-id]'))
   return cards.find(element => {
     if (element.dataset.cardId === draggingId) return false

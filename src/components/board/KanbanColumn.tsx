@@ -1,4 +1,6 @@
-import { Plus } from 'lucide-react'
+import { sortColumnCards } from '../../lib/columnSort'
+import type { ColumnSort } from '../../lib/columnSort'
+import { ChevronDown, Plus } from 'lucide-react'
 import type { Card, Column, Status } from '../../lib/board'
 import type { Label } from '../../lib/labels'
 import { labelColors } from '../../lib/labels'
@@ -8,6 +10,7 @@ import { DeleteButton } from '../DeleteButton'
 import { TaskCard } from './TaskCard'
 
 type Props = {
+  onSort: (sort: ColumnSort) => void
   column: Column
   cards: Card[]
   columns: Column[]
@@ -24,18 +27,23 @@ type Props = {
   onDeleteColumn: (column: Column) => void
 }
 
-export function KanbanColumn({ column, cards, columns, labels, drag, onAddCard,
+export function KanbanColumn({ column, cards: manualCards, onSort, columns, labels, drag, onAddCard,
   onMoveCard, onOpenLabels, onDeleteCard, onDeleteColumn, onOpenCard, composing, onOpenComposer, onCloseComposer }: Props) {
-  const isOver = drag.dropTarget?.columnId === column.id
+  const sorted = column.sort === 'priority'
+  const cards = sortColumnCards(manualCards, column.sort ?? 'manual')
+  const sameColumnDrag = manualCards.some(card => card.id === drag.draggingId)
+  const acceptsDrop = !sorted || !sameColumnDrag
+  const isOver = acceptsDrop && drag.dropTarget?.columnId === column.id
   const atEnd = drag.draggingId && isOver && drag.dropTarget?.beforeId === null
   const dotColor = labelColors.find(color => color.id === column.color)?.text
 
   return (
     <section className={`kanban-column ${isOver ? 'drop-active' : ''}`}
       aria-labelledby={`heading-${column.id}`}
-      onDragOver={event => drag.over(event, column.id)}
+      data-sort={column.sort ?? 'manual'}
+      onDragOver={event => { if (acceptsDrop) drag.over(event, column.id); else drag.leave(event) }}
       onDragLeave={drag.leave}
-      onDrop={event => drag.drop(event, column.id)}>
+      onDrop={event => { if (acceptsDrop) drag.drop(event, column.id); else { event.preventDefault(); drag.reset() } }}>
       <div className="column-header">
         <div className="column-heading">
           <h2 id={`heading-${column.id}`}>
@@ -50,11 +58,17 @@ export function KanbanColumn({ column, cards, columns, labels, drag, onAddCard,
           </div>
         </div>
         {column.description && <p className="column-description">{column.description}</p>}
+        <label className="column-sort">Ordenar por
+          <span><select aria-label={`Ordenar tarjetas de ${column.title}`} value={column.sort ?? 'manual'} onChange={event => onSort(event.target.value as ColumnSort)}>
+            <option value="manual">Manual</option><option value="priority">Prioridad</option>
+          </select><ChevronDown size={12} aria-hidden="true" /></span>
+        </label>
+        {sorted && <p className="column-sort-hint">Orden automático por prioridad</p>}
       </div>
       <div className={`card-list ${atEnd ? 'drop-at-end' : ''}`}>
         {cards.map((card, index) => (
           <TaskCard key={card.id} card={card} columns={columns} labels={labels} drag={drag}
-            canMoveUp={index > 0} canMoveDown={index < cards.length - 1}
+            canMoveUp={!sorted && index > 0} canMoveDown={!sorted && index < cards.length - 1}
             onMoveUp={() => onMoveCard(card.id, column.id, cards[index - 1]?.id)}
             onMoveDown={() => onMoveCard(card.id, column.id, cards[index + 2]?.id ?? null)}
             onChangeStatus={status => onMoveCard(card.id, status)}
