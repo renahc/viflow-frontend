@@ -1,3 +1,4 @@
+import { ArrowLeftRight, Check, ChevronDown, Circle, GripVertical, Kanban, Plus, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { BoardTabs } from "./components/BoardTabs";
 import { BoardNavigation } from "./components/BoardNavigation";
@@ -65,7 +66,7 @@ export default function App() {
           onRename={renameBoard}
           onDelete={(id) => { resetBoardControls(); deleteBoard(id); }} />
         <div className="sidebar-note">
-          <span aria-hidden="true">✳</span>
+          <Sparkles className="sidebar-note-icon" size={28} aria-hidden="true" />
           <strong>Un paso a la vez.</strong>
           <p>Las grandes ideas se construyen con pequeños avances.</p>
         </div>
@@ -78,7 +79,7 @@ export default function App() {
         {!activeBoardId ? <div className="workspace-empty"><h1>{boards.length === 0 ? "No hay tableros" : "No hay tableros abiertos"}</h1><p>{boards.length === 0 ? "Crea un tablero desde el menú lateral para comenzar." : "Selecciona un tablero del menú lateral para abrirlo."}</p>{storageError && <p role="alert">No pudimos guardar tus cambios en este navegador.</p>}</div> : <div className="board-content" key={activeBoardId}>
           <div className="board-toolbar">
             <span className="board-tab">
-              <span aria-hidden="true">▥</span>{boardTitle}
+              <Kanban size={17} aria-hidden="true" />{boardTitle}
             </span>
             <span className="task-summary">
               {cards.length} tarjetas · {completed} completadas
@@ -135,7 +136,7 @@ export default function App() {
                         aria-label={`Agregar tarjeta a ${column.title}`}
                         onClick={() => setComposer(column.id)}
                       >
-                        ＋
+                        <Plus size={18} aria-hidden="true" />
                       </button>
                         <DeleteButton label={`Eliminar columna ${column.title}`} onClick={() => {
                           setPendingDelete({ kind: "column", id: column.id, title: column.title });
@@ -169,7 +170,7 @@ export default function App() {
                                 : column.id === "todo" ? "Por explorar" : column.title}
                           </span>
                           <div className="card-actions">
-                            <span className="drag-handle" aria-hidden="true">⠿</span>
+                            <GripVertical className="drag-handle" size={16} aria-hidden="true" />
                             <DeleteButton label={`Eliminar tarjeta ${card.title}`} onClick={() => {
                               setPendingDelete({ kind: "card", id: card.id, title: card.title });
                             }} />
@@ -184,8 +185,9 @@ export default function App() {
                             className={`card-marker ${column.id}`}
                             aria-hidden="true"
                           >
-                            {column.id === "done" ? "✓" : "○"}
+                            {column.id === "done" ? <Check size={16} /> : <Circle size={15} />}
                           </span>
+                          <div className="card-status-select">
                           <select
                             aria-label={`Estado de ${card.title}`}
                             value={card.status}
@@ -199,6 +201,8 @@ export default function App() {
                               </option>
                             ))}
                           </select>
+                          <ChevronDown size={12} aria-hidden="true" />
+                          </div>
                         </div>
                       </article>
                     ))}
@@ -221,7 +225,7 @@ export default function App() {
                       className="add-card"
                       onClick={() => setComposer(column.id)}
                     >
-                      <span aria-hidden="true">＋</span>Agregar tarjeta
+                      <Plus size={16} aria-hidden="true" />Agregar tarjeta
                     </button>
                   )}
                 </section>
@@ -246,11 +250,11 @@ export default function App() {
                     <button className="quiet-button" type="button" onClick={() => { setAddingColumn(false); setColumnTitle(""); }}>Cancelar</button>
                   </div>
                 </form>
-              ) : <button className="add-column" onClick={() => setAddingColumn(true)}><span aria-hidden="true">＋</span> Agregar columna</button>}
+              ) : <button className="add-column" onClick={() => setAddingColumn(true)}><Plus size={16} aria-hidden="true" /> Agregar columna</button>}
             </div>
           </div>
           <footer className="board-footer">
-            <span aria-hidden="true">↔</span>Arrastra las tarjetas para cambiar
+            <ArrowLeftRight size={15} aria-hidden="true" />Arrastra las tarjetas para cambiar
             su estado.
             <span className="footer-private">
               Solo tú, tus ideas y un poco de flow.

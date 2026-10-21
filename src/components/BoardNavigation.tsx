@@ -1,3 +1,4 @@
+import { Ellipsis, Kanban, Plus, SquarePen, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { WorkspaceBoard } from '../lib/workspace'
 import { ConfirmDeleteModal } from './ConfirmDeleteModal'
@@ -72,7 +73,7 @@ export function BoardNavigation({ boards, activeBoardId, onSelect, onCreate, onR
         onKeyDown={event => { if (event.key === 'Escape') { setMenu(null); triggerRef.current?.focus() } }}>
         <div className="board-entry-row">
           <button type="button" className="nav-item" aria-current={board.id === activeBoardId ? 'page' : undefined} title={board.title} onClick={() => { setMenu(null); onSelect(board.id) }}>
-            <span aria-hidden="true">▦</span><span className="board-link-title">{board.title}</span>
+            <Kanban size={18} aria-hidden="true" /><span className="board-link-title">{board.title}</span>
           </button>
           <button className="board-options-trigger" type="button" aria-label={`Opciones de ${board.title}`} aria-expanded={menu === board.id} aria-controls={menu === board.id ? `board-options-${board.id}` : undefined}
             onClick={event => {
@@ -84,11 +85,11 @@ export function BoardNavigation({ boards, activeBoardId, onSelect, onCreate, onR
                 left: Math.max(8, Math.min(rect.right + 8, window.innerWidth - width - 8)),
               })
               setMenu(current => current === board.id ? null : board.id)
-            }}>⋯</button>
+            }}><Ellipsis size={18} aria-hidden="true" /></button>
         </div>
         {menu === board.id && <div className="board-item-options" style={menuPosition} id={`board-options-${board.id}`}>
-          <button type="button" onClick={() => { setMenu(null); setAction({ kind: 'rename', board }) }}>Renombrar</button>
-          <button type="button" className="board-delete-option" onClick={() => { setMenu(null); setAction({ kind: 'delete', board }) }}>Eliminar tablero</button>
+          <button type="button" onClick={() => { setMenu(null); setAction({ kind: 'rename', board }) }}><SquarePen size={14} aria-hidden="true" />Renombrar</button>
+          <button type="button" className="board-delete-option" onClick={() => { setMenu(null); setAction({ kind: 'delete', board }) }}><Trash2 size={14} aria-hidden="true" />Eliminar tablero</button>
         </div>}
       </div>
     ))}</div>
@@ -103,7 +104,7 @@ export function BoardNavigation({ boards, activeBoardId, onSelect, onCreate, onR
       <label htmlFor="board-name">Nombre del tablero</label>
       <input id="board-name" autoFocus required maxLength={80} placeholder="Ej. Proyecto personal" value={title} onChange={event => setTitle(event.target.value)} />
       <div className="board-composer-actions"><button className="primary-button" disabled={!title.trim()}>Crear</button><button type="button" className="quiet-button" onClick={() => { setCreating(false); setTitle('') }}>Cancelar</button></div>
-    </form> : <button type="button" className="new-board-button" onClick={() => setCreating(true)}><span aria-hidden="true">＋</span>Nuevo tablero</button>}
+    </form> : <button type="button" className="new-board-button" onClick={() => setCreating(true)}><Plus size={16} aria-hidden="true" />Nuevo tablero</button>}
     {action?.kind === 'rename' && <RenameBoardModal board={action.board} onClose={closeAction} onSave={title => { onRename(action.board.id, title); closeAction() }} />}
     {action?.kind === 'delete' && <ConfirmDeleteModal title="Eliminar tablero" description={`Se eliminará «${action.board.title}», con sus ${action.board.columns.length} columnas y ${action.board.cards.length} tarjetas. Esta acción no se puede deshacer.`}
       onCancel={closeAction} onConfirm={() => { onDelete(action.board.id); closeAction() }} />}

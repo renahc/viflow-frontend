@@ -1,3 +1,4 @@
+import { Ellipsis, LogOut, Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 type Profile = { name: string; photo: string };
@@ -119,10 +120,10 @@ export function UserProfile() {
     }} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false); }}>
       <Avatar profile={profile} />
       <div className="profile-identity"><strong title={profile.name}>{profile.name}</strong><small>Perfil local</small></div>
-      <button ref={triggerRef} className="profile-menu-trigger" type="button" aria-label="Opciones de usuario" aria-expanded={open} aria-controls="profile-options" onClick={() => setOpen(current => !current)}>⋯</button>
+      <button ref={triggerRef} className="profile-menu-trigger" type="button" aria-label="Opciones de usuario" aria-expanded={open} aria-controls="profile-options" onClick={() => setOpen(current => !current)}><Ellipsis size={18} aria-hidden="true" /></button>
       {open && <div className="profile-menu" id="profile-options" aria-label="Opciones de usuario">
-        <button type="button" onClick={() => { setOpen(false); setSettings(true); }}>Configuración</button>
-        <button type="button" disabled aria-describedby="logout-description">Cerrar sesión</button>
+        <button type="button" onClick={() => { setOpen(false); setSettings(true); }}><Settings size={15} aria-hidden="true" />Configuración</button>
+        <button type="button" disabled aria-describedby="logout-description"><LogOut size={15} aria-hidden="true" />Cerrar sesión</button>
         <small id="logout-description">Disponible cuando agreguemos el inicio de sesión.</small>
       </div>}
     </div>

@@ -1,3 +1,4 @@
+import { Kanban, X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import type { WorkspaceBoard } from '../lib/workspace'
 
@@ -29,9 +30,9 @@ export function BoardTabs({ boards, openBoardIds, activeBoardId, onSelect, onClo
       if (!board) return null
       return <div key={id} className={`open-board-tab ${id === activeBoardId ? 'is-active' : ''}`}>
         <button type="button" aria-current={id === activeBoardId ? 'page' : undefined} title={board.title} onClick={() => onSelect(id)}>
-          <span aria-hidden="true">▦</span><span className="open-tab-title">{board.title}</span>
+          <Kanban size={15} aria-hidden="true" /><span className="open-tab-title">{board.title}</span>
         </button>
-        <button type="button" className="close-board-tab" aria-label={`Cerrar pestaña ${board.title}`} title="Cerrar pestaña" onClick={() => { restoreFocus.current = true; onClose(id) }}>×</button>
+        <button type="button" className="close-board-tab" aria-label={`Cerrar pestaña ${board.title}`} title="Cerrar pestaña" onClick={() => { restoreFocus.current = true; onClose(id) }}><X size={14} aria-hidden="true" /></button>
       </div>
     })}
   </nav>
