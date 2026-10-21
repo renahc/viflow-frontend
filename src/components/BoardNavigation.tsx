@@ -1,3 +1,5 @@
+import { NavLink } from 'react-router'
+import { boardPath } from '../lib/routes'
 import { Ellipsis, Kanban, Plus, SquarePen, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { WorkspaceBoard } from '../lib/workspace'
@@ -6,7 +8,6 @@ import { ConfirmDeleteModal } from './ConfirmDeleteModal'
 type Props = {
   boards: WorkspaceBoard[]
   activeBoardId: string
-  onSelect: (id: string) => void
   onCreate: (title: string) => string | undefined
   onRename: (id: string, title: string) => void
   onDelete: (id: string) => void
@@ -30,7 +31,7 @@ function RenameBoardModal({ board, onSave, onClose }: { board: WorkspaceBoard; o
   </dialog>
 }
 
-export function BoardNavigation({ boards, activeBoardId, onSelect, onCreate, onRename, onDelete }: Props) {
+export function BoardNavigation({ boards, activeBoardId, onCreate, onRename, onDelete }: Props) {
   const [creating, setCreating] = useState(false)
   const [title, setTitle] = useState('')
   const [menu, setMenu] = useState<string | null>(null)
@@ -72,9 +73,9 @@ export function BoardNavigation({ boards, activeBoardId, onSelect, onCreate, onR
         onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setMenu(null) }}
         onKeyDown={event => { if (event.key === 'Escape') { setMenu(null); triggerRef.current?.focus() } }}>
         <div className="board-entry-row">
-          <button type="button" className="nav-item" aria-current={board.id === activeBoardId ? 'page' : undefined} title={board.title} onClick={() => { setMenu(null); onSelect(board.id) }}>
+          <NavLink to={boardPath(board.id)} className="nav-item" title={board.title} onClick={() => setMenu(null)}>
             <Kanban size={18} aria-hidden="true" /><span className="board-link-title">{board.title}</span>
-          </button>
+          </NavLink>
           <button className="board-options-trigger" type="button" aria-label={`Opciones de ${board.title}`} aria-expanded={menu === board.id} aria-controls={menu === board.id ? `board-options-${board.id}` : undefined}
             onClick={event => {
               triggerRef.current = event.currentTarget

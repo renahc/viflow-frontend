@@ -33,6 +33,20 @@ pnpm lint
 
 Los datos pertenecen a este navegador y origen; todavía no hay backend, cuentas ni sincronización entre dispositivos. Si el almacenamiento falla, se muestra una advertencia y se puede seguir trabajando en memoria. Mover una tarjeta conserva su posición relativa en la lista original; esta versión no incluye reordenamiento dentro de una columna.
 
+## Navegación
+
+React Router controla la navegación SPA:
+
+- `/`: espacio de trabajo y acceso a los tableros.
+- `/boards/:boardId`: tablero activo, seleccionado por la URL.
+- Las rutas desconocidas o los tableros ausentes muestran una pantalla de recuperación.
+
+La lista lateral y las pestañas usan enlaces. Atrás/Adelante, abrir un enlace en otra pestaña y recargar una URL directa funcionan sin depender del tablero que quedó seleccionado en localStorage. Las pestañas abiertas continúan guardándose; cerrar una pestaña no elimina el tablero. Al cerrar o eliminar el tablero activo se reemplaza la URL por la siguiente pestaña disponible o `/`.
+
+Los tableros siguen siendo locales a este navegador y origen: compartir una URL no comparte sus datos.
+
+`vercel.json` incluye la reescritura de rutas SPA hacia `index.html`, excluyendo `/api/`. El frontend debe desplegarse con esta carpeta como raíz y `dist` como directorio de salida. Esta configuración todavía debe comprobarse en un despliegue real.
+
 ## Perfil local
 
 El menú de tres puntos del perfil permite abrir Configuración y guardar nombre y foto en `viflow.profile.v1`. La imagen se guarda en este navegador; admite PNG, JPG y WebP de hasta 1 MB. Cerrar sesión está deshabilitado hasta incorporar autenticación.
@@ -41,7 +55,9 @@ El menú de tres puntos del perfil permite abrir Configuración y guardar nombre
 
 - `src/App.tsx`: estructura visual e interacción del tablero.
 - `src/components/CardComposer.tsx`: formulario de creación.
-- `src/hooks/useBoard.ts`: selección, creación y guardado de tableros; operaciones sobre el tablero activo.
+- `src/hooks/useBoard.ts`: estado del espacio de trabajo, operaciones sobre el tablero de la URL y sincronización de pestañas.
+- `src/main.tsx`: BrowserRouter y rutas.
+- `src/lib/routes.ts`: construcción de URLs de tableros.
 - `src/lib/workspace.ts`: formato del espacio de trabajo y migración de datos anteriores.
 - `src/components/BoardNavigation.tsx`: lista lateral y formulario de nuevo tablero.
 - `src/components/BoardTabs.tsx`: pestañas abiertas, selección y cierre.
@@ -58,3 +74,5 @@ El menú de tres puntos del perfil permite abrir Configuración y guardar nombre
 6. Crear y mover tarjetas a la columna nueva; recargar y comprobar que se conserva todo.
 
 7. Crear otro tablero, agregarle tarjetas y alternar entre ambos; comprobar su independencia y recargar para verificar la selección guardada.
+
+8. Abrir dos tableros, comprobar sus URLs y navegar con Atrás/Adelante. Recargar una URL directa, cerrar la pestaña activa y probar una ruta inexistente.

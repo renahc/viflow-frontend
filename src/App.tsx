@@ -1,5 +1,6 @@
 import { ArrowLeftRight, Check, ChevronDown, Circle, GripVertical, Kanban, Plus, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { Link, useLocation } from "react-router";
 import { BoardTabs } from "./components/BoardTabs";
 import { BoardNavigation } from "./components/BoardNavigation";
 import { UserProfile } from "./components/UserProfile";
@@ -10,7 +11,13 @@ import { useBoard } from "./hooks/useBoard";
 import type { Status } from "./lib/board";
 
 export default function App() {
-  const { boards, activeBoardId, openBoardIds, closeBoard, title: boardTitle, selectBoard, addBoard, renameBoard, deleteBoard, columns, cards, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = useBoard();
+  const workspace = useBoard();
+  const location = useLocation();
+  return <WorkspaceScreen key={location.pathname} workspace={workspace} />;
+}
+
+function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard> }) {
+  const { boards, activeBoardId, openBoardIds, closeBoard, title: boardTitle, routeError, addBoard, renameBoard, deleteBoard, columns, cards, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = workspace;
   const [addingColumn, setAddingColumn] = useState(false);
   const [columnTitle, setColumnTitle] = useState("");
   const [composer, setComposer] = useState<Status | null>(null);
@@ -55,13 +62,12 @@ export default function App() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <a className="brand" href="#board">
+        <Link className="brand" to="/">
           viflow
           <span className="brand-dot">.</span>
-        </a>
+        </Link>
         <p className="nav-label">ESPACIO DE TRABAJO</p>
         <BoardNavigation boards={boards} activeBoardId={activeBoardId}
-          onSelect={(id) => { resetBoardControls(); selectBoard(id); }}
           onCreate={(title) => { resetBoardControls(); return addBoard(title); }}
           onRename={renameBoard}
           onDelete={(id) => { resetBoardControls(); deleteBoard(id); }} />
@@ -74,9 +80,8 @@ export default function App() {
       </aside>
       <main id="board" className="main-content">
         <BoardTabs boards={boards} openBoardIds={openBoardIds} activeBoardId={activeBoardId}
-          onSelect={(id) => { resetBoardControls(); selectBoard(id); }}
           onClose={(id) => { if (id === activeBoardId) resetBoardControls(); closeBoard(id); }} />
-        {!activeBoardId ? <div className="workspace-empty"><h1>{boards.length === 0 ? "No hay tableros" : "No hay tableros abiertos"}</h1><p>{boards.length === 0 ? "Crea un tablero desde el menú lateral para comenzar." : "Selecciona un tablero del menú lateral para abrirlo."}</p>{storageError && <p role="alert">No pudimos guardar tus cambios en este navegador.</p>}</div> : <div className="board-content" key={activeBoardId}>
+        {routeError ? <div className="workspace-empty"><h1>Tablero no encontrado</h1><p>La dirección no existe o este tablero no está guardado en este navegador.</p><Link className="primary-button" to="/">Volver al espacio de trabajo</Link></div> : !activeBoardId ? <div className="workspace-empty"><h1>{boards.length === 0 ? "No hay tableros" : "Tu espacio de trabajo"}</h1><p>{boards.length === 0 ? "Crea un tablero desde el menú lateral para comenzar." : "Selecciona un tablero del menú lateral para abrirlo."}</p>{storageError && <p role="alert">No pudimos guardar tus cambios en este navegador.</p>}</div> : <div className="board-content" key={activeBoardId}>
           <div className="board-toolbar">
             <span className="board-tab">
               <Kanban size={17} aria-hidden="true" />{boardTitle}
