@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useMatch, useNavigate } from 'react-router'
+import { moveCardInBoard } from '../lib/moveCard'
 import { boardPath } from '../lib/routes'
 import { createBoard, loadWorkspace, workspaceStorageKey } from '../lib/workspace'
 import type { Workspace } from '../lib/workspace'
@@ -88,9 +89,9 @@ export function useBoard() {
     saveBoard({ ...board, cards: [...board.cards, { id: crypto.randomUUID(), title: title.trim(), description: description.trim(), status }] })
   }
 
-  function moveCard(id: string, status: Status) {
-    if (!board.columns.some(column => column.id === status)) return
-    saveBoard({ ...board, cards: board.cards.map(card => card.id === id ? { ...card, status } : card) })
+  function moveCard(id: string, status: Status, beforeId?: string | null) {
+    const nextBoard = moveCardInBoard(board, id, status, beforeId)
+    if (nextBoard !== board) saveBoard(nextBoard)
   }
 
   function addColumn(title: string) {

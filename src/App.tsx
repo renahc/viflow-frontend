@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Check, ChevronDown, Circle, GripVertical, Kanban, Plus, Sparkles } from "lucide-react";
+import { ArrowLeftRight, Check, ChevronDown, ChevronUp, Circle, GripVertical, Kanban, Plus, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
 import { BoardTabs } from "./components/BoardTabs";
@@ -23,6 +23,7 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
   const [composer, setComposer] = useState<Status | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
   const [over, setOver] = useState<Status | null>(null);
+  const [dropTarget, setDropTarget] = useState<{ columnId: string; beforeId: string | null } | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const [pendingDelete, setPendingDelete] = useState<{ kind: "card" | "column"; id: string; title: string } | null>(null);
 
@@ -32,6 +33,7 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
     setComposer(null);
     setDragging(null);
     setOver(null);
+    setDropTarget(null);
     setPendingDelete(null);
     setAnnouncement("");
   }
@@ -52,8 +54,8 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
 
   const completed = cards.filter((card) => card.status === "done").length;
 
-  function move(id: string, status: Status) {
-    moveCard(id, status);
+  function move(id: string, status: Status, beforeId?: string | null) {
+    moveCard(id, status, beforeId);
     setAnnouncement(
       `Tarjeta movida a ${columns.find((column) => column.id === status)?.title}.`,
     );
@@ -111,6 +113,13 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
                       event.preventDefault();
                       event.dataTransfer.dropEffect = "move";
                       setOver(column.id);
+                      const candidates = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("[data-card-id]"))
+                        .filter(element => element.dataset.cardId !== dragging);
+                      const next = candidates.find(element => {
+                        const rect = element.getBoundingClientRect();
+                        return event.clientY < rect.top + rect.height / 2;
+                      });
+                      setDropTarget({ columnId: column.id, beforeId: next?.dataset.cardId ?? null });
                     }
                   }}
                   onDragLeave={(event) => {
@@ -118,14 +127,17 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
                       !event.currentTarget.contains(
                         event.relatedTarget as Node | null,
                       )
-                    )
+                    ) {
                       setOver(null);
+                      setDropTarget(null);
+                    }
                   }}
                   onDrop={(event) => {
                     event.preventDefault();
-                    if (dragging) move(dragging, column.id);
+                    if (dragging) move(dragging, column.id, dropTarget?.columnId === column.id ? dropTarget.beforeId : null);
                     setDragging(null);
                     setOver(null);
+                    setDropTarget(null);
                   }}
                 >
                   <div className="column-header">
@@ -150,20 +162,23 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
                     </div>
                     {column.description && <p className="column-description">{column.description}</p>}
                   </div>
-                  <div className="card-list">
-                    {columnCards.map((card) => (
+                  <div className={`card-list ${dragging && dropTarget?.columnId === column.id && dropTarget.beforeId === null ? "drop-at-end" : ""}`}>
+                    {columnCards.map((card, index) => (
                       <article
                         key={card.id}
                         draggable
-                        className={`task-card ${dragging === card.id ? "is-dragging" : ""}`}
+                        data-card-id={card.id}
+                        className={`task-card ${dragging === card.id ? "is-dragging" : ""} ${dragging && dropTarget?.columnId === column.id && dropTarget.beforeId === card.id ? "drop-before" : ""}`}
                         onDragStart={(event) => {
                           event.dataTransfer.setData("text/plain", card.id);
                           event.dataTransfer.effectAllowed = "move";
                           setDragging(card.id);
+                          setDropTarget(null);
                         }}
                         onDragEnd={() => {
                           setDragging(null);
                           setOver(null);
+                          setDropTarget(null);
                         }}
                       >
                         <div className="card-topline">
@@ -186,12 +201,18 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
                           <p className="card-description">{card.description}</p>
                         )}
                         <div className="card-footer">
+                          <div className="card-order-actions">
                           <span
                             className={`card-marker ${column.id}`}
                             aria-hidden="true"
                           >
                             {column.id === "done" ? <Check size={16} /> : <Circle size={15} />}
                           </span>
+                            <button className="card-order-button" type="button" aria-label={`Subir tarjeta ${card.title}`} title="Subir tarjeta" disabled={index === 0}
+                              onClick={() => move(card.id, column.id, columnCards[index - 1]?.id)}><ChevronUp size={14} aria-hidden="true" /></button>
+                            <button className="card-order-button" type="button" aria-label={`Bajar tarjeta ${card.title}`} title="Bajar tarjeta" disabled={index === columnCards.length - 1}
+                              onClick={() => move(card.id, column.id, columnCards[index + 2]?.id ?? null)}><ChevronDown size={14} aria-hidden="true" /></button>
+                          </div>
                           <div className="card-status-select">
                           <select
                             aria-label={`Estado de ${card.title}`}

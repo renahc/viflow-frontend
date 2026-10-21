@@ -14,6 +14,7 @@ pnpm dev
 ```sh
 pnpm build
 pnpm lint
+pnpm test
 ```
 
 ## Primera versión
@@ -31,7 +32,7 @@ pnpm lint
 - Las columnas tienen ancho fijo y se recorren con scroll horizontal en cualquier pantalla.
 - Cada columna crece hasta el alto disponible; al superar ese límite, su contenido tiene scroll vertical interno.
 
-Los datos pertenecen a este navegador y origen; todavía no hay backend, cuentas ni sincronización entre dispositivos. Si el almacenamiento falla, se muestra una advertencia y se puede seguir trabajando en memoria. Mover una tarjeta conserva su posición relativa en la lista original; esta versión no incluye reordenamiento dentro de una columna.
+Los datos pertenecen a este navegador y origen; todavía no hay backend, cuentas ni sincronización entre dispositivos. Si el almacenamiento falla, se muestra una advertencia y se puede seguir trabajando en memoria. Las tarjetas se pueden reordenar arrastrándolas antes o después de otra tarjeta, o usando los botones Subir/Bajar. El orden se conserva en localStorage; los movimientos entre columnas también respetan la posición de destino.
 
 ## Navegación
 
@@ -62,6 +63,7 @@ El menú de tres puntos del perfil permite abrir Configuración y guardar nombre
 - `src/components/BoardNavigation.tsx`: lista lateral y formulario de nuevo tablero.
 - `src/components/BoardTabs.tsx`: pestañas abiertas, selección y cierre.
 - `src/lib/board.ts`: tipos, columnas, ejemplos y validación de datos guardados.
+- `src/lib/moveCard.ts`: movimiento y orden de tarjetas, con pruebas en `tests/moveCard.test.ts`.
 - `src/index.css`: TailwindCSS y estilos visuales.
 
 ## Revisión manual
