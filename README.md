@@ -162,3 +162,22 @@ El mínimo de contraseña, la longitud del código y la espera del reenvío son
 valores de la demostración; deberán alinearse con el proveedor cuando se conecte
 la autenticación. No se implementan todavía login, recuperación de contraseña,
 sesiones ni importación de tableros a una cuenta.
+
+## Cliente de Supabase (preparación)
+
+Instalar dependencias con `pnpm install`, copiar `.env.example` a `.env.local` y
+completar la URL del proyecto y la clave **publishable** de Connect → React → Vite.
+Reiniciar Vite después de cambiar variables. Para Vercel, configurar esas mismas
+variables en el entorno correspondiente antes de compilar.
+
+`src/services/supabaseConfig.ts` valida la configuración sin mostrar sus valores.
+`src/services/supabaseClient.ts` ofrece `getSupabaseClient()`, una única instancia
+creada bajo demanda. El modo invitado y la vista previa no la invocan: siguen
+funcionando sin configurar Supabase. No se han conectado registro, códigos ni
+consultas a datos remotos. La sesión futura tendrá persistencia y renovación del
+SDK, con verificación explícita de códigos; no se procesan tokens desde la URL.
+
+`.env.local` queda excluido de Git. Las variables `VITE_` se incluyen en el código
+que recibe el navegador: usar solo la clave publishable, nunca claves secretas o
+`service_role`. Las futuras tablas necesitarán permisos propios; la clave pública
+no sustituye los controles de acceso.
