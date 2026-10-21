@@ -5,7 +5,7 @@ import type { Board, Status } from '../lib/board'
 
 export function useBoard() {
   const [workspace, setWorkspace] = useState(loadWorkspace)
-  const board = workspace.boards.find(board => board.id === workspace.activeBoardId) ?? workspace.boards[0] ?? { id: '', title: 'Sin tableros', columns: [], cards: [] }
+  const board = workspace.boards.find(board => board.id === workspace.activeBoardId) ?? { id: '', title: 'Sin tableros', columns: [], cards: [] }
   const [storageError, setStorageError] = useState(false)
 
   function saveWorkspace(nextWorkspace: Workspace) {
@@ -26,13 +26,14 @@ export function useBoard() {
 
   function selectBoard(id: string) {
     if (!workspace.boards.some(board => board.id === id)) return
-    saveWorkspace({ ...workspace, activeBoardId: id })
+    saveWorkspace({ ...workspace, activeBoardId: id, openBoardIds: workspace.openBoardIds.includes(id)
+      ? workspace.openBoardIds : [...workspace.openBoardIds, id] })
   }
 
   function addBoard(title: string) {
     if (!title.trim()) return
     const nextBoard = createBoard(title)
-    saveWorkspace({ boards: [...workspace.boards, nextBoard], activeBoardId: nextBoard.id })
+    saveWorkspace({ boards: [...workspace.boards, nextBoard], activeBoardId: nextBoard.id, openBoardIds: [...workspace.openBoardIds, nextBoard.id] })
     return nextBoard.id
   }
 
@@ -42,10 +43,19 @@ export function useBoard() {
       current.id === id ? { ...current, title: title.trim() } : current) })
   }
 
+  function closeBoard(id: string) {
+    const index = workspace.openBoardIds.indexOf(id)
+    if (index === -1) return
+    const openBoardIds = workspace.openBoardIds.filter(current => current !== id)
+    saveWorkspace({ ...workspace, openBoardIds, activeBoardId: workspace.activeBoardId === id
+      ? openBoardIds[Math.min(index, openBoardIds.length - 1)] ?? '' : workspace.activeBoardId })
+  }
+
   function deleteBoard(id: string) {
     const remaining = workspace.boards.filter(current => current.id !== id)
-    saveWorkspace({ boards: remaining, activeBoardId: workspace.activeBoardId === id
-      ? remaining[0]?.id ?? '' : workspace.activeBoardId })
+    const openBoardIds = workspace.openBoardIds.filter(current => current !== id)
+    const activeBoardId = workspace.activeBoardId === id ? openBoardIds[0] ?? '' : workspace.activeBoardId
+    saveWorkspace({ boards: remaining, activeBoardId, openBoardIds })
   }
 
   function addCard(title: string, description: string, status: Status) {
@@ -76,5 +86,5 @@ export function useBoard() {
     })
   }
 
-  return { ...board, boards: workspace.boards, activeBoardId: board.id, selectBoard, addBoard, renameBoard, deleteBoard, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn }
+  return { ...board, boards: workspace.boards, activeBoardId: board.id, openBoardIds: workspace.openBoardIds, closeBoard, selectBoard, addBoard, renameBoard, deleteBoard, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn }
 }

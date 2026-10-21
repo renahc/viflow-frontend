@@ -19,6 +19,7 @@ pnpm lint
 ## Primera versión
 
 - Creación de tableros independientes desde el menú lateral, con selección persistida y lista vertical.
+- Pestañas superiores para los tableros abiertos, sin duplicados y con scroll horizontal. Cerrar una pestaña no elimina el tablero. Las pestañas abiertas y la selección se conservan al recargar.
 - Menú de tres puntos por tablero para renombrar o eliminar con confirmación. Al eliminar un tablero se eliminan sus columnas y tarjetas; se puede dejar el espacio de trabajo vacío.
 - Tres columnas iniciales: Por hacer, En progreso y Hecho.
 - Creación de columnas personalizadas al extremo derecho del tablero.
@@ -43,6 +44,7 @@ El menú de tres puntos del perfil permite abrir Configuración y guardar nombre
 - `src/hooks/useBoard.ts`: selección, creación y guardado de tableros; operaciones sobre el tablero activo.
 - `src/lib/workspace.ts`: formato del espacio de trabajo y migración de datos anteriores.
 - `src/components/BoardNavigation.tsx`: lista lateral y formulario de nuevo tablero.
+- `src/components/BoardTabs.tsx`: pestañas abiertas, selección y cierre.
 - `src/lib/board.ts`: tipos, columnas, ejemplos y validación de datos guardados.
 - `src/index.css`: TailwindCSS y estilos visuales.
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BoardTabs } from "./components/BoardTabs";
 import { BoardNavigation } from "./components/BoardNavigation";
 import { UserProfile } from "./components/UserProfile";
 import { ConfirmDeleteModal } from "./components/ConfirmDeleteModal";
@@ -8,7 +9,7 @@ import { useBoard } from "./hooks/useBoard";
 import type { Status } from "./lib/board";
 
 export default function App() {
-  const { boards, activeBoardId, title: boardTitle, selectBoard, addBoard, renameBoard, deleteBoard, columns, cards, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = useBoard();
+  const { boards, activeBoardId, openBoardIds, closeBoard, title: boardTitle, selectBoard, addBoard, renameBoard, deleteBoard, columns, cards, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = useBoard();
   const [addingColumn, setAddingColumn] = useState(false);
   const [columnTitle, setColumnTitle] = useState("");
   const [composer, setComposer] = useState<Status | null>(null);
@@ -71,7 +72,10 @@ export default function App() {
         <UserProfile />
       </aside>
       <main id="board" className="main-content">
-        {boards.length === 0 ? <div className="workspace-empty"><h1>No hay tableros</h1><p>Crea un tablero desde el menú lateral para comenzar.</p>{storageError && <p role="alert">No pudimos guardar tus cambios en este navegador.</p>}</div> : <div className="board-content" key={activeBoardId}>
+        <BoardTabs boards={boards} openBoardIds={openBoardIds} activeBoardId={activeBoardId}
+          onSelect={(id) => { resetBoardControls(); selectBoard(id); }}
+          onClose={(id) => { if (id === activeBoardId) resetBoardControls(); closeBoard(id); }} />
+        {!activeBoardId ? <div className="workspace-empty"><h1>{boards.length === 0 ? "No hay tableros" : "No hay tableros abiertos"}</h1><p>{boards.length === 0 ? "Crea un tablero desde el menú lateral para comenzar." : "Selecciona un tablero del menú lateral para abrirlo."}</p>{storageError && <p role="alert">No pudimos guardar tus cambios en este navegador.</p>}</div> : <div className="board-content" key={activeBoardId}>
           <div className="board-toolbar">
             <span className="board-tab">
               <span aria-hidden="true">▥</span>{boardTitle}
