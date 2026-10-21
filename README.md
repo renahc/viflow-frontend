@@ -30,6 +30,10 @@ pnpm lint
 
 Los datos pertenecen a este navegador y origen; todavía no hay backend, cuentas ni sincronización entre dispositivos. Si el almacenamiento falla, se muestra una advertencia y se puede seguir trabajando en memoria. Mover una tarjeta conserva su posición relativa en la lista original; esta versión no incluye reordenamiento dentro de una columna.
 
+## Perfil local
+
+El menú de tres puntos del perfil permite abrir Configuración y guardar nombre y foto en `viflow.profile.v1`. La imagen se guarda en este navegador; admite PNG, JPG y WebP de hasta 1 MB. Cerrar sesión está deshabilitado hasta incorporar autenticación.
+
 ## Código
 
 - `src/App.tsx`: estructura visual e interacción del tablero.

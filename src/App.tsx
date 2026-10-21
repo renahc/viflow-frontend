@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { UserProfile } from "./components/UserProfile";
 import { ConfirmDeleteModal } from "./components/ConfirmDeleteModal";
 import { DeleteButton } from "./components/DeleteButton";
 import { CardComposer } from "./components/CardComposer";
@@ -56,13 +57,7 @@ export default function App() {
           <strong>Un paso a la vez.</strong>
           <p>Las grandes ideas se construyen con pequeños avances.</p>
         </div>
-        <div className="profile">
-          <span className="avatar">T</span>
-          <div>
-            <strong>Tu espacio personal</strong>
-            <small>Hecho para fluir</small>
-          </div>
-        </div>
+        <UserProfile />
       </aside>
       <main id="board" className="main-content">
         <div className="board-content">
