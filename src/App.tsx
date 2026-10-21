@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ConfirmDeleteModal } from "./components/ConfirmDeleteModal";
 import { DeleteButton } from "./components/DeleteButton";
 import { CardComposer } from "./components/CardComposer";
 import { useBoard } from "./hooks/useBoard";
@@ -12,6 +13,21 @@ export default function App() {
   const [dragging, setDragging] = useState<string | null>(null);
   const [over, setOver] = useState<Status | null>(null);
   const [announcement, setAnnouncement] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<{ kind: "card" | "column"; id: string; title: string } | null>(null);
+
+  function confirmDelete() {
+    if (!pendingDelete) return;
+    if (pendingDelete.kind === "column") {
+      deleteColumn(pendingDelete.id);
+      if (composer === pendingDelete.id) setComposer(null);
+      setDragging(null);
+      setOver(null);
+    } else {
+      deleteCard(pendingDelete.id);
+    }
+    setAnnouncement(`${pendingDelete.kind === "column" ? "Columna" : "Tarjeta"} ${pendingDelete.title} eliminada.`);
+    setPendingDelete(null);
+  }
 
   const completed = cards.filter((card) => card.status === "done").length;
 
@@ -119,15 +135,7 @@ export default function App() {
                         ＋
                       </button>
                         <DeleteButton label={`Eliminar columna ${column.title}`} onClick={() => {
-                          const message = columnCards.length > 0
-                            ? `¿Eliminar la columna «${column.title}» y sus ${columnCards.length} tarjetas? Esta acción no se puede deshacer.`
-                            : `¿Eliminar la columna «${column.title}»?`;
-                          if (!window.confirm(message)) return;
-                          deleteColumn(column.id);
-                          if (composer === column.id) setComposer(null);
-                          setDragging(null);
-                          setOver(null);
-                          setAnnouncement(`Columna ${column.title} eliminada.`);
+                          setPendingDelete({ kind: "column", id: column.id, title: column.title });
                         }} />
                       </div>
                     </div>
@@ -160,9 +168,7 @@ export default function App() {
                           <div className="card-actions">
                             <span className="drag-handle" aria-hidden="true">⠿</span>
                             <DeleteButton label={`Eliminar tarjeta ${card.title}`} onClick={() => {
-                              if (!window.confirm(`¿Eliminar la tarjeta «${card.title}»? Esta acción no se puede deshacer.`)) return;
-                              deleteCard(card.id);
-                              setAnnouncement(`Tarjeta ${card.title} eliminada.`);
+                              setPendingDelete({ kind: "card", id: card.id, title: card.title });
                             }} />
                           </div>
                         </div>
@@ -252,6 +258,16 @@ export default function App() {
           </p>
         </div>
       </main>
+      {pendingDelete && (
+        <ConfirmDeleteModal
+          title={pendingDelete.kind === "column" ? "Eliminar columna" : "Eliminar tarjeta"}
+          description={pendingDelete.kind === "column"
+            ? `Se eliminará la columna «${pendingDelete.title}» y sus ${cards.filter(card => card.status === pendingDelete.id).length} tarjetas. Esta acción no se puede deshacer.`
+            : `Se eliminará la tarjeta «${pendingDelete.title}». Esta acción no se puede deshacer.`}
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={confirmDelete}
+        />
+      )}
     </div>
   );
 }
