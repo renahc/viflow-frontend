@@ -20,6 +20,7 @@ pnpm lint
 
 - Tres columnas iniciales: Por hacer, En progreso y Hecho.
 - Creación de columnas personalizadas al extremo derecho del tablero.
+- Eliminación de tarjetas y columnas con confirmación. Eliminar una columna elimina también sus tarjetas; se puede dejar el tablero vacío.
 - Creación de tarjetas con título y descripción opcional.
 - Arrastre entre columnas en escritorio. Selector de estado para teclado y pantallas táctiles.
 - Persistencia en `localStorage` bajo la clave `viflow.board.v2` (columnas y tarjetas), con lectura del formato anterior `viflow.board.v1`.

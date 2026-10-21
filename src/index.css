@@ -91,3 +91,8 @@ a { color: inherit; text-decoration: none; }
 
 .column-header { position: sticky; top: -15px; z-index: 1; margin: -15px -12px 0; padding: 15px 12px 1px; background: #f0edf3; }
 .kanban-column.drop-active .column-header { background: #e6deed; }
+
+.column-actions, .card-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.delete-button { display: inline-grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 5px; background: transparent; color: #81718e; }
+.delete-button:hover { color: #a4384b; background: #f7e5e9; }
+.card-category { max-width: calc(100% - 64px); }

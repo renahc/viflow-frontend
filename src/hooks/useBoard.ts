@@ -33,5 +33,16 @@ export function useBoard() {
     return column.id
   }
 
-  return { ...board, storageError, addCard, moveCard, addColumn }
+  function deleteCard(id: string) {
+    saveBoard({ ...board, cards: board.cards.filter(card => card.id !== id) })
+  }
+
+  function deleteColumn(id: string) {
+    saveBoard({
+      columns: board.columns.filter(column => column.id !== id),
+      cards: board.cards.filter(card => card.status !== id),
+    })
+  }
+
+  return { ...board, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn }
 }

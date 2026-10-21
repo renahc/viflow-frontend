@@ -90,7 +90,7 @@ export function loadBoard(): Board {
       const parsed: unknown = JSON.parse(stored);
       if (typeof parsed === "object" && parsed !== null) {
         const board = parsed as Record<string, unknown>;
-        if (Array.isArray(board.columns) && board.columns.length > 0
+        if (Array.isArray(board.columns)
           && board.columns.every(isColumn) && hasUniqueIds(board.columns)
           && Array.isArray(board.cards)
           && board.cards.every(card => isCard(card, board.columns as Column[]))

@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { DeleteButton } from "./components/DeleteButton";
 import { CardComposer } from "./components/CardComposer";
 import { useBoard } from "./hooks/useBoard";
 import type { Status } from "./lib/board";
 
 export default function App() {
-  const { columns, cards, storageError, addCard, moveCard, addColumn } = useBoard();
+  const { columns, cards, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = useBoard();
   const [addingColumn, setAddingColumn] = useState(false);
   const [columnTitle, setColumnTitle] = useState("");
   const [composer, setComposer] = useState<Status | null>(null);
@@ -109,6 +110,7 @@ export default function App() {
                         {column.title}
                         <span className="column-count">{columnCards.length}</span>
                       </h2>
+                      <div className="column-actions">
                       <button
                         className="icon-button"
                         aria-label={`Agregar tarjeta a ${column.title}`}
@@ -116,6 +118,18 @@ export default function App() {
                       >
                         ＋
                       </button>
+                        <DeleteButton label={`Eliminar columna ${column.title}`} onClick={() => {
+                          const message = columnCards.length > 0
+                            ? `¿Eliminar la columna «${column.title}» y sus ${columnCards.length} tarjetas? Esta acción no se puede deshacer.`
+                            : `¿Eliminar la columna «${column.title}»?`;
+                          if (!window.confirm(message)) return;
+                          deleteColumn(column.id);
+                          if (composer === column.id) setComposer(null);
+                          setDragging(null);
+                          setOver(null);
+                          setAnnouncement(`Columna ${column.title} eliminada.`);
+                        }} />
+                      </div>
                     </div>
                     {column.description && <p className="column-description">{column.description}</p>}
                   </div>
@@ -143,9 +157,14 @@ export default function App() {
                                 ? "En marcha"
                                 : column.id === "todo" ? "Por explorar" : column.title}
                           </span>
-                          <span className="drag-handle" aria-hidden="true">
-                            ⠿
-                          </span>
+                          <div className="card-actions">
+                            <span className="drag-handle" aria-hidden="true">⠿</span>
+                            <DeleteButton label={`Eliminar tarjeta ${card.title}`} onClick={() => {
+                              if (!window.confirm(`¿Eliminar la tarjeta «${card.title}»? Esta acción no se puede deshacer.`)) return;
+                              deleteCard(card.id);
+                              setAnnouncement(`Tarjeta ${card.title} eliminada.`);
+                            }} />
+                          </div>
                         </div>
                         <h3>{card.title}</h3>
                         {card.description && (
