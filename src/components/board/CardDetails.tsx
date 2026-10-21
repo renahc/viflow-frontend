@@ -1,22 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
 import { AlignLeft, Kanban, X } from 'lucide-react'
 import type { Card, Column } from '../../lib/board'
-import type { Label } from '../../lib/labels'
-import { LabelBadge } from '../CardLabels'
+import type { Label, LabelColor } from '../../lib/labels'
+import { CardLabels } from '../CardLabels'
+import { LabelPicker } from '../LabelPicker'
 
 type Props = {
   card: Card
   column?: Column
   labels: Label[]
   onClose: () => void
+  onToggleLabel: (labelId: string) => void
+  onDeleteLabel: (labelId: string) => void
+  onCreateLabel: (name: string, color: LabelColor) => string | undefined
   onSave: (title: string, description: string) => string | undefined
 }
 
-export function CardDetails({ card, column, labels, onClose, onSave }: Props) {
+export function CardDetails({ card, column, labels, onClose, onSave, onToggleLabel, onDeleteLabel, onCreateLabel }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const titleRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState(card.title)
   const [description, setDescription] = useState(card.description)
+  const [labelAnchor, setLabelAnchor] = useState<HTMLButtonElement | null>(null)
   const [error, setError] = useState('')
   const assignedLabels = labels.filter(label => card.labelIds?.includes(label.id))
   const changed = title.trim() !== card.title || description.trim() !== card.description
@@ -52,9 +57,11 @@ export function CardDetails({ card, column, labels, onClose, onSave }: Props) {
         <label className="card-details-label" htmlFor="card-details-name">Título</label>
         <input ref={titleRef} id="card-details-name" className="profile-name-input" autoFocus required maxLength={160} value={title}
           onChange={event => { setTitle(event.target.value); setError('') }} aria-describedby={error ? 'card-details-error' : undefined} />
-        {assignedLabels.length > 0 && <section className="card-details-labels" aria-label="Etiquetas de la tarjeta">
-          <h3>Etiquetas</h3><div>{assignedLabels.map(label => <LabelBadge key={label.id} label={label} />)}</div>
-        </section>}
+        <section className="card-details-labels" aria-label="Etiquetas de la tarjeta">
+          <h3>Etiquetas</h3>
+          <CardLabels labels={assignedLabels} cardTitle={card.title} onOpen={setLabelAnchor} />
+          <small className="card-details-label-hint">Las etiquetas se guardan al seleccionarlas.</small>
+        </section>
         <label className="card-details-label" htmlFor="card-details-description"><AlignLeft size={15} aria-hidden="true" />Descripción</label>
         <textarea id="card-details-description" rows={7} maxLength={1000} value={description} placeholder="Agrega detalles, contexto o instrucciones…"
           onChange={event => { setDescription(event.target.value); setError('') }} />
@@ -65,6 +72,9 @@ export function CardDetails({ card, column, labels, onClose, onSave }: Props) {
           <button className="primary-button" disabled={!title.trim() || !changed}>Guardar cambios</button>
         </div>
       </form>
+      {labelAnchor && <LabelPicker card={card} labels={labels} anchor={labelAnchor}
+        onClose={() => setLabelAnchor(null)} onToggle={onToggleLabel}
+        onDelete={onDeleteLabel} onCreate={onCreateLabel} />}
     </dialog>
   )
 }

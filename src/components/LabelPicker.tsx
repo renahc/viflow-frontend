@@ -75,7 +75,7 @@ export function LabelPicker({ card, labels, anchor, onClose, onToggle, onDelete,
 
   return createPortal(<div ref={popupRef} className="label-dropdown" role="dialog" aria-label={`Etiquetas de ${card.title}`}
     onKeyDown={event => {
-      if (event.key === 'Escape') { event.stopPropagation(); closeAndFocus() }
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeAndFocus() }
     }} onBlur={event => {
       if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node) && event.relatedTarget !== anchor) onClose()
     }}>
@@ -111,5 +111,5 @@ export function LabelPicker({ card, labels, anchor, onClose, onToggle, onDelete,
         <button className="primary-button label-save" disabled={!name.trim()}>Crear y agregar</button>
       </form>
     </>}
-  </div>, document.body)
+  </div>, anchor.closest('dialog') ?? document.body)
 }

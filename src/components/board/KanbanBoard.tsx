@@ -78,6 +78,8 @@ export function KanbanBoard({ workspace }: Props) {
         <p className="sr-only" role="status" aria-live="polite">{announcement}</p>
       </div>
       {editingCard && <CardDetails key={editingCard.id} card={editingCard} column={columns.find(column => column.id === editingCard.status)} labels={labels}
+        onToggleLabel={labelId => toggleLabel(editingCard.id, labelId)} onDeleteLabel={deleteLabel}
+        onCreateLabel={(name, color) => addLabel(editingCard.id, name, color)}
         onClose={() => setEditingCardId(null)} onSave={(title, description) => {
           const error = editCard(editingCard.id, title, description)
           if (!error) setAnnouncement(`Tarjeta ${title.trim()} actualizada.`)
