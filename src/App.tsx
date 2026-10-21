@@ -6,6 +6,8 @@ import { BoardNavigation } from "./components/BoardNavigation";
 import { UserProfile } from "./components/UserProfile";
 import { ConfirmDeleteModal } from "./components/ConfirmDeleteModal";
 import { DeleteButton } from "./components/DeleteButton";
+import { CardLabels } from "./components/CardLabels";
+import { LabelPicker } from "./components/LabelPicker";
 import { CardComposer } from "./components/CardComposer";
 import { useBoard } from "./hooks/useBoard";
 import type { Status } from "./lib/board";
@@ -17,7 +19,9 @@ export default function App() {
 }
 
 function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard> }) {
-  const { boards, activeBoardId, openBoardIds, closeBoard, title: boardTitle, routeError, addBoard, renameBoard, deleteBoard, columns, cards, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = workspace;
+  const { boards, activeBoardId, openBoardIds, closeBoard, title: boardTitle, routeError, addBoard, renameBoard, deleteBoard, columns, cards, labels, addLabel, toggleLabel, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = workspace;
+  const [labelCardId, setLabelCardId] = useState<string | null>(null);
+  const labelCard = cards.find(card => card.id === labelCardId);
   const [addingColumn, setAddingColumn] = useState(false);
   const [columnTitle, setColumnTitle] = useState("");
   const [composer, setComposer] = useState<Status | null>(null);
@@ -182,9 +186,7 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
                         }}
                       >
                         <div className="card-topline">
-                          <span className="card-category">
-                            Agregar etiqueta <Plus size={11} aria-hidden="true" />
-                          </span>
+                          <CardLabels labels={labels.filter(label => card.labelIds?.includes(label.id))} cardTitle={card.title} onOpen={() => setLabelCardId(card.id)} />
                           <div className="card-actions">
                             <GripVertical className="drag-handle" size={16} aria-hidden="true" />
                             <DeleteButton label={`Eliminar tarjeta ${card.title}`} onClick={() => {
@@ -287,6 +289,8 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
           </p>
         </div>}
       </main>
+      {labelCard && <LabelPicker card={labelCard} labels={labels} onClose={() => setLabelCardId(null)}
+        onToggle={(labelId) => toggleLabel(labelCard.id, labelId)} onCreate={(name, color) => addLabel(labelCard.id, name, color)} />}
       {pendingDelete && (
         <ConfirmDeleteModal
           title={pendingDelete.kind === "column" ? "Eliminar columna" : "Eliminar tarjeta"}

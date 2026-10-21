@@ -48,6 +48,12 @@ Los tableros siguen siendo locales a este navegador y origen: compartir una URL 
 
 `vercel.json` incluye la reescritura de rutas SPA hacia `index.html`, excluyendo `/api/`. El frontend debe desplegarse con esta carpeta como raíz y `dist` como directorio de salida. Esta configuración todavía debe comprobarse en un despliegue real.
 
+## Etiquetas
+
+Cada tablero tiene sus propias etiquetas reutilizables. Desde «Agregar etiqueta» se puede crear una etiqueta con nombre (hasta 32 caracteres), elegir uno de seis colores fijos y asignarla a la tarjeta. Los checkboxes permiten asignar o quitar etiquetas existentes. Una tarjeta admite varias etiquetas; los nombres duplicados se rechazan dentro del tablero.
+
+La paleta vive en `src/lib/labels.ts`: morado, rosa, azul, petróleo, ámbar y gris. No se admiten colores arbitrarios. Las etiquetas y sus asignaciones se guardan junto al espacio de trabajo; los datos anteriores sin etiquetas siguen siendo válidos.
+
 ## Perfil local
 
 El menú de tres puntos del perfil permite abrir Configuración y guardar nombre y foto en `viflow.profile.v1`. La imagen se guarda en este navegador; admite PNG, JPG y WebP de hasta 1 MB. Cerrar sesión está deshabilitado hasta incorporar autenticación.
@@ -64,6 +70,8 @@ El menú de tres puntos del perfil permite abrir Configuración y guardar nombre
 - `src/components/BoardTabs.tsx`: pestañas abiertas, selección y cierre.
 - `src/lib/board.ts`: tipos, columnas, ejemplos y validación de datos guardados.
 - `src/lib/moveCard.ts`: movimiento y orden de tarjetas, con pruebas en `tests/moveCard.test.ts`.
+- `src/lib/labels.ts`: paleta y operaciones de etiquetas, con pruebas en `tests/labels.test.ts`.
+- `src/components/CardLabels.tsx` y `LabelPicker.tsx`: badges y selector de etiquetas.
 - `src/index.css`: TailwindCSS y estilos visuales.
 
 ## Revisión manual

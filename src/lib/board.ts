@@ -1,6 +1,9 @@
+import { isLabel } from "./labels";
+import type { Label } from "./labels";
+
 export type Column = { id: string; title: string; description: string };
 export type Status = string;
-export type Board = { columns: Column[]; cards: Card[] };
+export type Board = { columns: Column[]; cards: Card[]; labels?: Label[] };
 
 export const initialColumns: Column[] = [
   {
@@ -25,6 +28,7 @@ export type Card = {
   title: string;
   description: string;
   status: Status;
+  labelIds?: string[];
 };
 
 export const storageKey = "viflow.board.v2";
@@ -89,7 +93,13 @@ export function isBoard(value: unknown): value is Board {
   return Array.isArray(board.columns) && board.columns.every(isColumn)
     && hasUniqueIds(board.columns) && Array.isArray(board.cards)
     && board.cards.every(card => isCard(card, board.columns as Column[]))
-    && hasUniqueIds(board.cards);
+    && hasUniqueIds(board.cards)
+    && (board.labels === undefined || (Array.isArray(board.labels) && board.labels.every(isLabel) && hasUniqueIds(board.labels)))
+    && board.cards.every(card => card.labelIds === undefined || (
+      Array.isArray(card.labelIds) && new Set(card.labelIds).size === card.labelIds.length
+      && card.labelIds.every((id: unknown) => typeof id === "string"
+        && Array.isArray(board.labels) && board.labels.some(label => label.id === id))
+    ));
 }
 
 export function loadBoard(): Board {
