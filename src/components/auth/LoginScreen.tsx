@@ -41,6 +41,7 @@ export function LoginScreen() {
           <div className="auth-password-field"><input id="login-password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" required value={password} disabled={blocked} aria-describedby={login.error ? 'login-error' : undefined} onChange={event => { setPassword(event.target.value); login.clearError() }} />
             <button type="button" disabled={blocked} aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} aria-pressed={showPassword} onClick={() => setShowPassword(current => !current)}>{showPassword ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}</button>
           </div>
+          <Link className="auth-text-button auth-forgot-link" to="/auth/recover">¿Olvidaste tu contraseña?</Link>
           {login.error && <p className="auth-error" id="login-error" role="alert">{login.error}</p>}
           {login.needsVerification && <Link className="auth-text-button" to="/auth/register" state={{ verificationEmail: email.trim() }}>Verificar mi correo</Link>}
           <button className="primary-button auth-submit" type="submit" disabled={blocked}>{login.busy ? <><LoaderCircle className="auth-spinner" size={16} aria-hidden="true" />Iniciando sesión…</> : <>Iniciar sesión<ArrowRight size={16} aria-hidden="true" /></>}</button>

@@ -202,8 +202,8 @@ SDK gestiona la sesión autenticada por separado; el proveedor escucha cambios y
 el acceso lateral refleja **Tu cuenta**. Se puede cerrar sesión desde esa página
 o el menú del perfil, sin borrar tableros ni el perfil local.
 
-La cuenta ya permite iniciar sesión por contraseña; la recuperación y la
-sincronización de tableros siguen pendientes. Tras salir se puede continuar como
+La cuenta ya permite iniciar sesión por contraseña; la recuperación está disponible por código y la
+sincronización de tableros sigue pendiente. Tras salir se puede continuar como
 invitado o volver a iniciar sesión. Véase [configuración y prueba de correo](docs/supabase-auth-setup.md).
 
 ## Inicio de sesión
@@ -221,8 +221,23 @@ un código válido o pedir uno nuevo; no se ejecuta otro registro ni se manda un
 correo automáticamente. El traspaso se consume una vez y conserva solo el correo
 pendiente, nunca la contraseña.
 
-La recuperación de contraseña sigue pendiente. Para probar esta entrega, cerrar
+Para probar el inicio de sesión, cerrar
 sesión, entrar con la cuenta ya verificada y recargar; comprobar el nombre/correo
 de la cuenta y que los tableros locales permanezcan intactos. Probar una contraseña
 incorrecta y un registro pendiente. Las pruebas automatizadas usan un servicio
 simulado, sin autenticar cuentas reales ni enviar correos.
+
+## Recuperación de contraseña
+
+Desde `/auth/login`, **¿Olvidaste tu contraseña?** abre `/auth/recover`: solicitud
+de código, verificación y nueva contraseña con confirmación. Configurar antes la
+plantilla **Reset password** usando `supabase/templates/recovery.html`, según la
+[guía de Supabase](docs/supabase-auth-setup.md#recuperación-de-contraseña-por-código).
+
+La respuesta a la solicitud no revela si el correo tiene cuenta. El reenvío tiene
+espera visual y límites de Supabase. El cambio requiere verificar un OTP de tipo
+`recovery` y comprobar el usuario en el servidor; una sesión normal no habilita
+el paso por sí sola. La contraseña se limpia al enviar y nunca se persiste.
+Recargar tras verificar exige otra verificación. Tras actualizar, la sesión
+permanece activa; cerrar sesión permite probar la contraseña nueva en login.
+Los tableros siguen siendo locales.

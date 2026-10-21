@@ -47,3 +47,42 @@ remotos, se exigirán permisos del servidor y RLS según el modelo documentado.
 Las pruebas automatizadas usan un adaptador simulado del SDK; no crean cuentas,
 no envían correos ni validan la configuración SMTP real. La prueba de entrega de
 correo y verificación debe completarse con el usuario y Mailtrap.
+
+## Recuperación de contraseña por código
+
+La ruta `/auth/recover` está enlazada desde **¿Olvidaste tu contraseña?** en login.
+Usa `resetPasswordForEmail`, `verifyOtp` con tipo `recovery` y `updateUser`.
+No utiliza enlaces con tokens ni requiere activar `detectSessionInUrl`.
+
+### Configuración adicional obligatoria
+
+En **Authentication → Emails → Reset password**, guardar:
+
+- Asunto: `Recupera tu contraseña de viflow`.
+- Body → Source: contenido de `supabase/templates/recovery.html`.
+
+Guardar esta plantilla por separado: cambiar Confirm sign up no cambia los
+correos de recuperación. El remitente y SMTP son los mismos ya configurados. Con
+Mailtrap Sandbox el correo y su código aparecen en My Sandbox.
+
+### Prueba con el usuario
+
+1. Abrir Recuperar contraseña e introducir el correo de una cuenta existente.
+2. Comprobar el mensaje genérico: no revela si existe una cuenta.
+3. Obtener el código del correo más reciente de Mailtrap e introducirlo en viflow.
+4. Tras verificar, introducir y repetir la contraseña nueva. Este paso lo realiza
+   el usuario directamente; nunca compartir la contraseña ni el código por chat.
+5. Comprobar Contraseña actualizada. La recuperación crea una sesión autenticada;
+   se mantiene activa en este dispositivo, sin afectar tableros locales.
+6. Cerrar sesión y comprobar que se puede entrar con la nueva contraseña.
+7. Probar código incorrecto/vencido, reenvío tras 60 segundos y contraseñas distintas
+   en la confirmación. La API decide la caducidad y aplica límites reales.
+
+Solo se conservan correo pendiente y tiempo de reenvío en sessionStorage. Si se
+recarga después de verificar, hay que verificar de nuevo; el permiso para cambiar
+contraseña no se restaura desde una bandera local. Si el código ya fue consumido,
+solicitar otro. El servicio también comprueba la identidad con `getUser` antes de
+actualizar: un cambio de cuenta invalida la autorización de recuperación.
+
+Las pruebas de servicio simulan el SDK y no cambian contraseñas reales. La prueba
+completa queda a cargo del usuario después de configurar la plantilla.
