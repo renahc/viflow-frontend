@@ -158,7 +158,7 @@ a { color: inherit; text-decoration: none; }
 .board-entry-row .nav-item { min-width: 0; flex: 1; }
 .board-options-trigger { flex-shrink: 0; width: 28px; height: 30px; margin-right: 5px; border: 0; border-radius: 5px; background: transparent; color: #635176; font-size: 21px; }
 .board-options-trigger:hover { background: #d7cde1; }
-.board-item-options { padding: 4px; border-top: 1px solid #d6cedf; }
+.board-item-options { position: fixed; z-index: 10; width: 184px; max-height: calc(100dvh - 16px); overflow-y: auto; padding: 5px; border: 1px solid #d6cedf; border-radius: 8px; background: #faf8fb; box-shadow: 0 5px 20px #33283e15; }
 .board-item-options button { display: block; width: 100%; text-align: left; border: 0; background: transparent; border-radius: 4px; padding: 9px; font-size: 11px; }
 .board-item-options button:hover { background: #eae4f0; }
 .board-item-options .board-delete-option { color: #a4384b; }
@@ -168,5 +168,5 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 800px) {
   .board-entry-row { flex-direction: column; gap: 0; }
   .board-options-trigger { margin: 0 0 4px; height: 22px; }
-  .board-item-options button { font-size: 9px; padding: 7px 2px; overflow-wrap: anywhere; }
+
 }

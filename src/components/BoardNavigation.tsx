@@ -33,6 +33,7 @@ export function BoardNavigation({ boards, activeBoardId, onSelect, onCreate, onR
   const [creating, setCreating] = useState(false)
   const [title, setTitle] = useState('')
   const [menu, setMenu] = useState<string | null>(null)
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 })
   const [action, setAction] = useState<{ kind: 'rename' | 'delete'; board: WorkspaceBoard } | null>(null)
   const navRef = useRef<HTMLElement>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -43,8 +44,20 @@ export function BoardNavigation({ boards, activeBoardId, onSelect, onCreate, onR
       const target = event.target as Element
       if (!navRef.current?.querySelector(`[data-board-menu="${CSS.escape(menu!)}"]`)?.contains(target)) setMenu(null)
     }
+    function closeOnLayoutChange() { setMenu(null) }
+    function closeOnScroll(event: Event) {
+      const target = event.target as Node
+      const popup = document.getElementById(`board-options-${menu}`)
+      if (!popup?.contains(target)) setMenu(null)
+    }
     document.addEventListener('pointerdown', closeOutside)
-    return () => document.removeEventListener('pointerdown', closeOutside)
+    window.addEventListener('resize', closeOnLayoutChange)
+    window.addEventListener('scroll', closeOnScroll, true)
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside)
+      window.removeEventListener('resize', closeOnLayoutChange)
+      window.removeEventListener('scroll', closeOnScroll, true)
+    }
   }, [menu])
 
   function closeAction() {
@@ -62,9 +75,18 @@ export function BoardNavigation({ boards, activeBoardId, onSelect, onCreate, onR
             <span aria-hidden="true">▦</span><span className="board-link-title">{board.title}</span>
           </button>
           <button className="board-options-trigger" type="button" aria-label={`Opciones de ${board.title}`} aria-expanded={menu === board.id} aria-controls={menu === board.id ? `board-options-${board.id}` : undefined}
-            onClick={event => { triggerRef.current = event.currentTarget; setMenu(current => current === board.id ? null : board.id) }}>⋯</button>
+            onClick={event => {
+              triggerRef.current = event.currentTarget
+              const rect = event.currentTarget.getBoundingClientRect()
+              const width = 184
+              setMenuPosition({
+                top: Math.max(8, Math.min(rect.top, window.innerHeight - 110)),
+                left: Math.max(8, Math.min(rect.right + 8, window.innerWidth - width - 8)),
+              })
+              setMenu(current => current === board.id ? null : board.id)
+            }}>⋯</button>
         </div>
-        {menu === board.id && <div className="board-item-options" id={`board-options-${board.id}`}>
+        {menu === board.id && <div className="board-item-options" style={menuPosition} id={`board-options-${board.id}`}>
           <button type="button" onClick={() => { setMenu(null); setAction({ kind: 'rename', board }) }}>Renombrar</button>
           <button type="button" className="board-delete-option" onClick={() => { setMenu(null); setAction({ kind: 'delete', board }) }}>Eliminar tablero</button>
         </div>}
