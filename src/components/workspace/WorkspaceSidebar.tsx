@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { BackupDialog } from './BackupDialog'
 import { ArchiveDialog } from './ArchiveDialog'
-import { Archive, Download, Sparkles } from 'lucide-react'
+import { Archive, Download, Sparkles, UserRoundPlus } from 'lucide-react'
 import { Link } from 'react-router'
 import type { useBoard } from '../../hooks/useBoard'
 import { BoardNavigation } from '../BoardNavigation'
@@ -27,6 +27,7 @@ export function WorkspaceSidebar({ workspace }: Props) {
         <strong>Un paso a la vez.</strong>
         <p>Las grandes ideas se construyen con pequeños avances.</p>
       </div>
+      <Link className="auth-preview-entry" to="/auth/preview"><UserRoundPlus size={16} aria-hidden="true" /><span>Crear cuenta<small>Vista previa</small></span></Link>
       <UserProfile />
     </aside>
   )

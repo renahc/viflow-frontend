@@ -141,3 +141,24 @@ correo. No hay autenticación, envío de códigos ni sincronización implementad
 Revisión: exportar, importar y abrir una copia; recargar y verificar tarjetas,
 etiquetas, prioridades, comentarios y archivados. Intentar cargar un JSON roto o
 una versión no admitida y comprobar que el espacio actual no cambia.
+
+## Vista previa del registro
+
+La ruta `/auth/preview`, accesible desde **Crear cuenta · Vista previa** en el menú
+lateral, presenta el diseño de registro y verificación de correo. Es una
+simulación explícita: no llama a un proveedor, no crea usuarios, no envía correos
+ni guarda credenciales. Los campos se mantienen solo en memoria y la contraseña
+se limpia al cambiar de pantalla.
+
+Para revisar, introducir un correo y una contraseña de ejemplo, continuar y usar
+`123456` como código de demostración. Cualquier otro código muestra el error de
+verificación; `999999` muestra vencimiento. Reenviar simula el envío y aplica una
+espera visual de 30 segundos. **Revisar estados del diseño** permite inspeccionar
+registro/verificación cargando, errores, vencimiento, reenvío y confirmación.
+Los estados de carga seleccionados manualmente se mantienen hasta elegir otro
+estado para facilitar la revisión. Recargar reinicia el recorrido.
+
+El mínimo de contraseña, la longitud del código y la espera del reenvío son
+valores de la demostración; deberán alinearse con el proveedor cuando se conecte
+la autenticación. No se implementan todavía login, recuperación de contraseña,
+sesiones ni importación de tableros a una cuenta.
