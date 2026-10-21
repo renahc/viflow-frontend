@@ -45,13 +45,6 @@ export default function App() {
           viflow
           <span className="brand-dot">.</span>
         </a>
-        <div className="workspace">
-          <span className="workspace-icon">P</span>
-          <div>
-            <strong>Mi espacio</strong>
-            <small>Un lugar para tus ideas</small>
-          </div>
-        </div>
         <p className="nav-label">ESPACIO DE TRABAJO</p>
         <a className="nav-item" href="#board" aria-current="page">
           <span aria-hidden="true">▦</span>
