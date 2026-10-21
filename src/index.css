@@ -306,3 +306,7 @@ a { color: inherit; text-decoration: none; }
 .due-completed, .priority-low { background: #dfedec; color: #356b67; }
 .priority-medium { background: #e2e9f5; color: #3f5e89; }
 @media (max-width: 420px) { .card-schedule-fields { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+
+.card-priority-select { position: relative; }
+.card-priority-select select { appearance: none; padding-right: 36px; }
+.card-priority-select > svg { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #746880; }

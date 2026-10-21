@@ -1,7 +1,7 @@
 import { priorities } from '../../lib/cardSchedule'
 import type { CardSchedule, Priority } from '../../lib/cardSchedule'
 import { useEffect, useRef, useState } from 'react'
-import { AlignLeft, Kanban, X } from 'lucide-react'
+import { AlignLeft, ChevronDown, Kanban, X } from 'lucide-react'
 import type { Card, Column } from '../../lib/board'
 import type { Label, LabelColor } from '../../lib/labels'
 import { CardLabels } from '../CardLabels'
@@ -71,9 +71,9 @@ export function CardDetails({ card, column, labels, onClose, onSave, onToggleLab
               {dueDate && <button type="button" className="clear-due-date" onClick={() => setDueDate('')}>Quitar fecha</button>}
             </div>
             <div><label className="card-details-label" htmlFor="card-priority">Prioridad</label>
-              <select id="card-priority" value={priority} onChange={event => setPriority(event.target.value as Priority)}>
+              <div className="card-priority-select"><select id="card-priority" value={priority} onChange={event => setPriority(event.target.value as Priority)}>
                 {Object.entries(priorities).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-              </select>
+              </select><ChevronDown size={15} aria-hidden="true" /></div>
             </div>
           </div>
           <section className="card-details-labels" aria-label="Etiquetas de la tarjeta">
