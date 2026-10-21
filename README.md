@@ -119,3 +119,25 @@ Las tarjetas y tableros se archivan conservando sus datos en localStorage. El ac
 Al eliminar una columna, sus tarjetas se archivan y pasan a una columna existente; si era la última, se crea **Recuperadas** como destino. No se recuperan elementos eliminados definitivamente en versiones anteriores.
 
 Para revisar: archivar una tarjeta, recargar y restaurarla desde Archivados; archivar el tablero activo, verificar el cambio de ruta y recuperarlo con Deshacer; comprobar que editar otra tarjeta antes de restaurar no pierde cambios.
+
+## Preparación para el modo híbrido
+
+La lectura y escritura del espacio local están detrás de `WorkspaceRepository`
+y `useWorkspaceStorage`; las operaciones de `useBoard` ya no acceden directamente
+a localStorage. La clave existente y la migración de formatos anteriores se
+mantienen. El perfil local sigue separado del espacio de trabajo.
+
+En **Respaldos**, desde el menú lateral, se puede exportar un JSON e importar un
+archivo de hasta 10 MB. Antes de importar se valida todo y se muestra un resumen.
+Los tableros se agregan como copias sin reemplazar los existentes, incluyendo los
+archivados. Importar el mismo archivo otra vez produce otras copias. Un fallo al
+guardar impide aplicar la importación; el usuario conserva los datos anteriores.
+El archivo incluye comentarios y actividad, pero no el nombre/foto del perfil.
+
+El [modelo de datos y permisos](docs/data-model-and-access.md) documenta entidades,
+propiedad privada, migración local/nube y requisitos pendientes del registro por
+correo. No hay autenticación, envío de códigos ni sincronización implementados.
+
+Revisión: exportar, importar y abrir una copia; recargar y verificar tarjetas,
+etiquetas, prioridades, comentarios y archivados. Intentar cargar un JSON roto o
+una versión no admitida y comprobar que el espacio actual no cambia.

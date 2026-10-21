@@ -2,7 +2,7 @@ import { removeColumnKeepingCards, setCardArchived } from '../lib/archive'
 import type { ColumnSort } from '../lib/columnSort'
 import { formatDueDate, priorities } from '../lib/cardSchedule'
 import type { CardSchedule } from '../lib/cardSchedule'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useMatch, useNavigate } from 'react-router'
 import { createCardLabel, deleteBoardLabel, isLabelColor, toggleCardLabel } from '../lib/labels'
 import type { LabelColor } from '../lib/labels'
@@ -10,12 +10,14 @@ import { addCardComment, appendCardActivity, readActivityActor } from '../lib/ca
 import { updateCardContent } from '../lib/updateCard'
 import { moveCardInBoard } from '../lib/moveCard'
 import { boardPath } from '../lib/routes'
-import { createBoard, loadWorkspace, workspaceStorageKey } from '../lib/workspace'
-import type { Workspace } from '../lib/workspace'
+import { createBoard } from '../lib/workspace'
+import { useWorkspaceStorage } from './useWorkspaceStorage'
+import { mergeBackup } from '../lib/workspaceBackup'
+import type { WorkspaceBackup } from '../lib/workspaceBackup'
 import type { Board, Status } from '../lib/board'
 
 export function useBoard() {
-  const [workspace, setWorkspace] = useState(loadWorkspace)
+  const { workspace, storageError, saveWorkspace, importWorkspace } = useWorkspaceStorage()
   const [undoArchive, setUndoArchive] = useState<{ kind: 'board' | 'card'; boardId: string; cardId?: string; title: string } | null>(null)
   const match = useMatch('/boards/:boardId')
   const location = useLocation()
@@ -25,30 +27,17 @@ export function useBoard() {
   // The URL decides what is displayed. Stored selection only restores old data.
   const board = workspace.boards.find(board => board.id === routeBoardId && !board.archivedAt) ?? { id: '', title: 'Sin tableros', columns: [], cards: [] }
   const routeError = (Boolean(routeBoardId) && !board.id) || (!match && location.pathname !== '/')
-  const [storageError, setStorageError] = useState(false)
-
-  const saveWorkspace = useCallback((nextWorkspace: Workspace) => {
-    setWorkspace(nextWorkspace)
-    try {
-      localStorage.setItem(workspaceStorageKey, JSON.stringify(nextWorkspace))
-      setStorageError(false)
-    } catch {
-      setStorageError(true)
-    }
-  }, [])
-
   // Browser Back/Forward and direct URLs must also restore the open tab.
   useEffect(() => {
     // Router transitions can commit after a workspace update. Do not reopen the tab being closed.
     const pending = pendingNavigation.current
     if (pending && location.pathname === pending.from && pending.from !== pending.to) return
     pendingNavigation.current = null
-    if (!board.id || (workspace.activeBoardId === board.id && workspace.openBoardIds.includes(board.id))) return
+    if (storageError || !board.id || (workspace.activeBoardId === board.id && workspace.openBoardIds.includes(board.id))) return
     // URL changes are external navigation events; synchronize their persisted tab state.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     saveWorkspace({ ...workspace, activeBoardId: board.id, openBoardIds: workspace.openBoardIds.includes(board.id)
       ? workspace.openBoardIds : [...workspace.openBoardIds, board.id] })
-  }, [board.id, location.pathname, workspace, saveWorkspace])
+  }, [board.id, location.pathname, workspace, saveWorkspace, storageError])
 
   function saveBoard(nextBoard: Board) {
     if (!board.id) return
@@ -198,5 +187,9 @@ export function useBoard() {
     saveBoard(removeColumnKeepingCards(board, id))
   }
 
-  return { ...board, cards: board.cards.filter(card => !card.archivedAt), allBoards: workspace.boards, undoArchive, restoreArchived, undoLastArchive, dismissUndo: () => setUndoArchive(null), labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards.filter(board => !board.archivedAt), activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, archiveBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort, archiveCard, deleteColumn }
+  function importBackup(backup: WorkspaceBackup): boolean {
+    return importWorkspace(mergeBackup(workspace, backup))
+  }
+
+  return { ...board, exportWorkspace: workspace, importBackup, cards: board.cards.filter(card => !card.archivedAt), allBoards: workspace.boards, undoArchive, restoreArchived, undoLastArchive, dismissUndo: () => setUndoArchive(null), labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards.filter(board => !board.archivedAt), activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, archiveBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort, archiveCard, deleteColumn }
 }

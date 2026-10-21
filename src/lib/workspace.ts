@@ -1,4 +1,4 @@
-import { initialColumns, isBoard, loadBoard } from './board'
+import { initialColumns, isBoard } from './board.ts'
 import type { Board } from './board'
 
 export type WorkspaceBoard = Board & { id: string; title: string; archivedAt?: string }
@@ -20,29 +20,17 @@ export function createBoard(title: string): WorkspaceBoard {
   }
 }
 
-export function loadWorkspace(): Workspace {
-  try {
-    const stored: unknown = JSON.parse(localStorage.getItem(workspaceStorageKey) ?? 'null')
-    if (typeof stored === 'object' && stored !== null) {
-      const workspace = stored as Record<string, unknown>
-      if (Array.isArray(workspace.boards)
-        && workspace.boards.every(isWorkspaceBoard)
-        && new Set(workspace.boards.map(board => board.id)).size === workspace.boards.length) {
-        const boards = workspace.boards;
-        const visibleBoards = boards.filter(board => !board.archivedAt);
-        const hasSavedTabs = Array.isArray(workspace.openBoardIds);
-        const validActiveId = visibleBoards.some(board => board.id === workspace.activeBoardId)
-          ? workspace.activeBoardId as string : visibleBoards[0]?.id ?? '';
-        const openBoardIds = hasSavedTabs
-          ? [...new Set((workspace.openBoardIds as unknown[]).filter((id): id is string =>
-              typeof id === 'string' && visibleBoards.some(board => board.id === id)))]
-          : validActiveId ? [validActiveId] : [];
-        return {
-          boards, openBoardIds,
-          activeBoardId: openBoardIds.includes(validActiveId) ? validActiveId : openBoardIds[0] ?? '',
-        };
-      }
-    }
-  } catch { /* Fall back to the previous single-board format. */ }
-  return { boards: [{ ...loadBoard(), id: 'default', title: 'Mi tablero' }], activeBoardId: 'default', openBoardIds: ['default'] }
+export function parseWorkspace(value: unknown): Workspace | undefined {
+  if (typeof value !== 'object' || value === null) return
+  const workspace = value as Record<string, unknown>
+  if (!Array.isArray(workspace.boards) || !workspace.boards.every(isWorkspaceBoard)
+    || new Set(workspace.boards.map(board => board.id)).size !== workspace.boards.length) return
+  const boards = workspace.boards
+  const visibleBoards = boards.filter(board => !board.archivedAt)
+  const validActiveId = visibleBoards.some(board => board.id === workspace.activeBoardId)
+    ? workspace.activeBoardId as string : visibleBoards[0]?.id ?? ''
+  const openBoardIds = Array.isArray(workspace.openBoardIds)
+    ? [...new Set(workspace.openBoardIds.filter((id): id is string => typeof id === 'string' && visibleBoards.some(board => board.id === id)))]
+    : validActiveId ? [validActiveId] : []
+  return { boards, openBoardIds, activeBoardId: openBoardIds.includes(validActiveId) ? validActiveId : openBoardIds[0] ?? '' }
 }

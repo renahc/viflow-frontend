@@ -1,9 +1,9 @@
-import { isDueDate, isPriority } from './cardSchedule';
-import type { Priority } from './cardSchedule';
-import { isCardActivity, isCardComment } from "./cardActivity";
-import type { CardActivity, CardComment } from "./cardActivity";
-import { isLabel, isLabelColor } from "./labels";
-import type { Label, LabelColor } from "./labels";
+import { isDueDate, isPriority } from './cardSchedule.ts';
+import type { Priority } from './cardSchedule.ts';
+import { isCardActivity, isCardComment } from "./cardActivity.ts";
+import type { CardActivity, CardComment } from "./cardActivity.ts";
+import { isLabel, isLabelColor } from "./labels.ts";
+import type { Label, LabelColor } from "./labels.ts";
 
 export type Column = { id: string; title: string; description: string; color?: LabelColor; sort?: 'manual' | 'priority' };
 export type Status = string;
@@ -41,7 +41,7 @@ export type Card = {
 };
 
 export const storageKey = "viflow.board.v2";
-const legacyStorageKey = "viflow.board.v1";
+
 
 const initialCards: Card[] = [
   {
@@ -79,7 +79,7 @@ function isCard(value: unknown, columns: Column[]): value is Card {
     (card.archivedAt === undefined || (typeof card.archivedAt === "string" && Number.isFinite(Date.parse(card.archivedAt)))) &&
     (card.dueDate === undefined || isDueDate(card.dueDate)) &&
     (card.priority === undefined || isPriority(card.priority)) &&
-    typeof card.id === "string" &&
+    typeof card.id === "string" && !!card.id.trim() &&
     typeof card.title === "string" &&
     !!card.title.trim() &&
     typeof card.description === "string" &&
@@ -118,32 +118,6 @@ export function isBoard(value: unknown): value is Board {
     ));
 }
 
-export function loadBoard(): Board {
-  try {
-    const stored = localStorage.getItem(storageKey);
-    if (stored !== null) {
-      const parsed: unknown = JSON.parse(stored);
-      if (typeof parsed === "object" && parsed !== null) {
-        const board = parsed as Record<string, unknown>;
-        if (Array.isArray(board.columns)
-          && board.columns.every(isColumn) && hasUniqueIds(board.columns)
-          && Array.isArray(board.cards)
-          && board.cards.every(card => isCard(card, board.columns as Column[]))
-          && hasUniqueIds(board.cards)) {
-          return { columns: board.columns, cards: board.cards };
-        }
-      }
-    }
-    // Read the previous format without deleting it, preserving existing cards.
-    const legacy = localStorage.getItem(legacyStorageKey);
-    if (legacy !== null) {
-      const cards: unknown = JSON.parse(legacy);
-      if (Array.isArray(cards) && cards.every(card => isCard(card, initialColumns)) && hasUniqueIds(cards)) {
-        return { columns: initialColumns, cards };
-      }
-    }
-  } catch {
-    /* Storage may be unavailable; the board still works in memory. */
-  }
-  return { columns: initialColumns, cards: initialCards };
+export function createInitialBoard(): Board {
+  return { columns: initialColumns.map(column => ({ ...column })), cards: initialCards.map(card => ({ ...card })) }
 }
