@@ -182,12 +182,8 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
                         }}
                       >
                         <div className="card-topline">
-                          <span className={`card-category ${column.id}`}>
-                            {column.id === "done"
-                              ? "Completado"
-                              : column.id === "in-progress"
-                                ? "En marcha"
-                                : column.id === "todo" ? "Por explorar" : column.title}
+                          <span className="card-category">
+                            Agregar etiqueta <Plus size={11} aria-hidden="true" />
                           </span>
                           <div className="card-actions">
                             <GripVertical className="drag-handle" size={16} aria-hidden="true" />
