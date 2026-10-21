@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowLeftRight, Kanban, Plus } from 'lucide-react'
 import type { useBoard } from '../../hooks/useBoard'
-import { readActivityActor } from '../../lib/cardActivity'
+import { useActivityActor } from '../../hooks/useActivityActor'
 import { useCardDrag } from '../../hooks/useCardDrag'
 import type { Status } from '../../lib/board'
 import { ColumnComposer } from '../ColumnComposer'
@@ -15,6 +15,7 @@ type PendingDelete = { kind: 'card' | 'column'; id: string; title: string }
 type LabelSelection = { cardId: string; anchor: HTMLButtonElement }
 
 export function KanbanBoard({ workspace }: Props) {
+  const readActivityActor = useActivityActor()
   const { title, columns, cards, labels, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort,
     archiveCard, deleteColumn, addLabel, toggleLabel, deleteLabel } = workspace
   const [editingCardId, setEditingCardId] = useState<string | null>(null)

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { addCardComment, appendCardActivity, isCardActivity, isCardComment } from '../src/lib/cardActivity.ts'
+import { addCardComment, appendCardActivity, isCardActivity, isCardComment, readActivityActor } from '../src/lib/cardActivity.ts'
 import { updateCardContent } from '../src/lib/updateCard.ts'
 import { moveCardInBoard } from '../src/lib/moveCard.ts'
 import type { Board } from '../src/lib/board.ts'
@@ -57,4 +57,34 @@ test('validates persisted comment and activity data', () => {
   assert.equal(entry.actor, 'Tú')
   assert.equal(isCardActivity({ ...entry, kind: 'unknown' }), false)
   assert.equal(isCardActivity({ ...entry, actor: '' }), false)
+})
+
+test('uses account identity for new entries without rewriting historical authors', () => {
+  const original = addCardComment(board, 'a', 'Antes de iniciar sesión', 'Perfil invitado').board
+  const user = { email_confirmed_at: '2026-10-21', user_metadata: { display_name: ' Rena ' } }
+  const actor = readActivityActor(user)
+  assert.equal(actor, 'Rena')
+  const commented = addCardComment(original, 'a', 'Con cuenta', actor).board
+  const next = appendCardActivity(commented, 'a', 'moved', 'movió la tarjeta.', actor)
+  assert.equal(next.cards[0].comments?.[0].author, 'Rena')
+  assert.equal(next.cards[0].comments?.[1].author, 'Perfil invitado')
+  assert.equal(next.cards[0].activity?.[0].actor, 'Rena')
+  assert.equal(readActivityActor({ ...user, user_metadata: { display_name: 'Nuevo nombre' } }), 'Nuevo nombre')
+  assert.equal(next.cards[0].comments?.[0].author, 'Rena')
+})
+
+test('never attributes account actions to the local profile or email', () => {
+  const previous = Object.getOwnPropertyDescriptor(globalThis, 'localStorage')
+  Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: { getItem: () => JSON.stringify({ name: 'Invitado' }) } })
+  try {
+    assert.equal(readActivityActor(null), 'Invitado')
+    assert.equal(readActivityActor({ user_metadata: { display_name: 'Sin verificar' } }), 'Invitado')
+    assert.equal(readActivityActor({ email_confirmed_at: 'date', user_metadata: {} }), 'Tu cuenta')
+    assert.equal(readActivityActor({ email_confirmed_at: 'date', user_metadata: { display_name: 42 } }), 'Tu cuenta')
+    Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: { getItem: () => { throw new Error('unavailable') } } })
+    assert.equal(readActivityActor(null), 'Tú')
+  } finally {
+    if (previous) Object.defineProperty(globalThis, 'localStorage', previous)
+    else Reflect.deleteProperty(globalThis, 'localStorage')
+  }
 })

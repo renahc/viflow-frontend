@@ -95,7 +95,7 @@ El perfil lateral usa el nombre y la inicial de la cuenta, con el correo como te
 Las cuentas anteriores pueden usar «Completar perfil» en el menú de tres puntos para agregar su nombre.
 «Configuración» permite editarlo después y refleja los errores sin cerrar el formulario.
 Al cerrar sesión vuelve el perfil local, conservando su nombre y foto originales.
-La foto de la cuenta y la identidad de los autores de comentarios quedan para otra entrega.
+La foto de la cuenta queda para otra entrega. Los comentarios y registros de actividad nuevos usan el nombre de la cuenta verificada; sin sesión usan el perfil local. Las cuentas sin nombre aparecen como «Tu cuenta», sin exponer el correo ni atribuir acciones al perfil local. Los nombres históricos se conservan aunque cambie el perfil.
 Los metadatos de usuario son datos de presentación; nunca deben utilizarse para permisos.
 
 Validación manual: registrar con nombre, verificar correo, comprobar nombre en la barra lateral,

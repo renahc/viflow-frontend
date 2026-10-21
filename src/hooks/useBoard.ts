@@ -1,3 +1,4 @@
+import { useActivityActor } from './useActivityActor'
 import { removeColumnKeepingCards, setCardArchived } from '../lib/archive'
 import type { ColumnSort } from '../lib/columnSort'
 import { formatDueDate, priorities } from '../lib/cardSchedule'
@@ -6,7 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useLocation, useMatch, useNavigate } from 'react-router'
 import { createCardLabel, deleteBoardLabel, isLabelColor, toggleCardLabel } from '../lib/labels'
 import type { LabelColor } from '../lib/labels'
-import { addCardComment, appendCardActivity, readActivityActor } from '../lib/cardActivity'
+import { addCardComment, appendCardActivity } from '../lib/cardActivity'
 import { updateCardContent } from '../lib/updateCard'
 import { moveCardInBoard } from '../lib/moveCard'
 import { boardPath } from '../lib/routes'
@@ -17,6 +18,7 @@ import type { WorkspaceBackup } from '../lib/workspaceBackup'
 import type { Board, Status } from '../lib/board'
 
 export function useBoard() {
+  const readActivityActor = useActivityActor()
   const { workspace, storageError, saveWorkspace, importWorkspace } = useWorkspaceStorage()
   const [undoArchive, setUndoArchive] = useState<{ kind: 'board' | 'card'; boardId: string; cardId?: string; title: string } | null>(null)
   const match = useMatch('/boards/:boardId')

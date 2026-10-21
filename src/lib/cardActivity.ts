@@ -1,3 +1,4 @@
+import { accountDisplayName } from '../services/accountProfileService.ts'
 import type { Board } from './board'
 
 const activityKinds = ['archived', 'restored', 'due-date-edited', 'priority-edited', 'created', 'moved', 'reordered', 'title-edited', 'description-edited', 'label-added', 'label-removed'] as const
@@ -24,7 +25,8 @@ export function isCardActivity(value: unknown): value is CardActivity {
     && typeof value.message === 'string' && !!value.message.trim() && isTimestamp(value.createdAt)
 }
 
-export function readActivityActor(): string {
+export function readActivityActor(user?: { email_confirmed_at?: string; user_metadata?: Record<string, unknown> } | null): string {
+  if (user?.email_confirmed_at) return accountDisplayName(user.user_metadata) || 'Tu cuenta'
   try {
     const profile: unknown = JSON.parse(localStorage.getItem('viflow.profile.v1') ?? 'null')
     if (isRecord(profile) && typeof profile.name === 'string' && profile.name.trim()) return profile.name.trim()
