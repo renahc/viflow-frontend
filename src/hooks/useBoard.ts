@@ -5,7 +5,7 @@ import type { Board, Status } from '../lib/board'
 
 export function useBoard() {
   const [workspace, setWorkspace] = useState(loadWorkspace)
-  const board = workspace.boards.find(board => board.id === workspace.activeBoardId) ?? workspace.boards[0]
+  const board = workspace.boards.find(board => board.id === workspace.activeBoardId) ?? workspace.boards[0] ?? { id: '', title: 'Sin tableros', columns: [], cards: [] }
   const [storageError, setStorageError] = useState(false)
 
   function saveWorkspace(nextWorkspace: Workspace) {
@@ -19,6 +19,7 @@ export function useBoard() {
   }
 
   function saveBoard(nextBoard: Board) {
+    if (!board.id) return
     saveWorkspace({ ...workspace, boards: workspace.boards.map(current =>
       current.id === board.id ? { ...current, ...nextBoard } : current) })
   }
@@ -33,6 +34,18 @@ export function useBoard() {
     const nextBoard = createBoard(title)
     saveWorkspace({ boards: [...workspace.boards, nextBoard], activeBoardId: nextBoard.id })
     return nextBoard.id
+  }
+
+  function renameBoard(id: string, title: string) {
+    if (!title.trim()) return
+    saveWorkspace({ ...workspace, boards: workspace.boards.map(current =>
+      current.id === id ? { ...current, title: title.trim() } : current) })
+  }
+
+  function deleteBoard(id: string) {
+    const remaining = workspace.boards.filter(current => current.id !== id)
+    saveWorkspace({ boards: remaining, activeBoardId: workspace.activeBoardId === id
+      ? remaining[0]?.id ?? '' : workspace.activeBoardId })
   }
 
   function addCard(title: string, description: string, status: Status) {
@@ -63,5 +76,5 @@ export function useBoard() {
     })
   }
 
-  return { ...board, boards: workspace.boards, activeBoardId: board.id, selectBoard, addBoard, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn }
+  return { ...board, boards: workspace.boards, activeBoardId: board.id, selectBoard, addBoard, renameBoard, deleteBoard, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn }
 }

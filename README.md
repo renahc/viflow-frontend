@@ -19,6 +19,7 @@ pnpm lint
 ## Primera versión
 
 - Creación de tableros independientes desde el menú lateral, con selección persistida y lista vertical.
+- Menú de tres puntos por tablero para renombrar o eliminar con confirmación. Al eliminar un tablero se eliminan sus columnas y tarjetas; se puede dejar el espacio de trabajo vacío.
 - Tres columnas iniciales: Por hacer, En progreso y Hecho.
 - Creación de columnas personalizadas al extremo derecho del tablero.
 - Eliminación de tarjetas y columnas con confirmación. Eliminar una columna elimina también sus tarjetas; se puede dejar el tablero vacío.

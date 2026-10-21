@@ -24,13 +24,13 @@ export function loadWorkspace(): Workspace {
     const stored: unknown = JSON.parse(localStorage.getItem(workspaceStorageKey) ?? 'null')
     if (typeof stored === 'object' && stored !== null) {
       const workspace = stored as Record<string, unknown>
-      if (Array.isArray(workspace.boards) && workspace.boards.length > 0
+      if (Array.isArray(workspace.boards)
         && workspace.boards.every(isWorkspaceBoard)
         && new Set(workspace.boards.map(board => board.id)).size === workspace.boards.length) {
         return {
           boards: workspace.boards,
           activeBoardId: workspace.boards.some(board => board.id === workspace.activeBoardId)
-            ? workspace.activeBoardId as string : workspace.boards[0].id,
+            ? workspace.activeBoardId as string : workspace.boards[0]?.id ?? '',
         }
       }
     }

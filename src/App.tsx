@@ -8,7 +8,7 @@ import { useBoard } from "./hooks/useBoard";
 import type { Status } from "./lib/board";
 
 export default function App() {
-  const { boards, activeBoardId, title: boardTitle, selectBoard, addBoard, columns, cards, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = useBoard();
+  const { boards, activeBoardId, title: boardTitle, selectBoard, addBoard, renameBoard, deleteBoard, columns, cards, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = useBoard();
   const [addingColumn, setAddingColumn] = useState(false);
   const [columnTitle, setColumnTitle] = useState("");
   const [composer, setComposer] = useState<Status | null>(null);
@@ -60,7 +60,9 @@ export default function App() {
         <p className="nav-label">ESPACIO DE TRABAJO</p>
         <BoardNavigation boards={boards} activeBoardId={activeBoardId}
           onSelect={(id) => { resetBoardControls(); selectBoard(id); }}
-          onCreate={(title) => { resetBoardControls(); return addBoard(title); }} />
+          onCreate={(title) => { resetBoardControls(); return addBoard(title); }}
+          onRename={renameBoard}
+          onDelete={(id) => { resetBoardControls(); deleteBoard(id); }} />
         <div className="sidebar-note">
           <span aria-hidden="true">✳</span>
           <strong>Un paso a la vez.</strong>
@@ -69,7 +71,7 @@ export default function App() {
         <UserProfile />
       </aside>
       <main id="board" className="main-content">
-        <div className="board-content" key={activeBoardId}>
+        {boards.length === 0 ? <div className="workspace-empty"><h1>No hay tableros</h1><p>Crea un tablero desde el menú lateral para comenzar.</p>{storageError && <p role="alert">No pudimos guardar tus cambios en este navegador.</p>}</div> : <div className="board-content" key={activeBoardId}>
           <div className="board-toolbar">
             <span className="board-tab">
               <span aria-hidden="true">▥</span>{boardTitle}
@@ -253,7 +255,7 @@ export default function App() {
           <p className="sr-only" role="status" aria-live="polite">
             {announcement}
           </p>
-        </div>
+        </div>}
       </main>
       {pendingDelete && (
         <ConfirmDeleteModal
