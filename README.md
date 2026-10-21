@@ -23,7 +23,7 @@ pnpm test
 - Pestañas superiores para los tableros abiertos, sin duplicados y con scroll horizontal. Cerrar una pestaña no elimina el tablero. Las pestañas abiertas y la selección se conservan al recargar.
 - Menú de tres puntos por tablero para renombrar o eliminar con confirmación. Al eliminar un tablero se eliminan sus columnas y tarjetas; se puede dejar el espacio de trabajo vacío.
 - Tres columnas iniciales: Por hacer, En progreso y Hecho.
-- Creación de columnas personalizadas al extremo derecho del tablero.
+- Creación de columnas personalizadas al extremo derecho del tablero, con elección del color del punto entre los mismos seis tonos fijos de las etiquetas. El color se conserva al recargar; las columnas anteriores mantienen su aspecto.
 - Eliminación de tarjetas y columnas con confirmación. Eliminar una columna elimina también sus tarjetas; se puede dejar el tablero vacío.
 - Creación de tarjetas con título y descripción opcional.
 - Arrastre entre columnas en escritorio. Selector de estado para teclado y pantallas táctiles.

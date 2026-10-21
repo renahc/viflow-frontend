@@ -243,3 +243,9 @@ a { color: inherit; text-decoration: none; }
 .label-option-row:hover { background: #eee8f4; }
 .label-option-row .label-option { flex: 1; min-width: 0; margin: 0; }
 .label-option-row .delete-button { flex-shrink: 0; margin-right: 3px; }
+
+.color-picker .label-swatch { display: grid; margin: 0; }
+.color-picker .label-swatch input { margin: 0; padding: 0; background: transparent; }
+.column-composer .label-swatches { gap: 6px; }
+.column-composer .label-swatch { width: 34px; height: 32px; }
+.column-composer-actions { margin-top: 18px; }

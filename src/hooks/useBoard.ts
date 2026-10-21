@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useMatch, useNavigate } from 'react-router'
-import { createCardLabel, deleteBoardLabel, toggleCardLabel } from '../lib/labels'
+import { createCardLabel, deleteBoardLabel, isLabelColor, toggleCardLabel } from '../lib/labels'
 import type { LabelColor } from '../lib/labels'
 import { moveCardInBoard } from '../lib/moveCard'
 import { boardPath } from '../lib/routes'
@@ -96,9 +96,9 @@ export function useBoard() {
     if (nextBoard !== board) saveBoard(nextBoard)
   }
 
-  function addColumn(title: string) {
-    if (!title.trim()) return
-    const column = { id: crypto.randomUUID(), title: title.trim(), description: '' }
+  function addColumn(title: string, color: LabelColor = 'purple') {
+    if (!title.trim() || title.trim().length > 80 || !isLabelColor(color)) return
+    const column = { id: crypto.randomUUID(), title: title.trim(), description: '', color }
     saveBoard({ ...board, columns: [...board.columns, column] })
     return column.id
   }

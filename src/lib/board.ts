@@ -1,7 +1,7 @@
-import { isLabel } from "./labels";
-import type { Label } from "./labels";
+import { isLabel, isLabelColor } from "./labels";
+import type { Label, LabelColor } from "./labels";
 
-export type Column = { id: string; title: string; description: string };
+export type Column = { id: string; title: string; description: string; color?: LabelColor };
 export type Status = string;
 export type Board = { columns: Column[]; cards: Card[]; labels?: Label[] };
 
@@ -84,7 +84,8 @@ function isColumn(value: unknown): value is Column {
   const column = value as Record<string, unknown>;
   return typeof column.id === "string" && !!column.id.trim()
     && typeof column.title === "string" && !!column.title.trim()
-    && typeof column.description === "string";
+    && typeof column.description === "string"
+    && (column.color === undefined || isLabelColor(column.color));
 }
 
 export function isBoard(value: unknown): value is Board {

@@ -2,9 +2,9 @@ import { ArrowLeft, Plus, Search, X } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { Card } from '../lib/board'
-import { labelColors } from '../lib/labels'
 import type { Label, LabelColor } from '../lib/labels'
 import { DeleteButton } from './DeleteButton'
+import { ColorPicker } from './ColorPicker'
 import { LabelBadge } from './CardLabels'
 
 type Props = {
@@ -106,10 +106,7 @@ export function LabelPicker({ card, labels, anchor, onClose, onToggle, onDelete,
         <div className="label-badge-preview"><span>Vista previa</span><LabelBadge label={{ id: 'preview', name: name.trim() || 'Tu etiqueta', color }} /></div>
         <label htmlFor="label-name">Título</label>
         <input ref={nameRef} id="label-name" className="profile-name-input" required maxLength={32} placeholder="Ej. Diseño" value={name} onChange={event => { setName(event.target.value); setError('') }} />
-        <fieldset className="label-palette"><legend>Color</legend><div className="label-swatches">{labelColors.map(option => <label key={option.id} className="label-swatch" style={{ background: option.background, color: option.text }} title={option.name}>
-          <input type="radio" name="label-color" value={option.id} checked={color === option.id} onChange={() => setColor(option.id)} aria-label={option.name} />
-          <span aria-hidden="true" className="swatch-center" style={{ background: option.text }} />
-        </label>)}</div></fieldset>
+        <ColorPicker name="label-color" value={color} onChange={setColor} />
         {error && <p role="alert" className="label-error">{error}</p>}
         <button className="primary-button label-save" disabled={!name.trim()}>Crear y agregar</button>
       </form>

@@ -6,6 +6,8 @@ import { BoardNavigation } from "./components/BoardNavigation";
 import { UserProfile } from "./components/UserProfile";
 import { ConfirmDeleteModal } from "./components/ConfirmDeleteModal";
 import { DeleteButton } from "./components/DeleteButton";
+import { ColumnComposer } from "./components/ColumnComposer";
+import { labelColors } from "./lib/labels";
 import { CardLabels } from "./components/CardLabels";
 import { LabelPicker } from "./components/LabelPicker";
 import { CardComposer } from "./components/CardComposer";
@@ -24,7 +26,6 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
   const [labelCardId, setLabelCardId] = useState<string | null>(null);
   const labelCard = cards.find(card => card.id === labelCardId);
   const [addingColumn, setAddingColumn] = useState(false);
-  const [columnTitle, setColumnTitle] = useState("");
   const [composer, setComposer] = useState<Status | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
   const [over, setOver] = useState<Status | null>(null);
@@ -34,7 +35,6 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
 
   function resetBoardControls() {
     setAddingColumn(false);
-    setColumnTitle("");
     setComposer(null);
     setDragging(null);
     setOver(null);
@@ -148,7 +148,7 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
                   <div className="column-header">
                     <div className="column-heading">
                       <h2 id={`heading-${column.id}`}>
-                        <span className={`status-dot ${column.id}`} />
+                        <span className={`status-dot ${column.id}`} style={column.color ? { background: labelColors.find(color => color.id === column.color)?.text } : undefined} />
                         {column.title}
                         <span className="column-count">{columnCards.length}</span>
                       </h2>
@@ -258,23 +258,11 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
             })}
             <div className="column-creator">
               {addingColumn ? (
-                <form className="composer" onSubmit={(event) => {
-                  event.preventDefault();
-                  const id = addColumn(columnTitle);
-                  if (!id) return;
-                  setAnnouncement(`Columna ${columnTitle.trim()} creada.`);
-                  setColumnTitle("");
-                  setAddingColumn(false);
-                }} onKeyDown={(event) => {
-                  if (event.key === "Escape") { setAddingColumn(false); setColumnTitle(""); }
-                }}>
-                  <label htmlFor="column-title">Nombre de la columna</label>
-                  <input id="column-title" autoFocus required maxLength={80} value={columnTitle} onChange={(event) => setColumnTitle(event.target.value)} placeholder="Ej. En revisión" />
-                  <div className="flex gap-2">
-                    <button className="primary-button" disabled={!columnTitle.trim()}>Crear columna</button>
-                    <button className="quiet-button" type="button" onClick={() => { setAddingColumn(false); setColumnTitle(""); }}>Cancelar</button>
-                  </div>
-                </form>
+                <ColumnComposer onClose={() => setAddingColumn(false)} onCreate={(title, color) => {
+                  const id = addColumn(title, color);
+                  if (id) setAnnouncement(`Columna ${title.trim()} creada.`);
+                  return id;
+                }} />
               ) : <button className="add-column" onClick={() => setAddingColumn(true)}><Plus size={16} aria-hidden="true" /> Agregar columna</button>}
             </div>
           </div>
