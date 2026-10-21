@@ -25,7 +25,6 @@ export default function App() {
       <div className="profile"><span className="avatar">T</span><div><strong>Tu espacio personal</strong><small>Hecho para fluir</small></div></div>
     </aside>
     <main id="board" className="main-content">
-      <header className="topbar"><div>Mi espacio <span>/</span> <strong>Mi tablero</strong></div><span className="local-badge"><span />Guardado local</span></header>
       <div className="board-content">
         <div className="board-toolbar"><span className="board-tab"><span aria-hidden="true">▥</span>Tablero</span><span className="task-summary">{cards.length} tarjetas · {completed} completadas</span></div>
         {storageError && <p role="alert" className="storage-warning">No pudimos guardar en este navegador. Los cambios solo se mantendrán mientras esta página siga abierta.</p>}
