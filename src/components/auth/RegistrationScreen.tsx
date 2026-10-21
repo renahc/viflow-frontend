@@ -71,6 +71,7 @@ export function RegistrationScreen() {
           </form>
           <p className="auth-local-note">Por ahora, tus tableros permanecen en este navegador. Crear una cuenta no los sube a la nube.</p>
         </>}
+        {!confirmed && <div className="auth-login-register">¿Ya tienes una cuenta?<Link to="/auth/login">Iniciar sesión<ArrowRight size={14} aria-hidden="true" /></Link></div>}
         {!confirmed && <div className="auth-panel-footer">Puedes seguir trabajando sin registrarte.<Link to="/">Continuar en este navegador<ArrowRight size={14} aria-hidden="true" /></Link></div>}
       </section>
     </main>

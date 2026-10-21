@@ -202,6 +202,27 @@ SDK gestiona la sesión autenticada por separado; el proveedor escucha cambios y
 el acceso lateral refleja **Tu cuenta**. Se puede cerrar sesión desde esa página
 o el menú del perfil, sin borrar tableros ni el perfil local.
 
-La cuenta todavía no incluye login por contraseña, recuperación ni sincronización
-de tableros. Tras salir se puede continuar como invitado; el inicio de sesión
-será una entrega posterior. Véase [configuración y prueba de correo](docs/supabase-auth-setup.md).
+La cuenta ya permite iniciar sesión por contraseña; la recuperación y la
+sincronización de tableros siguen pendientes. Tras salir se puede continuar como
+invitado o volver a iniciar sesión. Véase [configuración y prueba de correo](docs/supabase-auth-setup.md).
+
+## Inicio de sesión
+
+`/auth/login` permite entrar con correo y contraseña usando `signInWithPassword`.
+El acceso lateral de invitado abre esta pantalla y desde allí se puede crear una
+cuenta. El registro también enlaza a Iniciar sesión. Una sesión verificada vuelve
+al espacio de trabajo; `AuthProvider` conserva su estado al recargar mediante el
+SDK. Los errores de credenciales no distinguen cuenta inexistente de contraseña
+incorrecta. La contraseña se limpia al enviar y no se copia a almacenamiento.
+
+Si Supabase devuelve `email_not_confirmed`, **Verificar mi correo** abre la
+verificación existente con el correo introducido. El usuario puede introducir
+un código válido o pedir uno nuevo; no se ejecuta otro registro ni se manda un
+correo automáticamente. El traspaso se consume una vez y conserva solo el correo
+pendiente, nunca la contraseña.
+
+La recuperación de contraseña sigue pendiente. Para probar esta entrega, cerrar
+sesión, entrar con la cuenta ya verificada y recargar; comprobar el nombre/correo
+de la cuenta y que los tableros locales permanezcan intactos. Probar una contraseña
+incorrecta y un registro pendiente. Las pruebas automatizadas usan un servicio
+simulado, sin autenticar cuentas reales ni enviar correos.

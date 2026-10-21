@@ -1,3 +1,4 @@
+import { useLocation, useNavigate } from 'react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from './useAuth'
 import { createRegistrationService, registrationError } from '../services/registrationService'
@@ -6,8 +7,15 @@ import type { PendingRegistration } from '../lib/pendingRegistration'
 
 export function useRegistration() {
   const auth = useAuth()
+  const location = useLocation()
+  const navigate = useNavigate()
   const service = useMemo(() => auth.client ? createRegistrationService(auth.client.auth) : null, [auth.client])
   const [initial] = useState(() => {
+    const routeState: unknown = location.state
+    if (typeof routeState === 'object' && routeState !== null && 'verificationEmail' in routeState) {
+      const pending = parsePendingRegistration(JSON.stringify({ email: routeState.verificationEmail, resendAt: 0 }))
+      if (pending) return pending
+    }
     try { return parsePendingRegistration(sessionStorage.getItem(pendingRegistrationKey)) } catch { return null }
   })
   const [email, setEmail] = useState(initial?.email ?? '')
@@ -20,6 +28,16 @@ export function useRegistration() {
   const operationRef = useRef({ version: 0, busy: false })
   const confirmed = Boolean(auth.session?.user.email_confirmed_at)
   const cooldown = Math.max(0, Math.ceil((resendAt - now) / 1000))
+  useEffect(() => {
+    const state: unknown = location.state
+    if (typeof state !== 'object' || state === null || !('verificationEmail' in state)) return
+    if (initial && !confirmed) {
+      try { sessionStorage.setItem(pendingRegistrationKey, JSON.stringify(initial)) } catch { /* Optional resume storage. */ }
+    }
+    // Consume the login handoff once, so changing email or logging out cannot
+    // resurrect the old verification step on refresh.
+    void navigate(location.pathname, { replace: true, state: null })
+  }, [location.state, location.pathname, initial, confirmed, navigate])
   useEffect(() => {
     const state = operationRef.current
     return () => { state.version++; state.busy = false }
