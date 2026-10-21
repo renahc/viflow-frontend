@@ -1,3 +1,5 @@
+import { isDueDate, isPriority } from './cardSchedule';
+import type { Priority } from './cardSchedule';
 import { isCardActivity, isCardComment } from "./cardActivity";
 import type { CardActivity, CardComment } from "./cardActivity";
 import { isLabel, isLabelColor } from "./labels";
@@ -30,6 +32,8 @@ export type Card = {
   title: string;
   description: string;
   status: Status;
+  dueDate?: string;
+  priority?: Priority;
   labelIds?: string[];
   comments?: CardComment[];
   activity?: CardActivity[];
@@ -71,6 +75,8 @@ function isCard(value: unknown, columns: Column[]): value is Card {
   const card = value as Record<string, unknown>;
 
   return (
+    (card.dueDate === undefined || isDueDate(card.dueDate)) &&
+    (card.priority === undefined || isPriority(card.priority)) &&
     typeof card.id === "string" &&
     typeof card.title === "string" &&
     !!card.title.trim() &&

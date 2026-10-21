@@ -1,5 +1,6 @@
-import { useRef } from 'react'
-import { Check, ChevronDown, ChevronUp, Circle, GripVertical, MessageSquare } from 'lucide-react'
+import { dueState, formatDueDate, priorities } from '../../lib/cardSchedule'
+import { useEffect, useRef, useState } from 'react'
+import { Check, ChevronDown, ChevronUp, Circle, CalendarDays, Flag, GripVertical, MessageSquare } from 'lucide-react'
 import type { Card, Column, Status } from '../../lib/board'
 import type { Label } from '../../lib/labels'
 import type { CardDrag } from '../../hooks/useCardDrag'
@@ -23,6 +24,13 @@ type Props = {
 
 export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
   onMoveUp, onMoveDown, onChangeStatus, onOpenLabels, onDelete, onOpenDetails }: Props) {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 60_000)
+    return () => window.clearInterval(timer)
+  }, [])
+  const deadline = card.dueDate ? dueState(card.dueDate, card.status === 'done', now) : undefined
+  const deadlineLabels = { completed: 'Completada', overdue: 'Vencida', today: 'Vence hoy', soon: 'Vence mañana', upcoming: 'Vence' }
   const titleRef = useRef<HTMLButtonElement>(null)
   const dragged = useRef(false)
   function openDetails() {
@@ -57,6 +65,10 @@ export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
       </div>
       <h3><button ref={titleRef} type="button" className="task-title-button" aria-label={`Abrir tarjeta ${card.title}`} onClick={event => { if (!dragged.current || event.detail === 0) openDetails() }}>{card.title}</button></h3>
       {card.description && <p className="card-description">{card.description}</p>}
+      {(card.dueDate || (card.priority && card.priority !== 'none')) && <div className="card-metadata">
+        {card.dueDate && deadline && <span className={`due-badge due-${deadline}`}><CalendarDays size={12} aria-hidden="true" />{deadlineLabels[deadline]} · {formatDueDate(card.dueDate)}</span>}
+        {card.priority && card.priority !== 'none' && <span className={`priority-badge priority-${card.priority}`}><Flag size={12} aria-hidden="true" />Prioridad {priorities[card.priority].toLowerCase()}</span>}
+      </div>}
       <div className="card-footer">
         <div className="card-order-actions">
           <span className={`card-marker ${card.status}`} aria-hidden="true">

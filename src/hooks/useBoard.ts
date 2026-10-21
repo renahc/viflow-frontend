@@ -1,3 +1,5 @@
+import { formatDueDate, priorities } from '../lib/cardSchedule'
+import type { CardSchedule } from '../lib/cardSchedule'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useMatch, useNavigate } from 'react-router'
 import { createCardLabel, deleteBoardLabel, isLabelColor, toggleCardLabel } from '../lib/labels'
@@ -95,8 +97,8 @@ export function useBoard() {
     saveBoard(appendCardActivity(nextBoard, card.id, 'created', `creó la tarjeta en «${board.columns.find(column => column.id === status)?.title}».`, readActivityActor()))
   }
 
-  function editCard(id: string, title: string, description: string) {
-    const result = updateCardContent(board, id, { title, description })
+  function editCard(id: string, title: string, description: string, schedule: CardSchedule) {
+    const result = updateCardContent(board, id, { title, description }, schedule)
     if (result.error) return result.error
     if (result.board === board) return
     const previous = board.cards.find(card => card.id === id)!
@@ -104,6 +106,8 @@ export function useBoard() {
     let nextBoard = result.board
     if (previous.title !== title.trim()) nextBoard = appendCardActivity(nextBoard, id, 'title-edited', `cambió el título a «${title.trim()}».`, actor)
     if (previous.description !== description.trim()) nextBoard = appendCardActivity(nextBoard, id, 'description-edited', 'actualizó la descripción.', actor)
+    if ((previous.dueDate ?? '') !== schedule.dueDate) nextBoard = appendCardActivity(nextBoard, id, 'due-date-edited', schedule.dueDate ? `cambió el vencimiento al ${formatDueDate(schedule.dueDate)}.` : 'quitó la fecha de vencimiento.', actor)
+    if ((previous.priority ?? 'none') !== schedule.priority) nextBoard = appendCardActivity(nextBoard, id, 'priority-edited', `cambió la prioridad a «${priorities[schedule.priority]}».`, actor)
     saveBoard(nextBoard)
   }
 

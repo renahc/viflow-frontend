@@ -1,3 +1,5 @@
+import { priorities } from '../../lib/cardSchedule'
+import type { CardSchedule, Priority } from '../../lib/cardSchedule'
 import { useEffect, useRef, useState } from 'react'
 import { AlignLeft, Kanban, X } from 'lucide-react'
 import type { Card, Column } from '../../lib/board'
@@ -17,7 +19,7 @@ type Props = {
   onToggleLabel: (labelId: string) => void
   onDeleteLabel: (labelId: string) => void
   onCreateLabel: (name: string, color: LabelColor) => string | undefined
-  onSave: (title: string, description: string) => string | undefined
+  onSave: (title: string, description: string, schedule: CardSchedule) => string | undefined
 }
 
 export function CardDetails({ card, column, labels, onClose, onSave, onToggleLabel, onDeleteLabel, onCreateLabel, actor, onComment, storageError }: Props) {
@@ -26,9 +28,11 @@ export function CardDetails({ card, column, labels, onClose, onSave, onToggleLab
   const [title, setTitle] = useState(card.title)
   const [description, setDescription] = useState(card.description)
   const [labelAnchor, setLabelAnchor] = useState<HTMLButtonElement | null>(null)
+  const [dueDate, setDueDate] = useState(card.dueDate ?? '')
+  const [priority, setPriority] = useState<Priority>(card.priority ?? 'none')
   const [error, setError] = useState('')
   const assignedLabels = labels.filter(label => card.labelIds?.includes(label.id))
-  const changed = title.trim() !== card.title || description.trim() !== card.description
+  const changed = dueDate !== (card.dueDate ?? '') || priority !== (card.priority ?? 'none') || title.trim() !== card.title || description.trim() !== card.description
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -54,13 +58,24 @@ export function CardDetails({ card, column, labels, onClose, onSave, onToggleLab
         <form onSubmit={event => {
           event.preventDefault()
           if (!title.trim()) return
-          const message = onSave(title, description)
+          const message = onSave(title, description, { dueDate, priority })
           if (message) { setError(message); return }
           onClose()
         }}>
           <label className="card-details-label" htmlFor="card-details-name">Título</label>
           <input ref={titleRef} id="card-details-name" className="profile-name-input" autoFocus required maxLength={160} value={title}
             onChange={event => { setTitle(event.target.value); setError('') }} aria-describedby={error ? 'card-details-error' : undefined} />
+          <div className="card-schedule-fields">
+            <div><label className="card-details-label" htmlFor="card-due-date">Vencimiento</label>
+              <input id="card-due-date" type="date" min="0001-01-01" max="9999-12-31" value={dueDate} onInput={event => setDueDate(event.currentTarget.value)} />
+              {dueDate && <button type="button" className="clear-due-date" onClick={() => setDueDate('')}>Quitar fecha</button>}
+            </div>
+            <div><label className="card-details-label" htmlFor="card-priority">Prioridad</label>
+              <select id="card-priority" value={priority} onChange={event => setPriority(event.target.value as Priority)}>
+                {Object.entries(priorities).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+            </div>
+          </div>
           <section className="card-details-labels" aria-label="Etiquetas de la tarjeta">
             <h3>Etiquetas</h3>
             <CardLabels labels={assignedLabels} cardTitle={card.title} onOpen={setLabelAnchor} />
