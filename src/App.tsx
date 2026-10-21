@@ -17,7 +17,7 @@ export default function App() {
   }
   return <div className="app-shell">
     <aside className="sidebar">
-      <a className="brand" href="#board"><span className="brand-mark">v</span>viflow<span className="brand-dot">.</span></a>
+      <a className="brand" href="#board">viflow<span className="brand-dot">.</span></a>
       <div className="workspace"><span className="workspace-icon">P</span><div><strong>Mi espacio</strong><small>Un lugar para tus ideas</small></div></div>
       <p className="nav-label">ESPACIO DE TRABAJO</p>
       <a className="nav-item" href="#board" aria-current="page"><span aria-hidden="true">▦</span><span className="nav-text">Mi tablero</span><span className="nav-count">1</span></a>
