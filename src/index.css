@@ -12,7 +12,7 @@ a { color: inherit; text-decoration: none; }
 .app-shell { min-height: 100dvh; display: flex; }
 .sidebar { width: 240px; flex-shrink: 0; padding: 36px 20px 22px; border-right: 1px solid #e5e2e9; background: #f2eff5; display: flex; flex-direction: column; }
 .brand { display: flex; align-items: center; font-size: 31px; font-weight: 750; letter-spacing: -1.8px; padding: 0 10px; }
-.brand-dot, h1 > span { color: #87719e; }
+.brand-dot { color: #87719e; }
 .workspace { display: flex; gap: 10px; align-items: center; margin: 43px 6px 32px; }
 .workspace-icon { border: 1px solid #d9d2e0; border-radius: 9px; background: #e6dfed; padding: 9px 12px; font-size: 14px; }
 .workspace strong, .profile strong { display: block; font-size: 12px; font-weight: 600; }
@@ -33,16 +33,10 @@ a { color: inherit; text-decoration: none; }
 .topbar strong { color: #584f60; font-weight: 500; }
 .local-badge { display: flex; gap: 6px; align-items: center; font-size: 10px; }
 .local-badge > span { width: 5px; height: 5px; border-radius: 50%; background: #8b76a1; }
-.board-content { padding: 47px 44px 24px; max-width: 1600px; margin: auto; }
-.board-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
-.eyebrow { color: #6f5e80; font-size: 9px; font-weight: 600; letter-spacing: 1.8px; margin-bottom: 12px; }
-h1 { font-size: 36px; font-weight: 650; letter-spacing: -1.4px; line-height: 1.2; margin: 0; }
-.board-subtitle { font-size: 12px; color: #70647c; margin-top: 12px; line-height: 1.7; }
+.board-content { padding: 24px 44px; max-width: 1600px; margin: auto; }
 .primary-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #4a3263; color: white; border: 0; border-radius: 7px; padding: 11px 15px; font-size: 11px; font-weight: 500; }
 .primary-button:hover { background: #3a264e; }
-.new-card { flex-shrink: 0; }
-.new-card > span { font-size: 18px; line-height: 1; }
-.board-toolbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e3dfe8; margin-top: 33px; margin-bottom: 26px; height: 43px; }
+.board-toolbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e3dfe8; margin-top: 0; margin-bottom: 26px; height: 43px; }
 .board-tab { display: flex; align-items: center; height: 100%; gap: 8px; font-size: 11px; font-weight: 600; border-bottom: 2px solid #56426b; padding: 0 4px; }
 .board-tab > span { font-size: 17px; }
 .task-summary { font-size: 10px; color: #70647d; }
@@ -86,5 +80,5 @@ h1 { font-size: 36px; font-weight: 650; letter-spacing: -1.4px; line-height: 1.2
 .quiet-button { background: transparent; border: 0; padding: 7px; font-size: 10px; color: #635373; }
 .storage-warning { font-size: 12px; padding: 12px; background: #fff1d2; border-radius: 6px; margin-bottom: 16px; }
 @media (max-width: 1100px) { .sidebar { width: 200px; padding-inline: 14px; } .board-content { padding: 35px 24px; } .topbar { padding-inline: 24px; } .kanban-grid { gap: 12px; } .footer-private { display: none; } }
-@media (max-width: 800px) { .sidebar { width: 96px; padding: 24px 10px; align-items: center; } .brand { font-size: 23px; letter-spacing: -1.2px; padding: 0; } .workspace, .nav-label, .sidebar-note, .profile, .nav-text, .nav-count { display: none; } .nav-item { margin-top: 36px; padding: 10px; } .kanban-grid { grid-template-columns: repeat(3, 270px); overflow-x: auto; padding-bottom: 16px; } .board-content { padding: 30px 20px; } h1 { font-size: 30px; } .board-heading { align-items: flex-start; flex-direction: column; } .topbar { padding-inline: 20px; } .board-subtitle { max-width: 300px; } .local-badge { font-size: 9px; } .board-toolbar { margin-top: 20px; } }
+@media (max-width: 800px) { .sidebar { width: 96px; padding: 24px 10px; align-items: center; } .brand { font-size: 23px; letter-spacing: -1.2px; padding: 0; } .workspace, .nav-label, .sidebar-note, .profile, .nav-text, .nav-count { display: none; } .nav-item { margin-top: 36px; padding: 10px; } .kanban-grid { grid-template-columns: repeat(3, 270px); overflow-x: auto; padding-bottom: 16px; } .board-content { padding: 30px 20px; } .topbar { padding-inline: 20px; } .local-badge { font-size: 9px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }

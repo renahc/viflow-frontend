@@ -27,7 +27,6 @@ export default function App() {
     <main id="board" className="main-content">
       <header className="topbar"><div>Mi espacio <span>/</span> <strong>Mi tablero</strong></div><span className="local-badge"><span />Guardado local</span></header>
       <div className="board-content">
-        <section className="board-heading" aria-labelledby="board-title"><div><p className="eyebrow">MENOS RUIDO, MÁS ENFOQUE</p><h1 id="board-title">Mi tablero<span>.</span></h1><p className="board-subtitle">Dale espacio a tus ideas y movimiento a tus proyectos.</p></div><button className="primary-button new-card" onClick={() => setComposer('todo')}><span aria-hidden="true">＋</span>Nueva tarjeta</button></section>
         <div className="board-toolbar"><span className="board-tab"><span aria-hidden="true">▥</span>Tablero</span><span className="task-summary">{cards.length} tarjetas · {completed} completadas</span></div>
         {storageError && <p role="alert" className="storage-warning">No pudimos guardar en este navegador. Los cambios solo se mantendrán mientras esta página siga abierta.</p>}
         <div className="kanban-grid">{columns.map(column => {
