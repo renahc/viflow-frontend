@@ -50,7 +50,7 @@ Los tableros siguen siendo locales a este navegador y origen: compartir una URL 
 
 ## Etiquetas
 
-Cada tablero tiene sus propias etiquetas reutilizables. Desde «Agregar etiqueta» se puede crear una etiqueta con nombre (hasta 32 caracteres), elegir uno de seis colores fijos y asignarla a la tarjeta. Los checkboxes permiten asignar o quitar etiquetas existentes. Una tarjeta admite varias etiquetas; los nombres duplicados se rechazan dentro del tablero.
+Cada tablero tiene sus propias etiquetas reutilizables. El selector se abre como un dropdown junto al badge, con buscador (sin distinguir tildes), lista de etiquetas y un botón «Crear etiqueta». La creación ocurre en una segunda vista del mismo dropdown, con vista previa sobre el título, paleta fija y botón para volver a la lista. Desde «Agregar etiqueta» se puede crear una etiqueta con nombre (hasta 32 caracteres), elegir uno de seis colores fijos y asignarla a la tarjeta. Los checkboxes permiten asignar o quitar etiquetas existentes. Una tarjeta admite varias etiquetas; los nombres duplicados se rechazan dentro del tablero.
 
 La paleta vive en `src/lib/labels.ts`: morado, rosa, azul, petróleo, ámbar y gris. No se admiten colores arbitrarios. Las etiquetas y sus asignaciones se guardan junto al espacio de trabajo; los datos anteriores sin etiquetas siguen siendo válidos.
 

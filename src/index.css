@@ -206,25 +206,35 @@ a { color: inherit; text-decoration: none; }
 .card-topline { align-items: flex-start; gap: 8px; }
 .label-badge-button { border: 0; padding: 0; background: transparent; text-align: left; max-width: 100%; border-radius: 4px; }
 .label-badge { display: inline-block; padding: 4px 7px; border-radius: 4px; font-size: 10px; line-height: 1.4; font-weight: 500; overflow-wrap: anywhere; max-width: 100%; }
-.label-picker { width: min(410px, calc(100vw - 32px)); }
-.label-picker .label-picker-card { font-size: 12px; margin-top: 5px; }
-.label-existing { margin-top: 20px; }
-.label-existing legend, .label-palette legend { font-size: 12px; font-weight: 500; margin-bottom: 10px; }
-.label-existing > p { font-size: 12px; }
-.label-options { max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
 .label-option { display: flex; align-items: center; gap: 9px; padding: 5px; cursor: pointer; border-radius: 5px; }
 .label-option:hover { background: #eee8f4; }
 .label-option input { accent-color: #6e4a90; flex-shrink: 0; }
-.label-create { border-top: 1px solid #dfd9e5; padding-top: 18px; margin-top: 18px; }
-.label-create h3 { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
-.label-create > label { font-size: 12px; display: block; margin-bottom: 6px; }
 .label-palette { margin-top: 16px; }
 .label-swatches { display: flex; gap: 8px; flex-wrap: wrap; }
 .label-swatch { position: relative; display: grid; place-items: center; width: 38px; height: 34px; border-radius: 6px; cursor: pointer; }
 .label-swatch input { position: absolute; inset: 0; width: 100%; height: 100%; appearance: none; border: 1px solid transparent; border-radius: 6px; cursor: pointer; }
 .label-swatch input:checked { border: 2px solid currentColor; }
 .label-swatch .swatch-center { width: 12px; height: 12px; border-radius: 50%; pointer-events: none; }
-.label-preview { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
-.label-preview > span:first-child { font-size: 10px; color: #746880; }
-.label-create > .primary-button { margin-top: 16px; }
-.label-picker .label-error { color: #a4384b; font-size: 12px; }
+
+.label-dropdown { position: fixed; z-index: 20; width: 300px; max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px); overflow-y: auto; border: 1px solid #d6cedf; border-radius: 10px; background: #fffdfd; box-shadow: 0 10px 35px #33283e24, 0 2px 6px #33283e0d; color: #33283e; padding: 8px; }
+.label-search-row { display: flex; align-items: center; gap: 5px; }
+.label-search { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0; padding: 8px; border: 1px solid #d6cedf; border-radius: 6px; color: #81718e; }
+.label-search:focus-within { border-color: #87719e; box-shadow: 0 0 0 2px #eae2f3; }
+.label-search input { width: 100%; min-width: 0; border: 0; outline: none; background: transparent; font-size: 12px; color: #33283e; }
+.label-popup-icon { display: grid; place-items: center; width: 27px; height: 27px; border: 0; background: transparent; border-radius: 5px; color: #746880; flex-shrink: 0; }
+.label-popup-icon:hover { background: #eee8f4; }
+.label-dropdown-list { max-height: 220px; overflow-y: auto; padding: 7px 0; }
+.label-empty { font-size: 11px; line-height: 1.6; color: #81718e; padding: 16px 8px; }
+.label-create-link { display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 8px; border: 0; border-top: 1px solid #e5dfeb; background: transparent; color: #635176; font-size: 12px; text-align: left; border-radius: 0 0 5px 5px; }
+.label-create-link:hover { background: #f2edf7; }
+.label-dropdown-heading { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; }
+.label-dropdown-heading h2 { flex: 1; font-size: 12px; font-weight: 600; }
+.label-dropdown-form { padding: 0 5px 5px; }
+.label-badge-preview { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; min-height: 85px; background: #f3eff7; border-radius: 7px; padding: 14px; margin-bottom: 16px; }
+.label-badge-preview > span:first-child { font-size: 10px; color: #81718e; }
+.label-dropdown-form > label { display: block; font-size: 12px; margin-bottom: 6px; }
+.label-palette legend { font-size: 12px; margin-bottom: 10px; }
+.label-dropdown .label-swatches { gap: 6px; }
+.label-dropdown .label-swatch { width: 36px; height: 32px; }
+.label-save { margin-top: 18px; width: 100%; }
+.label-error { margin-top: 12px; color: #a4384b; font-size: 11px; line-height: 1.5; }

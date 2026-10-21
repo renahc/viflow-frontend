@@ -20,6 +20,7 @@ export default function App() {
 
 function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard> }) {
   const { boards, activeBoardId, openBoardIds, closeBoard, title: boardTitle, routeError, addBoard, renameBoard, deleteBoard, columns, cards, labels, addLabel, toggleLabel, storageError, addCard, moveCard, addColumn, deleteCard, deleteColumn } = workspace;
+  const [labelAnchor, setLabelAnchor] = useState<HTMLElement | null>(null);
   const [labelCardId, setLabelCardId] = useState<string | null>(null);
   const labelCard = cards.find(card => card.id === labelCardId);
   const [addingColumn, setAddingColumn] = useState(false);
@@ -186,7 +187,7 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
                         }}
                       >
                         <div className="card-topline">
-                          <CardLabels labels={labels.filter(label => card.labelIds?.includes(label.id))} cardTitle={card.title} onOpen={() => setLabelCardId(card.id)} />
+                          <CardLabels labels={labels.filter(label => card.labelIds?.includes(label.id))} cardTitle={card.title} onOpen={(anchor) => { setLabelAnchor(anchor); setLabelCardId(card.id); }} />
                           <div className="card-actions">
                             <GripVertical className="drag-handle" size={16} aria-hidden="true" />
                             <DeleteButton label={`Eliminar tarjeta ${card.title}`} onClick={() => {
@@ -289,7 +290,7 @@ function WorkspaceScreen({ workspace }: { workspace: ReturnType<typeof useBoard>
           </p>
         </div>}
       </main>
-      {labelCard && <LabelPicker card={labelCard} labels={labels} onClose={() => setLabelCardId(null)}
+      {labelCard && labelAnchor && <LabelPicker key={labelCard.id} anchor={labelAnchor} card={labelCard} labels={labels} onClose={() => setLabelCardId(null)}
         onToggle={(labelId) => toggleLabel(labelCard.id, labelId)} onCreate={(name, color) => addLabel(labelCard.id, name, color)} />}
       {pendingDelete && (
         <ConfirmDeleteModal
