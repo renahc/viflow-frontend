@@ -1,14 +1,15 @@
 import { initialColumns, isBoard, loadBoard } from './board'
 import type { Board } from './board'
 
-export type WorkspaceBoard = Board & { id: string; title: string }
+export type WorkspaceBoard = Board & { id: string; title: string; archivedAt?: string }
 export type Workspace = { boards: WorkspaceBoard[]; activeBoardId: string; openBoardIds: string[] }
 export const workspaceStorageKey = 'viflow.workspace.v1'
 
 function isWorkspaceBoard(value: unknown): value is WorkspaceBoard {
   if (!isBoard(value)) return false
   const board = value as unknown as Record<string, unknown>
-  return typeof board.id === 'string' && !!board.id.trim()
+  return (board.archivedAt === undefined || (typeof board.archivedAt === 'string' && Number.isFinite(Date.parse(board.archivedAt))))
+    && typeof board.id === 'string' && !!board.id.trim()
     && typeof board.title === 'string' && !!board.title.trim()
 }
 
@@ -28,12 +29,13 @@ export function loadWorkspace(): Workspace {
         && workspace.boards.every(isWorkspaceBoard)
         && new Set(workspace.boards.map(board => board.id)).size === workspace.boards.length) {
         const boards = workspace.boards;
+        const visibleBoards = boards.filter(board => !board.archivedAt);
         const hasSavedTabs = Array.isArray(workspace.openBoardIds);
-        const validActiveId = boards.some(board => board.id === workspace.activeBoardId)
-          ? workspace.activeBoardId as string : boards[0]?.id ?? '';
+        const validActiveId = visibleBoards.some(board => board.id === workspace.activeBoardId)
+          ? workspace.activeBoardId as string : visibleBoards[0]?.id ?? '';
         const openBoardIds = hasSavedTabs
           ? [...new Set((workspace.openBoardIds as unknown[]).filter((id): id is string =>
-              typeof id === 'string' && boards.some(board => board.id === id)))]
+              typeof id === 'string' && visibleBoards.some(board => board.id === id)))]
           : validActiveId ? [validActiveId] : [];
         return {
           boards, openBoardIds,

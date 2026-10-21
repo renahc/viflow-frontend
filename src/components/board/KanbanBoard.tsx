@@ -16,7 +16,7 @@ type LabelSelection = { cardId: string; anchor: HTMLButtonElement }
 
 export function KanbanBoard({ workspace }: Props) {
   const { title, columns, cards, labels, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort,
-    deleteCard, deleteColumn, addLabel, toggleLabel, deleteLabel } = workspace
+    archiveCard, deleteColumn, addLabel, toggleLabel, deleteLabel } = workspace
   const [editingCardId, setEditingCardId] = useState<string | null>(null)
   const editingCard = cards.find(card => card.id === editingCardId)
   const [composerId, setComposerId] = useState<string | null>(null)
@@ -39,9 +39,9 @@ export function KanbanBoard({ workspace }: Props) {
     if (pendingDelete.kind === 'column') {
       deleteColumn(pendingDelete.id)
       if (composerId === pendingDelete.id) setComposerId(null)
-    } else deleteCard(pendingDelete.id)
+    } else archiveCard(pendingDelete.id)
     drag.reset()
-    setAnnouncement(`${pendingDelete.kind === 'column' ? 'Columna' : 'Tarjeta'} ${pendingDelete.title} eliminada.`)
+    setAnnouncement(`${pendingDelete.kind === 'column' ? 'Columna' : 'Tarjeta'} ${pendingDelete.title} ${pendingDelete.kind === 'column' ? 'eliminada' : 'archivada'}.`)
     setPendingDelete(null)
   }
 
@@ -91,10 +91,10 @@ export function KanbanBoard({ workspace }: Props) {
         onClose={() => setLabelSelection(null)} onDelete={deleteLabel}
         onToggle={labelId => toggleLabel(labelCard.id, labelId)}
         onCreate={(name, color) => addLabel(labelCard.id, name, color)} />}
-      {pendingDelete && <ConfirmDeleteModal title={pendingDelete.kind === 'column' ? 'Eliminar columna' : 'Eliminar tarjeta'}
+      {pendingDelete && <ConfirmDeleteModal confirmLabel={pendingDelete.kind === 'card' ? 'Archivar' : 'Eliminar'} title={pendingDelete.kind === 'column' ? 'Eliminar columna' : 'Archivar tarjeta'}
         description={pendingDelete.kind === 'column'
-          ? `Se eliminará la columna «${pendingDelete.title}» y sus ${cards.filter(card => card.status === pendingDelete.id).length} tarjetas. Esta acción no se puede deshacer.`
-          : `Se eliminará la tarjeta «${pendingDelete.title}». Esta acción no se puede deshacer.`}
+          ? `Se eliminará la columna «${pendingDelete.title}». Sus ${cards.filter(card => card.status === pendingDelete.id).length} tarjetas se guardarán en Archivados y podrán recuperarse en otra columna.`
+          : `Se archivará la tarjeta «${pendingDelete.title}». Podrás recuperarla desde Archivados.`}
         onCancel={() => setPendingDelete(null)} onConfirm={confirmDelete} />}
     </>
   )

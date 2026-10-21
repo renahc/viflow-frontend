@@ -1,13 +1,14 @@
 import { useEffect, useRef } from "react";
 
 type Props = {
+  confirmLabel?: string;
   title: string;
   description: string;
   onCancel: () => void;
   onConfirm: () => void;
 };
 
-export function ConfirmDeleteModal({ title, description, onCancel, onConfirm }: Props) {
+export function ConfirmDeleteModal({ title, description, onCancel, onConfirm, confirmLabel = "Eliminar" }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export function ConfirmDeleteModal({ title, description, onCancel, onConfirm }: 
       <p id="confirm-delete-description">{description}</p>
       <div className="confirm-modal-actions">
         <button type="button" className="modal-cancel" autoFocus onClick={onCancel}>Cancelar</button>
-        <button type="button" className="modal-delete" onClick={onConfirm}>Eliminar</button>
+        <button type="button" className="modal-delete" onClick={onConfirm}>{confirmLabel}</button>
       </div>
     </dialog>
   );

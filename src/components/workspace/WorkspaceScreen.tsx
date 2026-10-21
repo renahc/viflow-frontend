@@ -28,6 +28,7 @@ export function WorkspaceScreen({ workspace }: Props) {
           </div>
         ) : <KanbanBoard key={activeBoardId} workspace={workspace} />}
       </main>
+      {workspace.undoArchive && <div className="archive-toast" role="status"><span>«{workspace.undoArchive.title}» archivado.</span><button type="button" onClick={workspace.undoLastArchive}>Deshacer</button><button type="button" aria-label="Cerrar aviso" onClick={workspace.dismissUndo}>×</button></div>}
     </div>
   )
 }

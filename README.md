@@ -111,3 +111,11 @@ El menú de tres puntos del perfil permite abrir Configuración y guardar nombre
 ## Organización del estado de interfaz
 
 `useBoard` conserva el espacio de trabajo y su persistencia. La pantalla se identifica por la ruta, de modo que al navegar se reinician formularios, dropdowns y confirmaciones sin descartar datos. El tablero coordina una sola creación de tarjeta a la vez y mantiene juntas la tarjeta seleccionada para etiquetas y su anclaje. Los componentes de columna y tarjeta reciben datos y callbacks; no leen localStorage ni deciden la navegación.
+
+## Archivado y recuperación
+
+Las tarjetas y tableros se archivan conservando sus datos en localStorage. El acceso **Archivados** del menú lateral permite restaurarlos; el aviso **Deshacer** recupera el último elemento archivado mientras siga abierta la sesión. Restaurar un tablero lo devuelve al menú lateral, sin abrirlo automáticamente. Las tarjetas conservan su orden manual, etiquetas, comentarios, actividad, fecha y prioridad.
+
+Al eliminar una columna, sus tarjetas se archivan y pasan a una columna existente; si era la última, se crea **Recuperadas** como destino. No se recuperan elementos eliminados definitivamente en versiones anteriores.
+
+Para revisar: archivar una tarjeta, recargar y restaurarla desde Archivados; archivar el tablero activo, verificar el cambio de ruta y recuperarlo con Deshacer; comprobar que editar otra tarjeta antes de restaurar no pierde cambios.

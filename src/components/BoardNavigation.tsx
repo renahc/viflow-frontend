@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router'
 import { boardPath } from '../lib/routes'
-import { Ellipsis, Kanban, Plus, SquarePen, Trash2 } from 'lucide-react'
+import { Ellipsis, Kanban, Plus, SquarePen, Archive } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { WorkspaceBoard } from '../lib/workspace'
 import { ConfirmDeleteModal } from './ConfirmDeleteModal'
@@ -90,7 +90,7 @@ export function BoardNavigation({ boards, activeBoardId, onCreate, onRename, onD
         </div>
         {menu === board.id && <div className="board-item-options" style={menuPosition} id={`board-options-${board.id}`}>
           <button type="button" onClick={() => { setMenu(null); setAction({ kind: 'rename', board }) }}><SquarePen size={14} aria-hidden="true" />Renombrar</button>
-          <button type="button" className="board-delete-option" onClick={() => { setMenu(null); setAction({ kind: 'delete', board }) }}><Trash2 size={14} aria-hidden="true" />Eliminar tablero</button>
+          <button type="button" className="board-delete-option" onClick={() => { setMenu(null); setAction({ kind: 'delete', board }) }}><Archive size={14} aria-hidden="true" />Archivar tablero</button>
         </div>}
       </div>
     ))}</div>
@@ -107,7 +107,7 @@ export function BoardNavigation({ boards, activeBoardId, onCreate, onRename, onD
       <div className="board-composer-actions"><button className="primary-button" disabled={!title.trim()}>Crear</button><button type="button" className="quiet-button" onClick={() => { setCreating(false); setTitle('') }}>Cancelar</button></div>
     </form> : <button type="button" className="new-board-button" onClick={() => setCreating(true)}><Plus size={16} aria-hidden="true" />Nuevo tablero</button>}
     {action?.kind === 'rename' && <RenameBoardModal board={action.board} onClose={closeAction} onSave={title => { onRename(action.board.id, title); closeAction() }} />}
-    {action?.kind === 'delete' && <ConfirmDeleteModal title="Eliminar tablero" description={`Se eliminará «${action.board.title}», con sus ${action.board.columns.length} columnas y ${action.board.cards.length} tarjetas. Esta acción no se puede deshacer.`}
+    {action?.kind === 'delete' && <ConfirmDeleteModal confirmLabel="Archivar" title="Archivar tablero" description={`Se archivará «${action.board.title}» con todo su contenido. Podrás recuperarlo desde Archivados.`}
       onCancel={closeAction} onConfirm={() => { onDelete(action.board.id); closeAction() }} />}
   </nav>
 }

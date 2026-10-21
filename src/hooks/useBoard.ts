@@ -1,3 +1,4 @@
+import { removeColumnKeepingCards, setCardArchived } from '../lib/archive'
 import type { ColumnSort } from '../lib/columnSort'
 import { formatDueDate, priorities } from '../lib/cardSchedule'
 import type { CardSchedule } from '../lib/cardSchedule'
@@ -15,13 +16,14 @@ import type { Board, Status } from '../lib/board'
 
 export function useBoard() {
   const [workspace, setWorkspace] = useState(loadWorkspace)
+  const [undoArchive, setUndoArchive] = useState<{ kind: 'board' | 'card'; boardId: string; cardId?: string; title: string } | null>(null)
   const match = useMatch('/boards/:boardId')
   const location = useLocation()
   const navigate = useNavigate()
   const pendingNavigation = useRef<{ from: string; to: string } | null>(null)
   const routeBoardId = match?.params.boardId
   // The URL decides what is displayed. Stored selection only restores old data.
-  const board = workspace.boards.find(board => board.id === routeBoardId) ?? { id: '', title: 'Sin tableros', columns: [], cards: [] }
+  const board = workspace.boards.find(board => board.id === routeBoardId && !board.archivedAt) ?? { id: '', title: 'Sin tableros', columns: [], cards: [] }
   const routeError = (Boolean(routeBoardId) && !board.id) || (!match && location.pathname !== '/')
   const [storageError, setStorageError] = useState(false)
 
@@ -81,8 +83,11 @@ export function useBoard() {
     if (board.id === id) void navigate(destination, { replace: true })
   }
 
-  function deleteBoard(id: string) {
-    const remaining = workspace.boards.filter(current => current.id !== id)
+  function archiveBoard(id: string) {
+    const target = workspace.boards.find(current => current.id === id && !current.archivedAt)
+    if (!target) return
+    const remaining = workspace.boards.map(current => current.id === id ? { ...current, archivedAt: new Date().toISOString() } : current)
+    setUndoArchive({ kind: 'board', boardId: id, title: target.title })
     const openBoardIds = workspace.openBoardIds.filter(current => current !== id)
     const activeBoardId = board.id === id ? openBoardIds[0] ?? '' : board.id
     const destination = activeBoardId ? boardPath(activeBoardId) : '/'
@@ -168,16 +173,30 @@ export function useBoard() {
     saveBoard(result.board)
   }
 
-  function deleteCard(id: string) {
-    saveBoard({ ...board, cards: board.cards.filter(card => card.id !== id) })
+  function archiveCard(id: string) {
+    const card = board.cards.find(card => card.id === id && !card.archivedAt)
+    if (!card) return
+    const nextBoard = setCardArchived(board, id, true)
+    saveBoard(appendCardActivity(nextBoard, id, 'archived', 'archivó la tarjeta.', readActivityActor()))
+    setUndoArchive({ kind: 'card', boardId: board.id, cardId: id, title: card.title })
+  }
+
+  function restoreArchived(boardId: string, cardId?: string) {
+    const target = workspace.boards.find(current => current.id === boardId)
+    if (!target || (cardId ? target.archivedAt || !target.cards.some(card => card.id === cardId && card.archivedAt) : !target.archivedAt)) return
+    const restored = cardId ? appendCardActivity(setCardArchived(target, cardId, false), cardId, 'restored', 'restauró la tarjeta.', readActivityActor())
+      : { ...target, archivedAt: undefined }
+    saveWorkspace({ ...workspace, boards: workspace.boards.map(current => current.id === boardId ? { ...current, ...restored } : current) })
+    setUndoArchive(null)
+  }
+
+  function undoLastArchive() {
+    if (undoArchive) restoreArchived(undoArchive.boardId, undoArchive.cardId)
   }
 
   function deleteColumn(id: string) {
-    saveBoard({
-      columns: board.columns.filter(column => column.id !== id),
-      cards: board.cards.filter(card => card.status !== id),
-    })
+    saveBoard(removeColumnKeepingCards(board, id))
   }
 
-  return { ...board, labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards, activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, deleteBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort, deleteCard, deleteColumn }
+  return { ...board, cards: board.cards.filter(card => !card.archivedAt), allBoards: workspace.boards, undoArchive, restoreArchived, undoLastArchive, dismissUndo: () => setUndoArchive(null), labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards.filter(board => !board.archivedAt), activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, archiveBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort, archiveCard, deleteColumn }
 }

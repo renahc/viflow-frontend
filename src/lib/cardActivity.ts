@@ -1,6 +1,6 @@
 import type { Board } from './board'
 
-const activityKinds = ['due-date-edited', 'priority-edited', 'created', 'moved', 'reordered', 'title-edited', 'description-edited', 'label-added', 'label-removed'] as const
+const activityKinds = ['archived', 'restored', 'due-date-edited', 'priority-edited', 'created', 'moved', 'reordered', 'title-edited', 'description-edited', 'label-added', 'label-removed'] as const
 export type ActivityKind = (typeof activityKinds)[number]
 export type CardActivity = { id: string; kind: ActivityKind; actor: string; message: string; createdAt: string }
 export type CardComment = { id: string; author: string; body: string; createdAt: string }

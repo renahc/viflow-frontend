@@ -1,11 +1,10 @@
 import { dueState, formatDueDate, priorities } from '../../lib/cardSchedule'
 import { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, ChevronUp, Circle, CalendarDays, Flag, GripVertical, MessageSquare } from 'lucide-react'
+import { Archive, Check, ChevronDown, ChevronUp, Circle, CalendarDays, Flag, GripVertical, MessageSquare } from 'lucide-react'
 import type { Card, Column, Status } from '../../lib/board'
 import type { Label } from '../../lib/labels'
 import type { CardDrag } from '../../hooks/useCardDrag'
 import { CardLabels } from '../CardLabels'
-import { DeleteButton } from '../DeleteButton'
 
 type Props = {
   card: Card
@@ -60,7 +59,7 @@ export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
           cardTitle={card.title} onOpen={onOpenLabels} />
         <div className="card-actions">
           <GripVertical className="drag-handle" size={16} aria-hidden="true" />
-          <DeleteButton label={`Eliminar tarjeta ${card.title}`} onClick={onDelete} />
+          <button type="button" className="delete-button" aria-label={`Archivar tarjeta ${card.title}`} title="Archivar tarjeta" onClick={onDelete}><Archive size={14} aria-hidden="true" /></button>
         </div>
       </div>
       <h3><button ref={titleRef} type="button" className="task-title-button" aria-label={`Abrir tarjeta ${card.title}`} onClick={event => { if (!dragged.current || event.detail === 0) openDetails() }}>{card.title}</button></h3>
