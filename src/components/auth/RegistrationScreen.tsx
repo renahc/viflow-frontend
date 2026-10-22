@@ -32,7 +32,7 @@ export function RegistrationScreen() {
           <span className="auth-state-icon auth-success-icon"><Check size={25} aria-hidden="true" /></span>
           <h1 ref={headingRef} tabIndex={-1} id="registration-heading">Tu cuenta está lista</h1>
           <p className="auth-intro">Correo verificado: <strong>{registration.session?.user.email}</strong></p>
-          <p className="auth-success-note">Tus tableros siguen guardándose en este navegador. La sincronización con tu cuenta estará disponible más adelante.</p>
+          <p className="auth-success-note">Los tableros que crees con tu cuenta se guardarán en la nube. Tus tableros de invitado siguen separados en este navegador.</p>
           <Link className="primary-button auth-submit" to="/">Volver a mis tableros<ArrowRight size={16} aria-hidden="true" /></Link>
           <button className="auth-text-button auth-signout" type="button" disabled={Boolean(busy)} onClick={() => { setPassword(''); setCode(''); void registration.logout() }}>{busy === 'logout' ? 'Cerrando sesión…' : 'Cerrar sesión en este dispositivo'}</button>
           {error && <p className="auth-error" role="alert">{error}</p>}
@@ -73,7 +73,7 @@ export function RegistrationScreen() {
             {error && <p className="auth-error" role="alert">{error}</p>}
             <button className="primary-button auth-submit" disabled={blocked} type="submit">{busy === 'register' ? <><LoaderCircle className="auth-spinner" size={16} aria-hidden="true" />Creando cuenta…</> : <>Crear cuenta<ArrowRight size={16} aria-hidden="true" /></>}</button>
           </form>
-          <p className="auth-local-note">Por ahora, tus tableros permanecen en este navegador. Crear una cuenta no los sube a la nube.</p>
+          <p className="auth-local-note">Crear una cuenta no importa tus tableros locales. Al iniciar sesión tendrás un espacio propio en la nube.</p>
         </>}
         {!confirmed && <div className="auth-login-register">¿Ya tienes una cuenta?<Link to="/auth/login">Iniciar sesión<ArrowRight size={14} aria-hidden="true" /></Link></div>}
         {!confirmed && <div className="auth-panel-footer">Puedes seguir trabajando sin registrarte.<Link to="/">Continuar en este navegador<ArrowRight size={14} aria-hidden="true" /></Link></div>}

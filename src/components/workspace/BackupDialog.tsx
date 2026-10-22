@@ -37,7 +37,7 @@ export function BackupDialog({ workspace, onClose }: Props) {
         } catch { setError('No pudimos generar el respaldo. Inténtalo nuevamente.') }
       }}><Download size={15} aria-hidden="true" />Exportar JSON</button>
     </section>
-    <section className="backup-section"><h3>Importar respaldo</h3><p>Los tableros se agregarán como copias, sin reemplazar los que ya tienes. Importar el mismo archivo nuevamente creará más copias.</p>
+    {!workspace.sync && <section className="backup-section"><h3>Importar respaldo</h3><p>Los tableros se agregarán como copias, sin reemplazar los que ya tienes. Importar el mismo archivo nuevamente creará más copias.</p>
       <label className="backup-file-label" htmlFor="backup-file">Seleccionar archivo JSON (máximo 10 MB)</label>
       <input id="backup-file" type="file" accept=".json,application/json" onChange={async event => {
         const file = event.currentTarget.files?.[0]
@@ -61,7 +61,8 @@ export function BackupDialog({ workspace, onClose }: Props) {
           setBackup(null); setError('')
         }}><Upload size={15} aria-hidden="true" />Importar {counts.boards} tableros</button>
       </div>}
-    </section>
+    </section>}
+    {workspace.sync && <p>La importación a la cuenta estará disponible en la próxima entrega. Los tableros locales se conservan separados.</p>}
     {error && <p className="label-error" role="alert">{error}</p>}
     <p role="status">{notice}</p>
   </dialog>

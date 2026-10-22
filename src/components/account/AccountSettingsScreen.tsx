@@ -80,7 +80,7 @@ export function AccountSettingsScreen() {
             try { const { error } = await client.auth.signOut({ scope: 'local' }); if (error) throw error; void navigate('/') }
             catch (error) { setError(registrationError(error)) }
             finally { logoutBusy.current = false; setBusy(false) }
-          }}><LogOut size={15} />{busy ? 'Cerrando…' : 'Cerrar sesión'}</button></div>{error && <p role="alert" className="auth-error">{error}</p>}<p className="settings-storage-note">Tus tableros siguen guardados en este navegador, incluso después de cerrar sesión.</p></div></section>
+          }}><LogOut size={15} />{busy ? 'Cerrando…' : 'Cerrar sesión'}</button></div>{error && <p role="alert" className="auth-error">{error}</p>}<p className="settings-storage-note">Tus tableros de cuenta se guardan en la nube. Al cerrar sesión vuelves al espacio local de este navegador.</p></div></section>
           <footer className="settings-footer">Solo tú, tus ideas y un poco de flow.<Sparkles size={14} /></footer>
         </>}
       </main>

@@ -53,7 +53,7 @@ export function KanbanBoard({ workspace }: Props) {
           <span className="board-tab"><Kanban size={17} aria-hidden="true" />{title}</span>
           <span className="task-summary">{cards.length} tarjetas · {completed} completadas</span>
         </div>
-        {storageError && <p role="alert" className="storage-warning">No pudimos guardar en este navegador. Los cambios solo se mantendrán mientras esta página siga abierta.</p>}
+        {storageError && <p role="alert" className="storage-warning">No pudimos guardar los cambios. Mantén esta pestaña abierta y revisa el aviso de almacenamiento.</p>}
         <div className="kanban-grid" role="region" aria-label="Columnas del tablero" tabIndex={0}>
           {columns.map(column => (
             <KanbanColumn key={column.id} column={column} cards={cards.filter(card => card.status === column.id)}

@@ -12,14 +12,14 @@ import { updateCardContent } from '../lib/updateCard'
 import { moveCardInBoard } from '../lib/moveCard'
 import { boardPath } from '../lib/routes'
 import { createBoard } from '../lib/workspace'
-import { useWorkspaceStorage } from './useWorkspaceStorage'
+import type { WorkspaceState } from '../storage/workspaceRepository'
 import { mergeBackup } from '../lib/workspaceBackup'
 import type { WorkspaceBackup } from '../lib/workspaceBackup'
 import type { Board, Status } from '../lib/board'
 
-export function useBoard() {
+export function useBoard(storage: WorkspaceState) {
   const readActivityActor = useActivityActor()
-  const { workspace, storageError, saveWorkspace, importWorkspace } = useWorkspaceStorage()
+  const { workspace, storageError, saveWorkspace, importWorkspace, sync } = storage
   const [undoArchive, setUndoArchive] = useState<{ kind: 'board' | 'card'; boardId: string; cardId?: string; title: string } | null>(null)
   const match = useMatch('/boards/:boardId')
   const location = useLocation()
@@ -42,8 +42,8 @@ export function useBoard() {
   }, [board.id, location.pathname, workspace, saveWorkspace, storageError])
 
   function saveBoard(nextBoard: Board) {
-    if (!board.id) return
-    saveWorkspace({ ...workspace, boards: workspace.boards.map(current =>
+    if (!board.id) return false
+    return saveWorkspace({ ...workspace, boards: workspace.boards.map(current =>
       current.id === board.id ? { ...current, ...nextBoard } : current) })
   }
 
@@ -105,7 +105,7 @@ export function useBoard() {
     if (previous.description !== description.trim()) nextBoard = appendCardActivity(nextBoard, id, 'description-edited', 'actualizó la descripción.', actor)
     if ((previous.dueDate ?? '') !== schedule.dueDate) nextBoard = appendCardActivity(nextBoard, id, 'due-date-edited', schedule.dueDate ? `cambió el vencimiento al ${formatDueDate(schedule.dueDate)}.` : 'quitó la fecha de vencimiento.', actor)
     if ((previous.priority ?? 'none') !== schedule.priority) nextBoard = appendCardActivity(nextBoard, id, 'priority-edited', `cambió la prioridad a «${priorities[schedule.priority]}».`, actor)
-    saveBoard(nextBoard)
+    if (!saveBoard(nextBoard)) return 'Espera a que termine el guardado o resuelve el error de almacenamiento.'
   }
 
   function moveCard(id: string, status: Status, beforeId?: string | null) {
@@ -137,7 +137,7 @@ export function useBoard() {
   function addLabel(cardId: string, name: string, color: LabelColor) {
     const result = createCardLabel(board, cardId, name, color)
     if (result.error) return result.error
-    saveBoard(appendCardActivity(result.board, cardId, 'label-added', `agregó la etiqueta «${name.trim()}».`, readActivityActor()))
+    if (!saveBoard(appendCardActivity(result.board, cardId, 'label-added', `agregó la etiqueta «${name.trim()}».`, readActivityActor()))) return 'No pudimos guardar la etiqueta. Revisa el estado de almacenamiento.'
   }
 
   function toggleLabel(cardId: string, labelId: string) {
@@ -161,7 +161,7 @@ export function useBoard() {
   function commentOnCard(cardId: string, body: string) {
     const result = addCardComment(board, cardId, body, readActivityActor())
     if (result.error) return result.error
-    saveBoard(result.board)
+    if (!saveBoard(result.board)) return 'No pudimos guardar el comentario. Espera a que termine el guardado o revisa el aviso de almacenamiento.'
   }
 
   function archiveCard(id: string) {
@@ -193,5 +193,5 @@ export function useBoard() {
     return importWorkspace(mergeBackup(workspace, backup))
   }
 
-  return { ...board, exportWorkspace: workspace, importBackup, cards: board.cards.filter(card => !card.archivedAt), allBoards: workspace.boards, undoArchive, restoreArchived, undoLastArchive, dismissUndo: () => setUndoArchive(null), labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards.filter(board => !board.archivedAt), activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, archiveBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort, archiveCard, deleteColumn }
+  return { ...board, sync, exportWorkspace: workspace, importBackup, cards: board.cards.filter(card => !card.archivedAt), allBoards: workspace.boards, undoArchive, restoreArchived, undoLastArchive, dismissUndo: () => setUndoArchive(null), labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards.filter(board => !board.archivedAt), activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, archiveBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort, archiveCard, deleteColumn }
 }

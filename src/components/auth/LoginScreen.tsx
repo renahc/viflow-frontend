@@ -46,7 +46,7 @@ export function LoginScreen() {
           {login.needsVerification && <Link className="auth-text-button" to="/auth/register" state={{ verificationEmail: email.trim() }}>Verificar mi correo</Link>}
           <button className="primary-button auth-submit" type="submit" disabled={blocked}>{login.busy ? <><LoaderCircle className="auth-spinner" size={16} aria-hidden="true" />Iniciando sesión…</> : <>Iniciar sesión<ArrowRight size={16} aria-hidden="true" /></>}</button>
         </form>
-        <p className="auth-local-note">Tus tableros siguen guardándose en este navegador. La sincronización estará disponible más adelante.</p>
+        <p className="auth-local-note">Accede a tus tableros guardados en la nube. Los tableros de invitado permanecen separados en este navegador.</p>
         <div className="auth-login-register">¿Todavía no tienes una cuenta?<Link to="/auth/register">Crear cuenta<ArrowRight size={14} aria-hidden="true" /></Link></div>
         <div className="auth-panel-footer">También puedes trabajar sin una cuenta.<Link to="/">Continuar en este navegador<ArrowRight size={14} aria-hidden="true" /></Link></div>
       </section>

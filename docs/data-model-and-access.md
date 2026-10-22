@@ -6,9 +6,11 @@ Implementados el esquema PostgreSQL, los permisos de acceso y las pruebas de bas
 de datos en `supabase/migrations/202610220002_private_boards.sql` y
 `tests/cloudDatabase.test.ts`. La autenticación y los perfiles ya usan Supabase.
 
-**La interfaz de tableros continúa usando localStorage.** Esta entrega no activa
-sincronización, no sube datos automáticamente ni importa tableros de invitado.
-El SQL está preparado y probado localmente; debe aplicarse al proyecto remoto.
+Actualización: la siguiente migración `202610220003_cloud_workspace.sql` conecta
+la interfaz de cuenta con este esquema. Ver [guardado en la nube](cloud-workspace.md).
+El modo invitado sigue en localStorage; no se importan sus datos automáticamente.
+Las concesiones de escritura directa descritas abajo corresponden al esquema base;
+la migración de nube las sustituye por RPC transaccionales.
 
 ## Aplicar en Supabase
 

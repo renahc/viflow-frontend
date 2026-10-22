@@ -257,3 +257,15 @@ no destructivas de `supabase/checks/private_boards.sql`. Instrucciones y contrat
 Esta entrega no cambia el almacenamiento de la interfaz: los tableros siguen siendo
 locales. La conexión asíncrona, las operaciones transaccionales con control de
 revisiones y la importación de copias serán las próximas entregas.
+
+## Guardado de tableros de cuenta en Supabase
+
+Los tableros de una cuenta verificada se cargan y guardan mediante RPC transaccionales,
+con estados de carga/guardado/error, reintentos idempotentes y control de revisiones.
+El modo invitado conserva localStorage. Los dos espacios no se mezclan y la importación
+a la cuenta queda para la siguiente entrega.
+
+Ejecutar una vez `supabase/migrations/202610220003_cloud_workspace.sql` después del
+esquema privado. [Contrato, preparación y límites](docs/cloud-workspace.md).
+Esta sección reemplaza las notas anteriores que describen los tableros de cuenta
+como exclusivamente locales. No hay Realtime, fusión automática ni modo offline de cuenta.
