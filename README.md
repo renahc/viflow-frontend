@@ -33,7 +33,7 @@ pnpm test
 - Las columnas tienen ancho fijo y se recorren con scroll horizontal en cualquier pantalla.
 - Cada columna crece hasta el alto disponible; al superar ese límite, su contenido tiene scroll vertical interno.
 
-Los datos pertenecen a este navegador y origen; todavía no hay backend, cuentas ni sincronización entre dispositivos. Si el almacenamiento falla, se muestra una advertencia y se puede seguir trabajando en memoria. Las tarjetas se pueden reordenar arrastrándolas antes o después de otra tarjeta, o usando los botones Subir/Bajar. El orden se conserva en localStorage; los movimientos entre columnas también respetan la posición de destino.
+Los datos pertenecen a este navegador y origen; la autenticación ya usa Supabase, pero todavía no hay sincronización de tableros entre dispositivos. Si el almacenamiento falla, se muestra una advertencia y se puede seguir trabajando en memoria. Las tarjetas se pueden reordenar arrastrándolas antes o después de otra tarjeta, o usando los botones Subir/Bajar. El orden se conserva en localStorage; los movimientos entre columnas también respetan la posición de destino.
 
 ## Navegación
 
@@ -241,3 +241,19 @@ el paso por sí sola. La contraseña se limpia al enviar y nunca se persiste.
 Recargar tras verificar exige otra verificación. Tras actualizar, la sesión
 permanece activa; cerrar sesión permite probar la contraseña nueva en login.
 Los tableros siguen siendo locales.
+
+## Base de datos privada de tableros — primera entrega
+
+La migración `supabase/migrations/202610220002_private_boards.sql` prepara siete tablas
+normalizadas, relaciones, RLS, permisos por columna y actividad del servidor.
+Cada cuenta verificada solo puede acceder a sus tableros; el cliente no puede
+falsificar propietarios/autores ni borrar definitivamente tableros o tarjetas.
+La migración se prueba con PostgreSQL embebido (PGlite) al ejecutar `pnpm test`.
+
+Debe aplicarse una vez desde SQL Editor de Supabase. Después, ejecutar las consultas
+no destructivas de `supabase/checks/private_boards.sql`. Instrucciones y contrato en
+[modelo de datos y acceso](docs/data-model-and-access.md).
+
+Esta entrega no cambia el almacenamiento de la interfaz: los tableros siguen siendo
+locales. La conexión asíncrona, las operaciones transaccionales con control de
+revisiones y la importación de copias serán las próximas entregas.
