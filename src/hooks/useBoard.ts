@@ -32,7 +32,7 @@ export function useBoard(storage: WorkspaceState) {
   const routeBoardId = match?.params.boardId
   // The URL decides what is displayed. Stored selection only restores old data.
   const board = workspace.boards.find(board => board.id === routeBoardId && !board.archivedAt) ?? { id: '', title: 'Sin tableros', columns: [], cards: [] }
-  const routeError = (Boolean(routeBoardId) && !board.id) || (!match && location.pathname !== '/')
+  const routeError = (Boolean(routeBoardId) && !board.id) || (!match && location.pathname !== '/' && location.pathname !== '/upcoming')
   // Browser Back/Forward and direct URLs must also restore the open tab.
   useEffect(() => {
     // Router transitions can commit after a workspace update. Do not reopen the tab being closed.

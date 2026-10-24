@@ -1,5 +1,6 @@
 import { WorkspaceSyncStatus } from './WorkspaceSyncStatus'
-import { Link } from 'react-router'
+import { UpcomingScreen } from './UpcomingScreen'
+import { Link, useLocation } from 'react-router'
 import type { useBoard } from '../../hooks/useBoard'
 import { BoardTabs } from '../BoardTabs'
 import { KanbanBoard } from '../board/KanbanBoard'
@@ -8,6 +9,7 @@ import { WorkspaceSidebar } from './WorkspaceSidebar'
 type Props = { workspace: ReturnType<typeof useBoard> }
 
 export function WorkspaceScreen({ workspace }: Props) {
+  const upcoming = useLocation().pathname === '/upcoming'
   const { boards, activeBoardId, openBoardIds, routeError, storageError, closeBoard } = workspace
 
   return (
@@ -20,7 +22,7 @@ export function WorkspaceScreen({ workspace }: Props) {
             <BoardTabs boards={boards} openBoardIds={openBoardIds} activeBoardId={activeBoardId} onClose={closeBoard} />
             {!routeError && activeBoardId && <span className="workspace-card-summary">{workspace.cards.length} tarjetas · {workspace.cards.filter(card => card.status === 'done').length} completadas</span>}
           </div>
-          {routeError ? (
+          {upcoming ? <UpcomingScreen boards={workspace.allBoards} /> : routeError ? (
             <div className="workspace-empty">
               <h1>Tablero no encontrado</h1>
               <p>La dirección no existe o este tablero no está disponible en el espacio de trabajo actual.</p>

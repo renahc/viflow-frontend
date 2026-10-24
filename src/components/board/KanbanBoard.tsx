@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router'
 import { DuplicateDialog } from '../DuplicateDialog'
 import type { Card } from '../../lib/board'
 import { BoardFilters } from './BoardFilters'
@@ -26,7 +27,12 @@ export function KanbanBoard({ workspace }: Props) {
   const { columns, cards, labels, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort,
     archiveCard, deleteColumn, addLabel, toggleLabel, deleteLabel } = workspace
   const [duplicating, setDuplicating] = useState<Card | null>(null)
-  const [editingCardId, setEditingCardId] = useState<string | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [editingCardId, setEditingCardId] = useState<string | null>(() => searchParams.get('card'))
+  function closeCard() {
+    setEditingCardId(null)
+    if (searchParams.has('card')) { const next = new URLSearchParams(searchParams); next.delete('card'); setSearchParams(next, { replace: true }) }
+  }
   const editingCard = cards.find(card => card.id === editingCardId)
   const [composerId, setComposerId] = useState<string | null>(null)
   const [addingColumn, setAddingColumn] = useState(false)
@@ -90,7 +96,7 @@ export function KanbanBoard({ workspace }: Props) {
         onComment={body => commentOnCard(editingCard.id, body)} card={editingCard} column={columns.find(column => column.id === editingCard.status)} labels={labels}
         onToggleLabel={labelId => toggleLabel(editingCard.id, labelId)} onDeleteLabel={deleteLabel}
         onCreateLabel={(name, color) => addLabel(editingCard.id, name, color)}
-        onClose={() => setEditingCardId(null)} onSave={(title, description, schedule, checklist) => {
+        onClose={closeCard} onSave={(title, description, schedule, checklist) => {
           const error = editCard(editingCard.id, title, description, schedule, checklist)
           if (!error) setAnnouncement(`Tarjeta ${title.trim()} actualizada.`)
           return error

@@ -2,8 +2,8 @@ import { AccountAccess } from '../auth/AccountAccess'
 import { useState } from 'react'
 import { BackupDialog } from './BackupDialog'
 import { ArchiveDialog } from './ArchiveDialog'
-import { Archive, Download, Sparkles } from 'lucide-react'
-import { Link } from 'react-router'
+import { CalendarDays, Archive, Download, Sparkles } from 'lucide-react'
+import { Link, NavLink } from 'react-router'
 import type { useBoard } from '../../hooks/useBoard'
 import { BoardNavigation } from '../BoardNavigation'
 import { UserProfile } from '../UserProfile'
@@ -19,6 +19,7 @@ export function WorkspaceSidebar({ workspace }: Props) {
       <p className="nav-label">ESPACIO DE TRABAJO</p>
       <BoardNavigation boards={workspace.boards} activeBoardId={workspace.activeBoardId}
         onDuplicate={workspace.duplicateBoard} onCreate={workspace.addBoard} onRename={workspace.renameBoard} onDelete={workspace.archiveBoard} />
+      <NavLink to="/upcoming" className="archive-open-button upcoming-nav"><CalendarDays size={16} aria-hidden="true" />Vencimientos</NavLink>
       <button type="button" className="archive-open-button" onClick={() => setArchiveOpen(true)}><Archive size={16} aria-hidden="true" />Archivados</button>
       {archiveOpen && <ArchiveDialog workspace={workspace} onClose={() => setArchiveOpen(false)} />}
       <button type="button" className="archive-open-button" onClick={() => setBackupOpen(true)}><Download size={16} aria-hidden="true" />Respaldos</button>

@@ -21,6 +21,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/auth/register" element={<RegistrationScreen />} />
           <Route path="/auth/preview" element={<AuthPreviewScreen />} />
           <Route path="/" element={<App />} />
+          <Route path="/upcoming" element={<App />} />
           <Route path="/boards/:boardId" element={<App />} />
           <Route path="*" element={<App />} />
         </Routes>
