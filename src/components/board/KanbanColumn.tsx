@@ -10,6 +10,8 @@ import { ColumnOptions } from './ColumnOptions'
 import { TaskCard } from './TaskCard'
 
 type Props = {
+  visibleIds: Set<string>
+  filtered: boolean
   onSort: (sort: ColumnSort) => void
   column: Column
   cards: Card[]
@@ -27,7 +29,7 @@ type Props = {
   onDeleteColumn: (column: Column) => void
 }
 
-export function KanbanColumn({ column, cards: manualCards, onSort, columns, labels, drag, onAddCard,
+export function KanbanColumn({ visibleIds, filtered, column, cards: manualCards, onSort, columns, labels, drag, onAddCard,
   onMoveCard, onOpenLabels, onDeleteCard, onDeleteColumn, onOpenCard, composing, onOpenComposer, onCloseComposer }: Props) {
   const sorted = column.sort === 'priority'
   const cards = sortColumnCards(manualCards, column.sort ?? 'manual')
@@ -48,7 +50,7 @@ export function KanbanColumn({ column, cards: manualCards, onSort, columns, labe
         <div className="column-heading">
           <h2 id={`heading-${column.id}`}>
             <span className={`status-dot ${column.id}`} style={dotColor ? { background: dotColor } : undefined} />
-            {column.title}<span className="column-count">{cards.length}</span>
+            {column.title}<span className="column-count">{filtered ? `${cards.filter(card => visibleIds.has(card.id)).length} / ${cards.length}` : cards.length}</span>
           </h2>
           <div className="column-actions">
             <button className="icon-button" aria-label={`Agregar tarjeta a ${column.title}`} onClick={onOpenComposer}>
@@ -61,7 +63,7 @@ export function KanbanColumn({ column, cards: manualCards, onSort, columns, labe
         {sorted && <p className="column-sort-hint">Orden automático por prioridad</p>}
       </div>
       <div className={`card-list ${atEnd ? 'drop-at-end' : ''}`}>
-        {cards.map((card, index) => (
+        {cards.map((card, index) => visibleIds.has(card.id) && (
           <TaskCard key={card.id} card={card} columns={columns} labels={labels} drag={drag}
             canMoveUp={!sorted && index > 0} canMoveDown={!sorted && index < cards.length - 1}
             onMoveUp={() => onMoveCard(card.id, column.id, cards[index - 1]?.id)}
@@ -70,7 +72,7 @@ export function KanbanColumn({ column, cards: manualCards, onSort, columns, labe
             onOpenLabels={anchor => onOpenLabels(card, anchor)}
             onDelete={() => onDeleteCard(card)} onOpenDetails={() => onOpenCard(card)} />
         ))}
-        {cards.length === 0 && <p className="empty-column">Tu próximo avance empieza aquí.<br />Arrastra una tarjeta a esta columna.</p>}
+        {!cards.some(card => visibleIds.has(card.id)) && <p className="empty-column">{filtered ? 'Sin coincidencias en esta columna.' : <>Tu próximo avance empieza aquí.<br />Arrastra una tarjeta a esta columna.</>}</p>}
       </div>
       {composing ? <CardComposer status={column.id} onAdd={onAddCard} onClose={onCloseComposer} />
         : <button className="add-card" onClick={onOpenComposer}><Plus size={16} aria-hidden="true" />Agregar tarjeta</button>}

@@ -1,3 +1,5 @@
+import { BoardFilters } from './BoardFilters'
+import { emptyCardFilters, matchesCardFilters } from '../../lib/cardFilters'
 import { useState } from 'react'
 import { ArrowLeftRight, Kanban, Plus } from 'lucide-react'
 import type { useBoard } from '../../hooks/useBoard'
@@ -15,6 +17,9 @@ type PendingDelete = { kind: 'card' | 'column'; id: string; title: string }
 type LabelSelection = { cardId: string; anchor: HTMLButtonElement }
 
 export function KanbanBoard({ workspace }: Props) {
+  const [filters, setFilters] = useState({ ...emptyCardFilters })
+  const visibleIds = new Set(workspace.cards.filter(card => matchesCardFilters(card, filters)).map(card => card.id))
+  const filtered = Object.values(filters).some(Boolean)
   const readActivityActor = useActivityActor()
   const { title, columns, cards, labels, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort,
     archiveCard, deleteColumn, addLabel, toggleLabel, deleteLabel } = workspace
@@ -53,10 +58,12 @@ export function KanbanBoard({ workspace }: Props) {
           <span className="board-tab"><Kanban size={17} aria-hidden="true" />{title}</span>
           <span className="task-summary">{cards.length} tarjetas · {completed} completadas</span>
         </div>
+        <BoardFilters value={filters} onChange={value => { drag.reset(); setFilters(value) }} labels={labels} count={visibleIds.size} total={cards.length} />
+        {filtered && visibleIds.size === 0 && <p className="board-no-results">No hay tarjetas que coincidan. Prueba otros filtros o limpia la búsqueda.</p>}
         {storageError && <p role="alert" className="storage-warning">No pudimos guardar los cambios. Mantén esta pestaña abierta y revisa el aviso de almacenamiento.</p>}
         <div className="kanban-grid" role="region" aria-label="Columnas del tablero" tabIndex={0}>
           {columns.map(column => (
-            <KanbanColumn key={column.id} column={column} cards={cards.filter(card => card.status === column.id)}
+            <KanbanColumn visibleIds={visibleIds} filtered={filtered} key={column.id} column={column} cards={cards.filter(card => card.status === column.id)}
               columns={columns} labels={labels} drag={drag} onSort={sort => { drag.reset(); setColumnSort(column.id, sort) }} onAddCard={addCard} onMoveCard={move}
               composing={composerId === column.id} onOpenComposer={() => setComposerId(column.id)}
               onCloseComposer={() => setComposerId(null)}
