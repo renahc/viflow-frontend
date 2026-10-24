@@ -1,3 +1,4 @@
+import { LocalBoardImportPanel } from './LocalBoardImportPanel'
 import { useEffect, useRef, useState } from 'react'
 import { Download, Upload, X } from 'lucide-react'
 import type { useBoard } from '../../hooks/useBoard'
@@ -20,8 +21,8 @@ export function BackupDialog({ workspace, onClose }: Props) {
     return () => { requestState.sequence++; dialog?.close() }
   }, [])
   const counts = backup ? backupCounts(backup) : null
-  return <dialog ref={dialogRef} className="confirm-modal backup-dialog" aria-labelledby="backup-title" onCancel={event => { event.preventDefault(); onClose() }}>
-    <header className="archive-header"><h2 id="backup-title">Respaldos</h2><button autoFocus type="button" className="icon-button" aria-label="Cerrar respaldos" onClick={onClose}><X size={18} aria-hidden="true" /></button></header>
+  return <dialog ref={dialogRef} className="confirm-modal backup-dialog" aria-labelledby="backup-title" onCancel={event => { event.preventDefault(); if (!busy) onClose() }}>
+    <header className="archive-header"><h2 id="backup-title">Respaldos</h2><button autoFocus type="button" className="icon-button" aria-label="Cerrar respaldos" disabled={busy} onClick={onClose}><X size={18} aria-hidden="true" /></button></header>
     <section className="backup-section"><h3>Exportar espacio de trabajo</h3><p>Descarga todos tus tableros, tarjetas, etiquetas, comentarios y actividad, incluidos los archivados. Tu perfil y foto no se incluyen.</p>
       <button type="button" className="primary-button" onClick={() => {
         setError(''); setNotice('')
@@ -62,7 +63,7 @@ export function BackupDialog({ workspace, onClose }: Props) {
         }}><Upload size={15} aria-hidden="true" />Importar {counts.boards} tableros</button>
       </div>}
     </section>}
-    {workspace.sync && <p>La importación a la cuenta estará disponible en la próxima entrega. Los tableros locales se conservan separados.</p>}
+    {workspace.copyLocalBoards && <LocalBoardImportPanel workspace={workspace} onClose={onClose} onBusyChange={setBusy} />}
     {error && <p className="label-error" role="alert">{error}</p>}
     <p role="status">{notice}</p>
   </dialog>

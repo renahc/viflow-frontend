@@ -14,8 +14,8 @@ function copyBoard(board: WorkspaceBoard): WorkspaceBoard {
       id: card.id, title: card.title, description: card.description, status: card.status,
       archivedAt: card.archivedAt, dueDate: card.dueDate, priority: card.priority,
       labelIds: card.labelIds ? [...card.labelIds] : undefined,
-      comments: card.comments?.map(({ id, author, body, createdAt }) => ({ id, author, body, createdAt })),
-      activity: card.activity?.map(({ id, kind, actor, message, createdAt }) => ({ id, kind, actor, message, createdAt })),
+      comments: card.comments?.map(({ id, author, body, createdAt, source }) => ({ id, author, body, createdAt, source })),
+      activity: card.activity?.map(({ id, kind, actor, message, createdAt, source }) => ({ id, kind, actor, message, createdAt, source })),
     })),
   }
 }

@@ -48,6 +48,7 @@ export function CardDiscussion({ card, actor, onComment }: Props) {
               <div className="timeline-meta"><strong>{entry.kind === 'comment' ? entry.author : entry.actor}</strong>
                 <time dateTime={entry.createdAt} title={dateFormat.format(new Date(entry.createdAt))}>{dateFormat.format(new Date(entry.createdAt))}</time>
               </div>
+              {entry.source === 'local_import' && <span className="imported-history-badge">Historial importado</span>}
               <p>{entry.kind === 'comment' ? entry.body : entry.message}</p>
             </div>
           </li>

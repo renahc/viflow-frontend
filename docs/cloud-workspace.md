@@ -68,8 +68,9 @@ El registro de operaciones no expira en esta entrega: requiere una política de
 mantenimiento antes de uso a gran escala.
 
 La exportación de la cuenta descarga sus tableros, incluidos archivados. La
-importación de archivos y de tableros del dispositivo está deshabilitada en el
-espacio de cuenta hasta la siguiente entrega, que conservará la procedencia local.
+importación de archivos JSON sigue deshabilitada en el espacio de cuenta.
+La copia de tableros del dispositivo está disponible desde Respaldos; consulta
+[Importar tableros locales](local-board-import.md).
 El espacio invitado mantiene su importación actual. No se borra ni modifica su
 clave `viflow.workspace.v1` al entrar, guardar o salir de una cuenta.
 

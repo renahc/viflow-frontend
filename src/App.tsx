@@ -16,11 +16,11 @@ function BoardApplication({ storage }: { storage: WorkspaceState }) {
 }
 
 function LocalWorkspace() { return <BoardApplication storage={useWorkspaceStorage()} /> }
-function CloudWorkspace({ client }: { client: SupabaseClient }) { return <BoardApplication storage={useCloudWorkspace(client)} /> }
+function CloudWorkspace({ client, userId }: { client: SupabaseClient; userId: string }) { return <BoardApplication storage={useCloudWorkspace(client, userId)} /> }
 export default function App() {
   const { loading, session, client, sessionError } = useAuth()
   if (loading) return <div className="workspace-empty" role="status">Comprobando sesión…</div>
   if (sessionError) return <div className="workspace-empty" role="alert">No pudimos recuperar tu sesión. Recarga la página para volver a intentarlo.</div>
-  if (session?.user.email_confirmed_at && client) return <CloudWorkspace key={session.user.id} client={client} />
+  if (session?.user.email_confirmed_at && client) return <CloudWorkspace key={session.user.id} client={client} userId={session.user.id} />
   return <LocalWorkspace key="guest" />
 }

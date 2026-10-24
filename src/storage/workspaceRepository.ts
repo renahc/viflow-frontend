@@ -1,4 +1,4 @@
-import type { Workspace } from '../lib/workspace'
+import type { Workspace, WorkspaceBoard } from '../lib/workspace'
 
 export type WorkspaceLoad = { workspace: Workspace; error: boolean }
 // This is the local snapshot boundary. A future cloud service will coordinate
@@ -13,6 +13,7 @@ export type WorkspaceState = {
   storageError: boolean
   saveWorkspace: (next: Workspace) => boolean
   importWorkspace: (next: Workspace) => boolean
+  copyLocalBoards?: (boards: WorkspaceBoard[]) => Promise<string[]>
   sync?: {
     phase: 'loading' | 'saving' | 'ready' | 'error'
     message: string

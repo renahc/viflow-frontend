@@ -19,7 +19,7 @@ import type { Board, Status } from '../lib/board'
 
 export function useBoard(storage: WorkspaceState) {
   const readActivityActor = useActivityActor()
-  const { workspace, storageError, saveWorkspace, importWorkspace, sync } = storage
+  const { workspace, storageError, saveWorkspace, importWorkspace, sync, copyLocalBoards } = storage
   const [undoArchive, setUndoArchive] = useState<{ kind: 'board' | 'card'; boardId: string; cardId?: string; title: string } | null>(null)
   const match = useMatch('/boards/:boardId')
   const location = useLocation()
@@ -193,5 +193,5 @@ export function useBoard(storage: WorkspaceState) {
     return importWorkspace(mergeBackup(workspace, backup))
   }
 
-  return { ...board, sync, exportWorkspace: workspace, importBackup, cards: board.cards.filter(card => !card.archivedAt), allBoards: workspace.boards, undoArchive, restoreArchived, undoLastArchive, dismissUndo: () => setUndoArchive(null), labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards.filter(board => !board.archivedAt), activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, archiveBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort, archiveCard, deleteColumn }
+  return { ...board, sync, copyLocalBoards, exportWorkspace: workspace, importBackup, cards: board.cards.filter(card => !card.archivedAt), allBoards: workspace.boards, undoArchive, restoreArchived, undoLastArchive, dismissUndo: () => setUndoArchive(null), labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards.filter(board => !board.archivedAt), activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, archiveBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort, archiveCard, deleteColumn }
 }

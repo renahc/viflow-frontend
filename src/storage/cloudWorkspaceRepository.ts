@@ -18,6 +18,10 @@ function withoutNulls(value: unknown): unknown {
 function activityMessage(value: unknown, titles: Record<string, unknown>): string {
   const entry = record(value)
   const details = record(entry.details ?? {})
+  if (entry.source === 'local_import') {
+    if (typeof details.imported_message !== 'string' || !details.imported_message.trim()) throw new Error('invalid_cloud_activity')
+    return details.imported_message
+  }
   const column = details.column_id
   const target = typeof column === 'string' ? column : column && typeof column === 'object' ? record(column).to : ''
   const title = typeof target === 'string' && typeof titles[target] === 'string' ? titles[target] : 'otra columna'

@@ -3,8 +3,8 @@ import type { Board } from './board'
 
 const activityKinds = ['archived', 'restored', 'due-date-edited', 'priority-edited', 'created', 'moved', 'reordered', 'title-edited', 'description-edited', 'label-added', 'label-removed'] as const
 export type ActivityKind = (typeof activityKinds)[number]
-export type CardActivity = { id: string; kind: ActivityKind; actor: string; message: string; createdAt: string }
-export type CardComment = { id: string; author: string; body: string; createdAt: string }
+export type CardActivity = { id: string; kind: ActivityKind; actor: string; message: string; createdAt: string; source?: 'account' | 'local_import' }
+export type CardComment = { id: string; author: string; body: string; createdAt: string; source?: 'account' | 'local_import' }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -13,13 +13,13 @@ function isTimestamp(value: unknown): value is string {
   return typeof value === 'string' && Number.isFinite(Date.parse(value))
 }
 export function isCardComment(value: unknown): value is CardComment {
-  return isRecord(value) && typeof value.id === 'string' && !!value.id.trim()
+  return isRecord(value) && (value.source === undefined || value.source === 'account' || value.source === 'local_import') && typeof value.id === 'string' && !!value.id.trim()
     && typeof value.author === 'string' && !!value.author.trim()
     && typeof value.body === 'string' && !!value.body.trim() && value.body.length <= 2000
     && isTimestamp(value.createdAt)
 }
 export function isCardActivity(value: unknown): value is CardActivity {
-  return isRecord(value) && typeof value.id === 'string' && !!value.id.trim()
+  return isRecord(value) && (value.source === undefined || value.source === 'account' || value.source === 'local_import') && typeof value.id === 'string' && !!value.id.trim()
     && activityKinds.some(kind => kind === value.kind)
     && typeof value.actor === 'string' && !!value.actor.trim()
     && typeof value.message === 'string' && !!value.message.trim() && isTimestamp(value.createdAt)
