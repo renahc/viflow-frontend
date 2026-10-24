@@ -1,7 +1,7 @@
 import { BoardFilters } from './BoardFilters'
 import { emptyCardFilters, matchesCardFilters } from '../../lib/cardFilters'
 import { useState } from 'react'
-import { ArrowLeftRight, Kanban, Plus } from 'lucide-react'
+import { ArrowLeftRight, Plus } from 'lucide-react'
 import type { useBoard } from '../../hooks/useBoard'
 import { useActivityActor } from '../../hooks/useActivityActor'
 import { useCardDrag } from '../../hooks/useCardDrag'
@@ -21,7 +21,7 @@ export function KanbanBoard({ workspace }: Props) {
   const visibleIds = new Set(workspace.cards.filter(card => matchesCardFilters(card, filters)).map(card => card.id))
   const filtered = Object.values(filters).some(Boolean)
   const readActivityActor = useActivityActor()
-  const { title, columns, cards, labels, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort,
+  const { columns, cards, labels, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort,
     archiveCard, deleteColumn, addLabel, toggleLabel, deleteLabel } = workspace
   const [editingCardId, setEditingCardId] = useState<string | null>(null)
   const editingCard = cards.find(card => card.id === editingCardId)
@@ -31,7 +31,6 @@ export function KanbanBoard({ workspace }: Props) {
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
   const [labelSelection, setLabelSelection] = useState<LabelSelection | null>(null)
   const labelCard = cards.find(card => card.id === labelSelection?.cardId)
-  const completed = cards.filter(card => card.status === 'done').length
 
   function move(id: string, status: Status, beforeId?: string | null) {
     moveCard(id, status, beforeId)
@@ -54,10 +53,6 @@ export function KanbanBoard({ workspace }: Props) {
   return (
     <>
       <div className="board-content">
-        <div className="board-toolbar">
-          <span className="board-tab"><Kanban size={17} aria-hidden="true" />{title}</span>
-          <span className="task-summary">{cards.length} tarjetas · {completed} completadas</span>
-        </div>
         <BoardFilters value={filters} onChange={value => { drag.reset(); setFilters(value) }} labels={labels} count={visibleIds.size} total={cards.length} />
         {filtered && visibleIds.size === 0 && <p className="board-no-results">No hay tarjetas que coincidan. Prueba otros filtros o limpia la búsqueda.</p>}
         {storageError && <p role="alert" className="storage-warning">No pudimos guardar los cambios. Mantén esta pestaña abierta y revisa el aviso de almacenamiento.</p>}

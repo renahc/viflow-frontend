@@ -16,7 +16,10 @@ export function WorkspaceScreen({ workspace }: Props) {
       <div className="app-shell" inert={Boolean(workspace.sync && workspace.sync.phase !== 'ready')}>
         <WorkspaceSidebar workspace={workspace} />
         <main id="board" className="main-content">
-          <BoardTabs boards={boards} openBoardIds={openBoardIds} activeBoardId={activeBoardId} onClose={closeBoard} />
+          <div className="workspace-tab-bar">
+            <BoardTabs boards={boards} openBoardIds={openBoardIds} activeBoardId={activeBoardId} onClose={closeBoard} />
+            {!routeError && activeBoardId && <span className="workspace-card-summary">{workspace.cards.length} tarjetas · {workspace.cards.filter(card => card.status === 'done').length} completadas</span>}
+          </div>
           {routeError ? (
             <div className="workspace-empty">
               <h1>Tablero no encontrado</h1>
