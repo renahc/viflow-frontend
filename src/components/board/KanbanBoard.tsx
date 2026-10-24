@@ -1,3 +1,5 @@
+import { DuplicateDialog } from '../DuplicateDialog'
+import type { Card } from '../../lib/board'
 import { BoardFilters } from './BoardFilters'
 import { emptyCardFilters, matchesCardFilters } from '../../lib/cardFilters'
 import { useState } from 'react'
@@ -23,6 +25,7 @@ export function KanbanBoard({ workspace }: Props) {
   const readActivityActor = useActivityActor()
   const { columns, cards, labels, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort,
     archiveCard, deleteColumn, addLabel, toggleLabel, deleteLabel } = workspace
+  const [duplicating, setDuplicating] = useState<Card | null>(null)
   const [editingCardId, setEditingCardId] = useState<string | null>(null)
   const editingCard = cards.find(card => card.id === editingCardId)
   const [composerId, setComposerId] = useState<string | null>(null)
@@ -64,6 +67,7 @@ export function KanbanBoard({ workspace }: Props) {
               onCloseComposer={() => setComposerId(null)}
               onOpenCard={card => { setLabelSelection(null); setEditingCardId(card.id) }}
               onOpenLabels={(card, anchor) => setLabelSelection({ cardId: card.id, anchor })}
+              onDuplicateCard={setDuplicating}
               onDeleteCard={card => setPendingDelete({ kind: 'card', id: card.id, title: card.title })}
               onDeleteColumn={column => setPendingDelete({ kind: 'column', id: column.id, title: column.title })} />
           ))}
@@ -81,6 +85,7 @@ export function KanbanBoard({ workspace }: Props) {
         </footer>
         <p className="sr-only" role="status" aria-live="polite">{announcement}</p>
       </div>
+      {duplicating && <DuplicateDialog kind="card" title={duplicating.title} onClose={() => setDuplicating(null)} onDuplicate={options => workspace.duplicateCard(duplicating.id, options)} />}
       {editingCard && <CardDetails key={editingCard.id} actor={readActivityActor()} storageError={storageError}
         onComment={body => commentOnCard(editingCard.id, body)} card={editingCard} column={columns.find(column => column.id === editingCard.status)} labels={labels}
         onToggleLabel={labelId => toggleLabel(editingCard.id, labelId)} onDeleteLabel={deleteLabel}

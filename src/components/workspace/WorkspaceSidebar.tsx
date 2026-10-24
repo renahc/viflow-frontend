@@ -18,7 +18,7 @@ export function WorkspaceSidebar({ workspace }: Props) {
       <Link className="brand" to="/">viflow<span className="brand-dot">.</span></Link>
       <p className="nav-label">ESPACIO DE TRABAJO</p>
       <BoardNavigation boards={workspace.boards} activeBoardId={workspace.activeBoardId}
-        onCreate={workspace.addBoard} onRename={workspace.renameBoard} onDelete={workspace.archiveBoard} />
+        onDuplicate={workspace.duplicateBoard} onCreate={workspace.addBoard} onRename={workspace.renameBoard} onDelete={workspace.archiveBoard} />
       <button type="button" className="archive-open-button" onClick={() => setArchiveOpen(true)}><Archive size={16} aria-hidden="true" />Archivados</button>
       {archiveOpen && <ArchiveDialog workspace={workspace} onClose={() => setArchiveOpen(false)} />}
       <button type="button" className="archive-open-button" onClick={() => setBackupOpen(true)}><Download size={16} aria-hidden="true" />Respaldos</button>

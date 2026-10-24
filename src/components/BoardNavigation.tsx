@@ -1,6 +1,8 @@
+import { DuplicateDialog } from './DuplicateDialog'
+import type { DuplicateOptions } from '../lib/duplicate'
 import { NavLink } from 'react-router'
 import { boardPath } from '../lib/routes'
-import { Ellipsis, Kanban, Plus, SquarePen, Archive } from 'lucide-react'
+import { Copy, Ellipsis, Kanban, Plus, SquarePen, Archive } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { WorkspaceBoard } from '../lib/workspace'
 import { ConfirmDeleteModal } from './ConfirmDeleteModal'
@@ -10,6 +12,7 @@ type Props = {
   activeBoardId: string
   onCreate: (title: string) => string | undefined
   onRename: (id: string, title: string) => void
+  onDuplicate: (id: string, options: DuplicateOptions) => string | undefined
   onDelete: (id: string) => void
 }
 
@@ -31,12 +34,12 @@ function RenameBoardModal({ board, onSave, onClose }: { board: WorkspaceBoard; o
   </dialog>
 }
 
-export function BoardNavigation({ boards, activeBoardId, onCreate, onRename, onDelete }: Props) {
+export function BoardNavigation({ boards, activeBoardId, onCreate, onRename, onDelete, onDuplicate }: Props) {
   const [creating, setCreating] = useState(false)
   const [title, setTitle] = useState('')
   const [menu, setMenu] = useState<string | null>(null)
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 })
-  const [action, setAction] = useState<{ kind: 'rename' | 'delete'; board: WorkspaceBoard } | null>(null)
+  const [action, setAction] = useState<{ kind: 'rename' | 'delete' | 'duplicate'; board: WorkspaceBoard } | null>(null)
   const navRef = useRef<HTMLElement>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
 
@@ -82,7 +85,7 @@ export function BoardNavigation({ boards, activeBoardId, onCreate, onRename, onD
               const rect = event.currentTarget.getBoundingClientRect()
               const width = 184
               setMenuPosition({
-                top: Math.max(8, Math.min(rect.top, window.innerHeight - 110)),
+                top: Math.max(8, Math.min(rect.top, window.innerHeight - 155)),
                 left: Math.max(8, Math.min(rect.right + 8, window.innerWidth - width - 8)),
               })
               setMenu(current => current === board.id ? null : board.id)
@@ -90,6 +93,7 @@ export function BoardNavigation({ boards, activeBoardId, onCreate, onRename, onD
         </div>
         {menu === board.id && <div className="board-item-options" style={menuPosition} id={`board-options-${board.id}`}>
           <button type="button" onClick={() => { setMenu(null); setAction({ kind: 'rename', board }) }}><SquarePen size={14} aria-hidden="true" />Renombrar</button>
+          <button type="button" onClick={() => { setMenu(null); setAction({ kind: 'duplicate', board }) }}><Copy size={14} aria-hidden="true" />Duplicar tablero</button>
           <button type="button" className="board-delete-option" onClick={() => { setMenu(null); setAction({ kind: 'delete', board }) }}><Archive size={14} aria-hidden="true" />Archivar tablero</button>
         </div>}
       </div>
@@ -106,6 +110,7 @@ export function BoardNavigation({ boards, activeBoardId, onCreate, onRename, onD
       <input id="board-name" autoFocus required maxLength={80} placeholder="Ej. Proyecto personal" value={title} onChange={event => setTitle(event.target.value)} />
       <div className="board-composer-actions"><button className="primary-button" disabled={!title.trim()}>Crear</button><button type="button" className="quiet-button" onClick={() => { setCreating(false); setTitle('') }}>Cancelar</button></div>
     </form> : <button type="button" className="new-board-button" onClick={() => setCreating(true)}><Plus size={16} aria-hidden="true" />Nuevo tablero</button>}
+    {action?.kind === 'duplicate' && <DuplicateDialog kind="board" title={action.board.title} onClose={closeAction} onDuplicate={options => onDuplicate(action.board.id, options)} />}
     {action?.kind === 'rename' && <RenameBoardModal board={action.board} onClose={closeAction} onSave={title => { onRename(action.board.id, title); closeAction() }} />}
     {action?.kind === 'delete' && <ConfirmDeleteModal confirmLabel="Archivar" title="Archivar tablero" description={`Se archivará «${action.board.title}» con todo su contenido. Podrás recuperarlo desde Archivados.`}
       onCancel={closeAction} onConfirm={() => { onDelete(action.board.id); closeAction() }} />}

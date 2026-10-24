@@ -1,3 +1,4 @@
+import { duplicateBoard } from '../src/lib/duplicate.ts'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { test } from 'node:test'
@@ -89,6 +90,14 @@ test('local board import preserves history, remaps identities and is atomic/idem
     assert.equal(copiedWithoutLabels.cards.length, 2)
     assert.deepEqual(copiedWithoutLabels.labels, [])
     assert.equal(noLabels.labels, undefined)
+    const beforeCopy = await load()
+    const duplicated = duplicateBoard(copiedWithoutLabels, {title:'Tablero duplicado',keepDates:false,keepLabels:true})
+    const duplicateRequest = createCloudRequest(beforeCopy,{...beforeCopy.workspace,boards:[...beforeCopy.workspace.boards,duplicated]})
+    await db.query('select public.viflow_save_workspace($1::jsonb,$2::uuid)',[JSON.stringify(duplicateRequest.changes),duplicateRequest.operationId])
+    const afterCopy = await load()
+    assert.equal(afterCopy.workspace.boards.length,beforeCopy.workspace.boards.length+1)
+    assert.equal(afterCopy.workspace.boards.find(board=>board.id===duplicated.id)?.cards.length,2)
+    assert.deepEqual(afterCopy.workspace.boards.find(board=>board.id===copiedWithoutLabels.id),copiedWithoutLabels)
     await db.exec('reset role; set role anon')
     await assert.rejects(copy(local,crypto.randomUUID()),(error:unknown)=>(error as {code:string}).code==='42501')
   } finally { await db.close() }

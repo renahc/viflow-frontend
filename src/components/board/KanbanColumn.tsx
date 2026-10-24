@@ -24,13 +24,14 @@ type Props = {
   onAddCard: (title: string, description: string, status: Status) => void
   onMoveCard: (id: string, status: Status, beforeId?: string | null) => void
   onOpenLabels: (card: Card, anchor: HTMLButtonElement) => void
+  onDuplicateCard: (card: Card) => void
   onDeleteCard: (card: Card) => void
   onOpenCard: (card: Card) => void
   onDeleteColumn: (column: Column) => void
 }
 
 export function KanbanColumn({ visibleIds, filtered, column, cards: manualCards, onSort, columns, labels, drag, onAddCard,
-  onMoveCard, onOpenLabels, onDeleteCard, onDeleteColumn, onOpenCard, composing, onOpenComposer, onCloseComposer }: Props) {
+  onMoveCard, onOpenLabels, onDuplicateCard, onDeleteCard, onDeleteColumn, onOpenCard, composing, onOpenComposer, onCloseComposer }: Props) {
   const sorted = column.sort === 'priority'
   const cards = sortColumnCards(manualCards, column.sort ?? 'manual')
   const sameColumnDrag = manualCards.some(card => card.id === drag.draggingId)
@@ -70,7 +71,7 @@ export function KanbanColumn({ visibleIds, filtered, column, cards: manualCards,
             onMoveDown={() => onMoveCard(card.id, column.id, cards[index + 2]?.id ?? null)}
             onChangeStatus={status => onMoveCard(card.id, status)}
             onOpenLabels={anchor => onOpenLabels(card, anchor)}
-            onDelete={() => onDeleteCard(card)} onOpenDetails={() => onOpenCard(card)} />
+            onDuplicate={() => onDuplicateCard(card)} onDelete={() => onDeleteCard(card)} onOpenDetails={() => onOpenCard(card)} />
         ))}
         {!cards.some(card => visibleIds.has(card.id)) && <p className="empty-column">{filtered ? 'Sin coincidencias en esta columna.' : <>Tu próximo avance empieza aquí.<br />Arrastra una tarjeta a esta columna.</>}</p>}
       </div>

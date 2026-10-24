@@ -1,6 +1,7 @@
+import { CardOptions } from './CardOptions'
 import { dueState, formatDueDate, priorities } from '../../lib/cardSchedule'
 import { useEffect, useRef, useState } from 'react'
-import { Archive, Check, ChevronDown, ChevronUp, Circle, CalendarDays, Flag, GripVertical, ListChecks, MessageSquare } from 'lucide-react'
+import { Check, ChevronDown, ChevronUp, Circle, CalendarDays, Flag, GripVertical, ListChecks, MessageSquare } from 'lucide-react'
 import type { Card, Column, Status } from '../../lib/board'
 import type { Label } from '../../lib/labels'
 import type { CardDrag } from '../../hooks/useCardDrag'
@@ -17,12 +18,13 @@ type Props = {
   onMoveDown: () => void
   onChangeStatus: (status: Status) => void
   onOpenLabels: (anchor: HTMLButtonElement) => void
+  onDuplicate: () => void
   onDelete: () => void
   onOpenDetails: () => void
 }
 
 export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
-  onMoveUp, onMoveDown, onChangeStatus, onOpenLabels, onDelete, onOpenDetails }: Props) {
+  onMoveUp, onMoveDown, onChangeStatus, onOpenLabels, onDelete, onDuplicate, onOpenDetails }: Props) {
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 60_000)
@@ -59,7 +61,7 @@ export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
           cardTitle={card.title} onOpen={onOpenLabels} />
         <div className="card-actions">
           <GripVertical className="drag-handle" size={16} aria-hidden="true" />
-          <button type="button" className="delete-button" aria-label={`Archivar tarjeta ${card.title}`} title="Archivar tarjeta" onClick={onDelete}><Archive size={14} aria-hidden="true" /></button>
+          <CardOptions title={card.title} onArchive={onDelete} onDuplicate={onDuplicate} />
         </div>
       </div>
       <h3><button ref={titleRef} type="button" className="task-title-button" aria-label={`Abrir tarjeta ${card.title}`} onClick={event => { if (!dragged.current || event.detail === 0) openDetails() }}>{card.title}</button></h3>

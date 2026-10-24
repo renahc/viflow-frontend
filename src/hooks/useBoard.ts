@@ -1,3 +1,5 @@
+import { duplicateBoard as copyBoard, duplicateCard as copyCard } from '../lib/duplicate'
+import type { DuplicateOptions } from '../lib/duplicate'
 import { isChecklist } from '../lib/checklist'
 import type { ChecklistItem } from '../lib/checklist'
 import { useActivityActor } from './useActivityActor'
@@ -56,6 +58,25 @@ export function useBoard(storage: WorkspaceState) {
     saveWorkspace({ boards: [...workspace.boards, nextBoard], activeBoardId: nextBoard.id, openBoardIds: [...workspace.openBoardIds, nextBoard.id] })
     void navigate(boardPath(nextBoard.id))
     return nextBoard.id
+  }
+
+  function duplicateBoard(id: string, options: DuplicateOptions) {
+    const source = workspace.boards.find(current => current.id === id && !current.archivedAt)
+    if (!source || !options.title.trim() || options.title.trim().length > 160) return 'Escribe un nombre de hasta 160 caracteres.'
+    const copy = copyBoard(source, options)
+    const next = { boards: [...workspace.boards, copy], activeBoardId: copy.id, openBoardIds: [...workspace.openBoardIds, copy.id] }
+    if (!saveWorkspace(next)) return 'Espera a que termine el guardado o resuelve el error de almacenamiento.'
+    pendingNavigation.current = { from: location.pathname, to: boardPath(copy.id) }
+    void navigate(boardPath(copy.id))
+  }
+
+  function duplicateCard(id: string, options: DuplicateOptions) {
+    const source = board.cards.find(card => card.id === id && !card.archivedAt)
+    if (!source || !options.title.trim() || options.title.trim().length > 160) return 'Escribe un nombre de hasta 160 caracteres.'
+    const copy = copyCard(source, options)
+    const cards = board.cards.flatMap(card => card.id === id ? [card, copy] : [card])
+    const next = appendCardActivity({ ...board, cards }, copy.id, 'created', `creó la tarjeta en «${board.columns.find(column => column.id === copy.status)?.title}».`, readActivityActor())
+    if (!saveBoard(next)) return 'Espera a que termine el guardado o resuelve el error de almacenamiento.'
   }
 
   function renameBoard(id: string, title: string) {
@@ -196,5 +217,5 @@ export function useBoard(storage: WorkspaceState) {
     return importWorkspace(mergeBackup(workspace, backup))
   }
 
-  return { ...board, sync, copyLocalBoards, exportWorkspace: workspace, importBackup, cards: board.cards.filter(card => !card.archivedAt), allBoards: workspace.boards, undoArchive, restoreArchived, undoLastArchive, dismissUndo: () => setUndoArchive(null), labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards.filter(board => !board.archivedAt), activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, archiveBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort, archiveCard, deleteColumn }
+  return { ...board, duplicateBoard, duplicateCard, sync, copyLocalBoards, exportWorkspace: workspace, importBackup, cards: board.cards.filter(card => !card.archivedAt), allBoards: workspace.boards, undoArchive, restoreArchived, undoLastArchive, dismissUndo: () => setUndoArchive(null), labels: board.labels ?? [], addLabel, toggleLabel, deleteLabel, boards: workspace.boards.filter(board => !board.archivedAt), activeBoardId: board.id, openBoardIds: workspace.openBoardIds, routeError, closeBoard, addBoard, renameBoard, archiveBoard, storageError, commentOnCard, addCard, editCard, moveCard, addColumn, setColumnSort, archiveCard, deleteColumn }
 }
