@@ -650,8 +650,10 @@ a { color: inherit; text-decoration: none; }
 .upcoming-header h1 > span { color: #ad91bf; }
 .upcoming-header > p { color: #97869f; font-size: 12px; line-height: 1.8; }
 .upcoming-date { display: block; color: #a795b2; font-size: 11px; margin-top: 15px; }
-.upcoming-groups { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; align-items: start; }
-.upcoming-group-heading { min-height: 54px; display: flex; align-items: center; gap: 11px; margin-bottom: 17px; }
+.upcoming-groups { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; align-items: stretch; }
+.upcoming-group { display: grid; grid-template-rows: subgrid; grid-row: span 2; row-gap: 0; }
+.upcoming-group > ul, .upcoming-group > .upcoming-empty { align-self: start; }
+.upcoming-group-heading { min-height: 54px; display: flex; align-items: flex-start; gap: 11px; margin-bottom: 17px; }
 .upcoming-group-heading > span { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; background: #ece5f3; color: #9a80ae; flex-shrink: 0; }
 .upcoming-overdue .upcoming-group-heading > span { background: #f2e4ec; color: #ac7b95; }
 .upcoming-today .upcoming-group-heading > span { background: #f3ecda; color: #b39a60; }
