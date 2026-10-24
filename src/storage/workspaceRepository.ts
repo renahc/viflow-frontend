@@ -15,6 +15,12 @@ export type WorkspaceState = {
   importWorkspace: (next: Workspace) => boolean
   copyLocalBoards?: (boards: WorkspaceBoard[]) => Promise<string[]>
   sync?: {
+    online?: boolean
+    draftSaved?: boolean
+    draftError?: string
+    drafts?: { id: string; boardId: string; savedAt: string; titles: string[] }[]
+    recoverDraft?: (id: string) => void
+    discardDraft?: (id: string) => void
     phase: 'loading' | 'saving' | 'ready' | 'error'
     message: string
     conflict: boolean

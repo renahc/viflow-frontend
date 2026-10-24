@@ -97,11 +97,12 @@ export function createCloudWorkspaceRepository(client: Pick<SupabaseClient, 'rpc
 }
 export function cloudWorkspaceError(error: unknown): { conflict: boolean; message: string } {
   const value = error && typeof error === 'object' ? error as { code?: string; message?: string } : {}
+  if (value.message === 'offline_pending') return { conflict: false, message: 'Sin conexión. Tus cambios están pendientes de guardarse en tu cuenta. Cuando vuelva internet, pulsa Reintentar.' }
   if (value.message === 'checklist_migration_required') return { conflict: false, message: 'Falta activar las checklists. Ejecuta 202610240002_card_checklists.sql en Supabase y reintenta; conservamos tu borrador.' }
   if (value.message?.startsWith('invalid_cloud')) return { conflict: false, message: 'La nube devolvió datos que no pudimos validar. Conservamos el borrador sin reemplazarlo; descarga una copia antes de recargar.' }
   if (value.code === '40001') return { conflict: true, message: 'Este tablero cambió en otro dispositivo. Descarga tu borrador antes de recargar la versión de la nube.' }
   if (['PGRST202', '42883'].includes(value.code ?? '')) return { conflict: false, message: 'Falta activar las operaciones de nube. Ejecuta la migración 202610220003_cloud_workspace.sql en Supabase.' }
   if (value.code === '42501' || value.code === 'PGRST301') return { conflict: false, message: 'No pudimos comprobar el acceso a tu cuenta. Revisa tu sesión y vuelve a intentarlo.' }
   if (value.code?.startsWith('22') || value.code?.startsWith('23')) return { conflict: false, message: 'Supabase rechazó el contenido. Conservamos el borrador: puedes descargarlo y recargar los datos guardados.' }
-  return { conflict: false, message: 'No pudimos conectar con la nube. Tus cambios pendientes siguen en esta pestaña; reintenta antes de cerrarla.' }
+  return { conflict: false, message: 'No pudimos conectar con la nube. Tus cambios siguen pendientes; revisa el estado del borrador y reintenta cuando tengas conexión.' }
 }

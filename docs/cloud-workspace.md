@@ -61,9 +61,10 @@ borrador o descartarlo y recargar. Actualizar descarga el estado actual cuando n
 hay cambios pendientes. No hay suscripción Realtime ni actualización automática
 de contenido editado en otra pestaña; la revisión evita que se sobrescriba al guardar.
 
-Con cambios pendientes se advierte al cerrar/recargar la pestaña. El borrador no
-es una copia sin conexión persistente: al abandonar la aplicación puede perderse.
-Se debe reintentar o descargar antes. No hay fusión automática de conflictos.
+Con cambios pendientes se advierte al cerrar/recargar la pestaña. Antes de enviar
+se guarda un borrador por cuenta y operación en el dispositivo; al volver se ofrece
+recuperarlo o descartarlo. Si no se puede persistir, se advierte y sigue disponible
+la descarga. No hay fusión automática de conflictos. Ver [Recuperación de borradores](cloud-drafts.md).
 El registro de operaciones no expira en esta entrega: requiere una política de
 mantenimiento antes de uso a gran escala.
 

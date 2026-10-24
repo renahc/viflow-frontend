@@ -1,3 +1,4 @@
+import { createCloudDraftStore } from '../src/storage/cloudDrafts.ts'
 import { duplicateBoard } from '../src/lib/duplicate.ts'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
@@ -54,7 +55,19 @@ test('local board import preserves history, remaps identities and is atomic/idem
     assert.equal((await load()).workspace.boards[0].title,'Trabajo local')
     const edited = {...imported,cards:imported.cards.map(card=>({...card,checklist:card.checklist?.map(item=>({...item,completed:true})),title:'Editada',comments:[...(card.comments??[]),{id:'new-comment',author:'Fake',body:'Comentario desde cuenta',createdAt:timestamp}]}))}
     const request = createCloudRequest(snapshot,{boards:[edited],activeBoardId:'',openBoardIds:[]})
+    const draftValues = new Map<string,string>()
+    const draftStorage = {get length(){return draftValues.size},key:(index:number)=>[...draftValues.keys()][index]??null,getItem:(key:string)=>draftValues.get(key)??null,setItem:(key:string,value:string)=>{draftValues.set(key,value)},removeItem:(key:string)=>{draftValues.delete(key)}}
+    const pendingDraft = {userId:user,savedAt:new Date().toISOString(),request,next:{boards:[edited],activeBoardId:'',openBoardIds:[]}}
+    assert.equal(createCloudDraftStore(()=>draftStorage).write(pendingDraft),true)
     await db.query('select public.viflow_save_workspace($1::jsonb,$2::uuid)',[JSON.stringify(request.changes),request.operationId])
+    // Simulate a committed save whose response was lost, then a fresh page recovery.
+    const recoveredRequest = createCloudDraftStore(()=>draftStorage).read(user).drafts[0].request
+    await db.query('select public.viflow_save_workspace($1::jsonb,$2::uuid)',[JSON.stringify(recoveredRequest.changes),recoveredRequest.operationId])
+    assert.equal((await load()).workspace.boards[0].cards[0].comments?.filter(comment=>comment.body==='Comentario desde cuenta').length,1)
+    const staleRequest = {...recoveredRequest,operationId:crypto.randomUUID()}
+    await assert.rejects(db.query('select public.viflow_save_workspace($1::jsonb,$2::uuid)',[JSON.stringify(staleRequest.changes),staleRequest.operationId]),(error:unknown)=>(error as {code:string}).code==='40001')
+    assert.equal(createCloudDraftStore(()=>draftStorage).read(user).drafts.length,1)
+
     const updated = (await load()).workspace.boards[0].cards[0]
     assert.ok(updated.checklist?.every(item=>item.completed))
     assert.deepEqual(createBackup((await load()).workspace).workspace.boards[0].cards[0].checklist,updated.checklist)
