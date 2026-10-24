@@ -17,7 +17,9 @@ export function readLocalImportBoards(storage: LocalRead): WorkspaceBoard[] {
 export function prepareLocalBoardImport(boards: WorkspaceBoard[]): WorkspaceBoard[] {
   const workspace = parseWorkspace({ boards, activeBoardId: '', openBoardIds: [] })
   if (!workspace || !boards.length || boards.length > 100) throw new LocalBoardImportError('Selecciona entre 1 y 100 tableros válidos.')
-  const clean = createBackup(workspace).workspace.boards
+  // Local boards may omit labels until their first label is created. The RPC
+  // requires an explicit array, including for boards with no labels.
+  const clean = createBackup(workspace).workspace.boards.map(board => ({ ...board, labels: board.labels ?? [] }))
   if (new TextEncoder().encode(JSON.stringify(clean)).byteLength > maxBackupBytes) throw new LocalBoardImportError('La selección supera los 10 MB. Importa menos tableros a la vez.')
   for (const board of clean) {
     const invalid = board.title.length > 160 || board.columns.some(col => col.title.length > 100 || col.description.length > 1000)

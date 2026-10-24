@@ -18,6 +18,7 @@ test('selection preparation validates limits, keeps history/archives and strips 
   const before=JSON.stringify(board)
   const result=prepareLocalBoardImport([board])
   assert.equal(JSON.stringify(board),before)
+  assert.deepEqual(result[0].labels, [])
   assert.doesNotMatch(JSON.stringify(result),/attacker|owner_id|author_id/)
   assert.equal(result[0].cards[0].comments?.[0].author,'Invitado')
   assert.equal(localImportCounts(result).comments,1)

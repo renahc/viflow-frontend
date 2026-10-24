@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises'
 import { test } from 'node:test'
 import { PGlite } from '@electric-sql/pglite'
 import { decodeCloudSnapshot, createCloudRequest } from '../src/storage/cloudWorkspaceRepository.ts'
+import { prepareLocalBoardImport } from '../src/lib/localBoardImport.ts'
+import { createBoard } from '../src/lib/workspace.ts'
 import { createBackup } from '../src/lib/workspaceBackup.ts'
 
 test('local board import preserves history, remaps identities and is atomic/idempotent', async () => {
@@ -67,6 +69,19 @@ test('local board import preserves history, remaps identities and is atomic/idem
     const own=await copy(local,operation)
     assert.notEqual(own.importedBoardIds[0],imported.id)
     assert.equal((await load()).workspace.boards.length,1)
+    // Exercise the actual client payload for a normal board that has never
+    // created labels, rather than hand-writing labels: [] in every fixture.
+    const noLabels = { ...createBoard('Sin etiquetas'), cards: [
+      {id:'first', title:'Primera', description:'', status:'todo'},
+      {id:'second', title:'Segunda', description:'', status:'todo'},
+    ] }
+    assert.equal(noLabels.labels, undefined)
+    await assert.rejects(copy([noLabels], crypto.randomUUID()), (error: unknown) => (error as {code:string}).code === '22023')
+    const noLabelsResult = await copy(prepareLocalBoardImport([noLabels]), crypto.randomUUID())
+    const copiedWithoutLabels = (await load()).workspace.boards.find(board => board.id === noLabelsResult.importedBoardIds[0])!
+    assert.equal(copiedWithoutLabels.cards.length, 2)
+    assert.deepEqual(copiedWithoutLabels.labels, [])
+    assert.equal(noLabels.labels, undefined)
     await db.exec('reset role; set role anon')
     await assert.rejects(copy(local,crypto.randomUUID()),(error:unknown)=>(error as {code:string}).code==='42501')
   } finally { await db.close() }
