@@ -29,7 +29,7 @@ export function WorkspaceSidebar({ workspace }: Props) {
         <p>Las grandes ideas se construyen con pequeños avances.</p>
       </div>
       <AccountAccess />
-      <UserProfile />
+      <UserProfile sync={workspace.sync} />
     </aside>
   )
 }

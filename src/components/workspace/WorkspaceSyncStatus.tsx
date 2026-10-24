@@ -6,12 +6,11 @@ import { createBackup } from '../../lib/workspaceBackup'
 export function WorkspaceSyncStatus({ workspace }: { workspace: ReturnType<typeof useBoard> }) {
   const [exportError, setExportError] = useState('')
   const sync = workspace.sync
-  if (!sync) return null
+  if (!sync || sync.phase === 'ready') return null
   return <div className={`workspace-sync ${sync.phase === 'error' ? 'workspace-sync-error' : ''}`}>
     <span role={sync.phase === 'error' ? 'alert' : 'status'}>{sync.phase === 'loading' || sync.phase === 'saving' ? <LoaderCircle size={15} className="auth-spinner" /> : sync.phase === 'error' ? <TriangleAlert size={15} /> : <Check size={15} />}
       {sync.phase === 'loading' ? 'Cargando tus tableros…' : sync.phase === 'saving' ? 'Guardando en tu cuenta…' : sync.phase === 'error' ? sync.message : 'Guardado en tu cuenta'}
     </span>
-    {sync.phase === 'ready' && <button type="button" onClick={sync.reload}><RefreshCw size={13} />Actualizar</button>}
     {sync.phase === 'error' && <div className="workspace-sync-actions">
       {!sync.dirty && <Link to="/settings">Revisar mi cuenta</Link>}
       {!sync.conflict && <button type="button" onClick={sync.retry}><RefreshCw size={13} />Reintentar</button>}

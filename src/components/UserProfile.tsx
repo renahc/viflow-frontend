@@ -5,7 +5,8 @@ import { accountAvatarPath, createAccountAvatarService } from '../services/accou
 import { accountDisplayName } from '../services/accountProfileService';
 import { useAuth } from '../hooks/useAuth';
 import { registrationError } from '../services/registrationService';
-import { Ellipsis, LogOut, Settings } from "lucide-react";
+import type { useBoard } from '../hooks/useBoard';
+import { CloudCheck, CloudUpload, CloudAlert, LoaderCircle, RefreshCw, Ellipsis, LogOut, Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 type Profile = { name: string; photo: string };
@@ -28,7 +29,7 @@ function loadProfile(): Profile {
 }
 
 
-export function UserProfile() {
+export function UserProfile({ sync }: { sync?: ReturnType<typeof useBoard>['sync'] } = {}) {
   const navigate = useNavigate();
   const { client, session } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -63,10 +64,13 @@ export function UserProfile() {
       if (event.key === "Escape") { setOpen(false); triggerRef.current?.focus(); }
     }} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false); }}>
       <ProfileAvatar profile={profile} />
-      <div className="profile-identity"><strong title={profile.name}>{profile.name}</strong><small title={connected ? session?.user.email : undefined}>{connected ? session?.user.email : 'Perfil local'}</small></div>
+      <div className="profile-identity"><div className="profile-name-row"><strong title={profile.name}>{profile.name}</strong>{sync && <span className={`profile-cloud-status ${sync.phase === 'error' ? 'has-error' : ''}`} role="status" aria-label={sync.phase === 'ready' ? 'Guardado en tu cuenta' : sync.phase === 'saving' ? 'Guardando en tu cuenta' : sync.phase === 'loading' ? 'Cargando tus tableros' : 'Hay cambios sin sincronizar'} title={sync.phase === 'ready' ? 'Todos tus cambios están guardados en tu cuenta' : sync.phase === 'saving' ? 'Guardando cambios…' : sync.phase === 'loading' ? 'Cargando tableros…' : sync.message}>
+        {sync.phase === 'ready' ? <CloudCheck size={15} aria-hidden="true" /> : sync.phase === 'saving' ? <CloudUpload size={15} aria-hidden="true" /> : sync.phase === 'loading' ? <LoaderCircle size={15} className="auth-spinner" aria-hidden="true" /> : <CloudAlert size={15} aria-hidden="true" />}
+      </span>}</div><small title={connected ? session?.user.email : undefined}>{connected ? session?.user.email : 'Perfil local'}</small></div>
       <button ref={triggerRef} className="profile-menu-trigger" type="button" aria-label="Opciones de usuario" aria-expanded={open} aria-controls="profile-options" onClick={() => setOpen(current => !current)}><Ellipsis size={18} aria-hidden="true" /></button>
       {open && <div className="profile-menu" id="profile-options" aria-label="Opciones de usuario">
         <button type="button" onClick={() => { setOpen(false); if (connected) void navigate('/settings'); else setSettings(true); }}><Settings size={15} aria-hidden="true" />{connected && !name ? 'Completar perfil' : 'Configuración'}</button>
+        {sync && <button type="button" disabled={sync.phase !== 'ready'} onClick={() => { setOpen(false); sync.reload(); }}><RefreshCw size={15} aria-hidden="true" />Actualizar tableros</button>}
         <button type="button" disabled={!session || !client || loggingOut} aria-describedby={!session ? "logout-description" : undefined} onClick={async () => {
           if (!client || loggingOut) return;
           setLoggingOut(true); setLogoutError("");
