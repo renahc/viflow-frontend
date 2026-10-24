@@ -1,3 +1,5 @@
+import { isChecklist } from '../lib/checklist'
+import type { ChecklistItem } from '../lib/checklist'
 import { useActivityActor } from './useActivityActor'
 import { removeColumnKeepingCards, setCardArchived } from '../lib/archive'
 import type { ColumnSort } from '../lib/columnSort'
@@ -94,13 +96,14 @@ export function useBoard(storage: WorkspaceState) {
     saveBoard(appendCardActivity(nextBoard, card.id, 'created', `creó la tarjeta en «${board.columns.find(column => column.id === status)?.title}».`, readActivityActor()))
   }
 
-  function editCard(id: string, title: string, description: string, schedule: CardSchedule) {
+  function editCard(id: string, title: string, description: string, schedule: CardSchedule, checklist: ChecklistItem[] = []) {
+    if (!isChecklist(checklist)) return 'La checklist permite hasta 100 pasos de 200 caracteres.'
     const result = updateCardContent(board, id, { title, description }, schedule)
     if (result.error) return result.error
-    if (result.board === board) return
+    if (result.board === board && JSON.stringify(board.cards.find(card => card.id === id)?.checklist ?? []) === JSON.stringify(checklist)) return
     const previous = board.cards.find(card => card.id === id)!
     const actor = readActivityActor()
-    let nextBoard = result.board
+    let nextBoard = { ...result.board, cards: result.board.cards.map(card => card.id === id ? { ...card, checklist } : card) }
     if (previous.title !== title.trim()) nextBoard = appendCardActivity(nextBoard, id, 'title-edited', `cambió el título a «${title.trim()}».`, actor)
     if (previous.description !== description.trim()) nextBoard = appendCardActivity(nextBoard, id, 'description-edited', 'actualizó la descripción.', actor)
     if ((previous.dueDate ?? '') !== schedule.dueDate) nextBoard = appendCardActivity(nextBoard, id, 'due-date-edited', schedule.dueDate ? `cambió el vencimiento al ${formatDueDate(schedule.dueDate)}.` : 'quitó la fecha de vencimiento.', actor)

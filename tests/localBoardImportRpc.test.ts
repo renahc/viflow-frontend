@@ -17,11 +17,11 @@ test('local board import preserves history, remaps identities and is atomic/idem
       create table auth.users(id uuid primary key,email_confirmed_at timestamptz,raw_user_meta_data jsonb default '{}');
       create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
       grant usage on schema auth to anon,authenticated; grant execute on function auth.uid() to anon,authenticated;`)
-    for (const name of ['202610220002_private_boards.sql','202610220003_cloud_workspace.sql','202610240001_import_local_boards.sql']) await db.exec(await readFile(new URL(`../supabase/migrations/${name}`,import.meta.url),'utf8'))
+    for (const name of ['202610220002_private_boards.sql','202610220003_cloud_workspace.sql','202610240001_import_local_boards.sql','202610240002_card_checklists.sql']) await db.exec(await readFile(new URL(`../supabase/migrations/${name}`,import.meta.url),'utf8'))
     await db.exec(`insert into auth.users values ('${user}',now(),'{"display_name":"Cuenta actual"}'),('${other}',now(),'{}')`)
     await db.query("select set_config('request.jwt.claim.sub',$1,false)",[user]); await db.exec('set role authenticated')
     const local = [{id:'default',title:'Trabajo local',archivedAt:timestamp,columns:[{id:'todo',title:'Por hacer',description:''},{id:'done',title:'Hecho',description:''}],labels:[{id:'label-local',name:'Diseño',color:'purple'}],cards:[{
-      id:'card-local',title:'Tarjeta antigua',description:'Contexto',status:'done',priority:'urgent',dueDate:'2026-10-24',archivedAt:timestamp,labelIds:['label-local'],
+      checklist:[{id:'step-one',title:'Boceto',completed:true},{id:'step-two',title:'Revisión',completed:false}],id:'card-local',title:'Tarjeta antigua',description:'Contexto',status:'done',priority:'urgent',dueDate:'2026-10-24',archivedAt:timestamp,labelIds:['label-local'],
       comments:[{id:'old-comment',author:'Nombre antiguo',body:'Comentario original',createdAt:timestamp,author_id:user}],
       activity:[{id:'old-event',kind:'moved',actor:'Autor antiguo',message:'movió la tarjeta a «Hecho».',createdAt:timestamp,actor_id:user}],
     }]}]
@@ -33,6 +33,7 @@ test('local board import preserves history, remaps identities and is atomic/idem
     assert.equal(result.importedBoardIds.length,1)
     const imported = snapshot.workspace.boards[0]
     assert.notEqual(imported.id,'default'); assert.equal(Date.parse(imported.archivedAt!),Date.parse(timestamp))
+    assert.deepEqual(imported.cards[0].checklist,local[0].cards[0].checklist)
     assert.equal(imported.cards[0].priority,'urgent'); assert.equal(imported.cards[0].status,'done')
     assert.equal(imported.cards[0].comments?.[0].author,'Nombre antiguo')
     assert.equal(imported.cards[0].comments?.[0].source,'local_import')
@@ -50,14 +51,20 @@ test('local board import preserves history, remaps identities and is atomic/idem
     assert.equal((await load()).workspace.boards.length,1)
     await assert.rejects(copy([{...local[0],title:'Different payload'}],operation),(error:unknown)=>(error as {code:string}).code==='22023')
     assert.equal((await load()).workspace.boards[0].title,'Trabajo local')
-    const edited = {...imported,cards:imported.cards.map(card=>({...card,title:'Editada',comments:[...(card.comments??[]),{id:'new-comment',author:'Fake',body:'Comentario desde cuenta',createdAt:timestamp}]}))}
+    const edited = {...imported,cards:imported.cards.map(card=>({...card,checklist:card.checklist?.map(item=>({...item,completed:true})),title:'Editada',comments:[...(card.comments??[]),{id:'new-comment',author:'Fake',body:'Comentario desde cuenta',createdAt:timestamp}]}))}
     const request = createCloudRequest(snapshot,{boards:[edited],activeBoardId:'',openBoardIds:[]})
     await db.query('select public.viflow_save_workspace($1::jsonb,$2::uuid)',[JSON.stringify(request.changes),request.operationId])
     const updated = (await load()).workspace.boards[0].cards[0]
+    assert.ok(updated.checklist?.every(item=>item.completed))
+    assert.deepEqual(createBackup((await load()).workspace).workspace.boards[0].cards[0].checklist,updated.checklist)
     assert.equal(updated.comments?.find(c=>c.body==='Comentario desde cuenta')?.author,'Cuenta actual')
     assert.equal(updated.comments?.find(c=>c.body==='Comentario original')?.author,'Nombre antiguo')
     assert.equal(updated.activity?.find(c=>c.kind==='title-edited')?.source,'account')
     assert.equal(createBackup((await load()).workspace).workspace.boards[0].cards[0].comments?.find(c=>c.body==='Comentario original')?.source,'local_import')
+    const badChecklist = structuredClone(local)
+    badChecklist[0].cards[0].checklist[0].title = ''
+    await assert.rejects(copy(badChecklist,crypto.randomUUID()),(error:unknown)=>(error as {code:string}).code==='22023')
+    assert.equal((await load()).workspace.boards.length,1)
     const bad=[{...local[0],cards:[{...local[0].cards[0],activity:[{...local[0].cards[0].activity[0],kind:'invalid'}]}]}]
     await assert.rejects(copy(bad,crypto.randomUUID()))
     assert.equal((await load()).workspace.boards.length,1)

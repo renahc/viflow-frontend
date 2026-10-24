@@ -1,3 +1,5 @@
+import { CardChecklist } from './CardChecklist'
+import type { ChecklistItem } from '../../lib/checklist'
 import { priorities } from '../../lib/cardSchedule'
 import type { CardSchedule, Priority } from '../../lib/cardSchedule'
 import { useEffect, useRef, useState } from 'react'
@@ -19,7 +21,7 @@ type Props = {
   onToggleLabel: (labelId: string) => void
   onDeleteLabel: (labelId: string) => void
   onCreateLabel: (name: string, color: LabelColor) => string | undefined
-  onSave: (title: string, description: string, schedule: CardSchedule) => string | undefined
+  onSave: (title: string, description: string, schedule: CardSchedule, checklist: ChecklistItem[]) => string | undefined
 }
 
 export function CardDetails({ card, column, labels, onClose, onSave, onToggleLabel, onDeleteLabel, onCreateLabel, actor, onComment, storageError }: Props) {
@@ -30,9 +32,10 @@ export function CardDetails({ card, column, labels, onClose, onSave, onToggleLab
   const [labelAnchor, setLabelAnchor] = useState<HTMLButtonElement | null>(null)
   const [dueDate, setDueDate] = useState(card.dueDate ?? '')
   const [priority, setPriority] = useState<Priority>(card.priority ?? 'none')
+  const [checklist, setChecklist] = useState(card.checklist ?? [])
   const [error, setError] = useState('')
   const assignedLabels = labels.filter(label => card.labelIds?.includes(label.id))
-  const changed = dueDate !== (card.dueDate ?? '') || priority !== (card.priority ?? 'none') || title.trim() !== card.title || description.trim() !== card.description
+  const changed = JSON.stringify(checklist) !== JSON.stringify(card.checklist ?? []) || dueDate !== (card.dueDate ?? '') || priority !== (card.priority ?? 'none') || title.trim() !== card.title || description.trim() !== card.description
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -58,7 +61,7 @@ export function CardDetails({ card, column, labels, onClose, onSave, onToggleLab
         <form onSubmit={event => {
           event.preventDefault()
           if (!title.trim()) return
-          const message = onSave(title, description, { dueDate, priority })
+          const message = onSave(title, description, { dueDate, priority }, checklist)
           if (message) { setError(message); return }
           onClose()
         }}>
@@ -85,6 +88,7 @@ export function CardDetails({ card, column, labels, onClose, onSave, onToggleLab
           <textarea id="card-details-description" rows={7} maxLength={1000} value={description} placeholder="Agrega detalles, contexto o instrucciones…"
             onChange={event => { setDescription(event.target.value); setError('') }} />
           <div className="card-details-counter">{description.length}/1000</div>
+          <CardChecklist items={checklist} onChange={setChecklist} />
           {error && <p role="alert" id="card-details-error" className="label-error">{error}</p>}
           <div className="confirm-modal-actions">
             <button className="modal-cancel" type="button" onClick={onClose}>Cancelar</button>

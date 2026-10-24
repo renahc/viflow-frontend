@@ -63,7 +63,7 @@ function content(board: WorkspaceBoard): Record<string, unknown> {
     id: board.id, title: board.title, archivedAt: board.archivedAt,
     columns: board.columns.map(({ id, title, description, color, sort }) => ({ id, title, description, color, sort })),
     labels: (board.labels ?? []).map(({ id, name, color }) => ({ id, name, color })),
-    cards: board.cards.map(card => ({ id: card.id, title: card.title, description: card.description, status: card.status,
+    cards: board.cards.map(card => ({ checklist: (card.checklist ?? []).map(({ id, title, completed }) => ({ id, title, completed })), id: card.id, title: card.title, description: card.description, status: card.status,
       priority: card.priority ?? 'none', dueDate: card.dueDate || undefined, archivedAt: card.archivedAt,
       labelIds: [...(card.labelIds ?? [])].sort(), comments: (card.comments ?? []).map(({ id, body }) => ({ id, body })) })),
   }
@@ -85,6 +85,10 @@ export function createCloudWorkspaceRepository(client: Pick<SupabaseClient, 'rpc
       return decodeCloudSnapshot(data)
     },
     async save(request: CloudRequest) {
+      if (request.changes.some(change => (change.board.cards as { checklist?: unknown[] }[]).some(card => card.checklist?.length))) {
+        const capability = await client.rpc('viflow_checklist_version')
+        if (capability.error || capability.data !== 1) throw new Error('checklist_migration_required')
+      }
       const { data, error } = await client.rpc('viflow_save_workspace', { p_changes: request.changes, p_operation_id: request.operationId })
       if (error) throw error
       return decodeCloudSnapshot(data)
@@ -93,6 +97,7 @@ export function createCloudWorkspaceRepository(client: Pick<SupabaseClient, 'rpc
 }
 export function cloudWorkspaceError(error: unknown): { conflict: boolean; message: string } {
   const value = error && typeof error === 'object' ? error as { code?: string; message?: string } : {}
+  if (value.message === 'checklist_migration_required') return { conflict: false, message: 'Falta activar las checklists. Ejecuta 202610240002_card_checklists.sql en Supabase y reintenta; conservamos tu borrador.' }
   if (value.message?.startsWith('invalid_cloud')) return { conflict: false, message: 'La nube devolvió datos que no pudimos validar. Conservamos el borrador sin reemplazarlo; descarga una copia antes de recargar.' }
   if (value.code === '40001') return { conflict: true, message: 'Este tablero cambió en otro dispositivo. Descarga tu borrador antes de recargar la versión de la nube.' }
   if (['PGRST202', '42883'].includes(value.code ?? '')) return { conflict: false, message: 'Falta activar las operaciones de nube. Ejecuta la migración 202610220003_cloud_workspace.sql en Supabase.' }

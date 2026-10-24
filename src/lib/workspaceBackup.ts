@@ -11,6 +11,7 @@ function copyBoard(board: WorkspaceBoard): WorkspaceBoard {
     columns: board.columns.map(({ id, title, description, color, sort }) => ({ id, title, description, color, sort })),
     labels: board.labels?.map(({ id, name, color }) => ({ id, name, color })),
     cards: board.cards.map(card => ({
+      checklist: card.checklist?.map(({ id, title, completed }) => ({ id, title, completed })),
       id: card.id, title: card.title, description: card.description, status: card.status,
       archivedAt: card.archivedAt, dueDate: card.dueDate, priority: card.priority,
       labelIds: card.labelIds ? [...card.labelIds] : undefined,

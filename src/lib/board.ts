@@ -1,3 +1,5 @@
+import { isChecklist } from './checklist.ts';
+import type { ChecklistItem } from './checklist';
 import { isDueDate, isPriority } from './cardSchedule.ts';
 import type { Priority } from './cardSchedule.ts';
 import { isCardActivity, isCardComment } from "./cardActivity.ts";
@@ -28,6 +30,7 @@ export const initialColumns: Column[] = [
 ];
 
 export type Card = {
+  checklist?: ChecklistItem[];
   archivedAt?: string;
   id: string;
   title: string;
@@ -76,6 +79,7 @@ function isCard(value: unknown, columns: Column[]): value is Card {
   const card = value as Record<string, unknown>;
 
   return (
+    (card.checklist === undefined || isChecklist(card.checklist)) &&
     (card.archivedAt === undefined || (typeof card.archivedAt === "string" && Number.isFinite(Date.parse(card.archivedAt)))) &&
     (card.dueDate === undefined || isDueDate(card.dueDate)) &&
     (card.priority === undefined || isPriority(card.priority)) &&

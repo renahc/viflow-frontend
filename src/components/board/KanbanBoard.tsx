@@ -85,8 +85,8 @@ export function KanbanBoard({ workspace }: Props) {
         onComment={body => commentOnCard(editingCard.id, body)} card={editingCard} column={columns.find(column => column.id === editingCard.status)} labels={labels}
         onToggleLabel={labelId => toggleLabel(editingCard.id, labelId)} onDeleteLabel={deleteLabel}
         onCreateLabel={(name, color) => addLabel(editingCard.id, name, color)}
-        onClose={() => setEditingCardId(null)} onSave={(title, description, schedule) => {
-          const error = editCard(editingCard.id, title, description, schedule)
+        onClose={() => setEditingCardId(null)} onSave={(title, description, schedule, checklist) => {
+          const error = editCard(editingCard.id, title, description, schedule, checklist)
           if (!error) setAnnouncement(`Tarjeta ${title.trim()} actualizada.`)
           return error
         }} />}

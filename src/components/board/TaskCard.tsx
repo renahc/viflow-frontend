@@ -1,6 +1,6 @@
 import { dueState, formatDueDate, priorities } from '../../lib/cardSchedule'
 import { useEffect, useRef, useState } from 'react'
-import { Archive, Check, ChevronDown, ChevronUp, Circle, CalendarDays, Flag, GripVertical, MessageSquare } from 'lucide-react'
+import { Archive, Check, ChevronDown, ChevronUp, Circle, CalendarDays, Flag, GripVertical, ListChecks, MessageSquare } from 'lucide-react'
 import type { Card, Column, Status } from '../../lib/board'
 import type { Label } from '../../lib/labels'
 import type { CardDrag } from '../../hooks/useCardDrag'
@@ -68,6 +68,7 @@ export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
         {card.dueDate && deadline && <span className={`due-badge due-${deadline}`}><CalendarDays size={12} aria-hidden="true" />{deadlineLabels[deadline]} · {formatDueDate(card.dueDate)}</span>}
         {card.priority && card.priority !== 'none' && <span className={`priority-badge priority-${card.priority}`}><Flag size={12} aria-hidden="true" />Prioridad {priorities[card.priority].toLowerCase()}</span>}
       </div>}
+      {!!card.checklist?.length && <button type="button" className={`card-checklist-progress ${card.checklist.every(item => item.completed) ? 'is-complete' : ''}`} onClick={openDetails} aria-label={`Checklist: ${card.checklist.filter(item => item.completed).length} de ${card.checklist.length} pasos completados`}><ListChecks size={14} /><span>{card.checklist.filter(item => item.completed).length}/{card.checklist.length}</span><span className="checklist-mini-track"><span style={{ width: `${card.checklist.filter(item => item.completed).length / card.checklist.length * 100}%` }} /></span></button>}
       <div className="card-footer">
         <div className="card-order-actions">
           <span className={`card-marker ${card.status}`} aria-hidden="true">

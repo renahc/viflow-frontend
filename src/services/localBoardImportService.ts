@@ -22,6 +22,10 @@ export function createLocalBoardImportService(client: Pick<SupabaseClient, 'auth
       const { data: current, error: sessionError } = await client.auth.getUser()
       if (sessionError) throw sessionError
       if (current.user?.id !== userId || !current.user.email_confirmed_at) throw new LocalBoardImportError('La sesión cambió. Vuelve a abrir Respaldos con tu cuenta.')
+      if (clean.some(board => board.cards.some(card => card.checklist?.length))) {
+        const capability = await client.rpc('viflow_checklist_version')
+        if (capability.error || capability.data !== 1) throw new LocalBoardImportError('Ejecuta 202610240002_card_checklists.sql en Supabase para importar checklists sin perder pasos.')
+      }
       const { data, error } = await client.rpc('viflow_import_local_boards', { p_boards: clean, p_operation_id: operationId })
       if (error) throw error
       const snapshot = decodeCloudSnapshot(data)
