@@ -1,3 +1,4 @@
+import * as m from 'motion/react-m'
 import { NavLink } from 'react-router'
 import { boardPath } from '../lib/routes'
 import { Kanban, X } from 'lucide-react'
@@ -25,16 +26,16 @@ export function BoardTabs({ boards, openBoardIds, activeBoardId, onClose }: Prop
     }
   }, [activeBoardId, openBoardIds])
 
-  return <nav ref={navRef} className="board-tabs" aria-label="Tableros abiertos">
+  return <m.nav layoutScroll ref={navRef} className="board-tabs" aria-label="Tableros abiertos">
     {openBoardIds.map(id => {
       const board = boards.find(board => board.id === id)
       if (!board) return null
-      return <div key={id} className={`open-board-tab ${id === activeBoardId ? 'is-active' : ''}`}>
+      return <m.div layout="position" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} key={id} className={`open-board-tab ${id === activeBoardId ? 'is-active' : ''}`}>
         <NavLink to={boardPath(id)} title={board.title}>
           <Kanban size={15} aria-hidden="true" /><span className="open-tab-title">{board.title}</span>
         </NavLink>
         <button type="button" className="close-board-tab" aria-label={`Cerrar pestaña ${board.title}`} title="Cerrar pestaña" onClick={() => { restoreFocus.current = true; onClose(id) }}><X size={14} aria-hidden="true" /></button>
-      </div>
+      </m.div>
     })}
-  </nav>
+  </m.nav>
 }

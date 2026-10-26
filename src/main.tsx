@@ -1,3 +1,4 @@
+import { MotionProvider } from './components/motion/MotionProvider'
 import { AccountSettingsScreen } from './components/account/AccountSettingsScreen'
 import { StrictMode } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router'
@@ -12,7 +13,7 @@ import { AuthPreviewScreen } from './components/auth/AuthPreviewScreen'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <MotionProvider><BrowserRouter>
       <AuthProvider>
         <Routes>
           <Route path="/settings" element={<AccountSettingsScreen />} />
@@ -26,6 +27,6 @@ createRoot(document.getElementById('root')!).render(
           <Route path="*" element={<App />} />
         </Routes>
       </AuthProvider>
-    </BrowserRouter>
+    </BrowserRouter></MotionProvider>
   </StrictMode>,
 )

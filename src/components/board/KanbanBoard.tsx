@@ -1,3 +1,6 @@
+import * as m from 'motion/react-m'
+import { LayoutGroup } from 'motion/react'
+import { viewVariants } from '../motion/presets'
 import { useSearchParams } from 'react-router'
 import { DuplicateDialog } from '../DuplicateDialog'
 import type { Card } from '../../lib/board'
@@ -61,11 +64,11 @@ export function KanbanBoard({ workspace }: Props) {
 
   return (
     <>
-      <div className="board-content">
+      <m.div variants={viewVariants} initial="hidden" animate="visible" className="board-content">
         <BoardFilters value={filters} onChange={value => { drag.reset(); setFilters(value) }} labels={labels} count={visibleIds.size} total={cards.length} />
         {filtered && visibleIds.size === 0 && <p className="board-no-results">No hay tarjetas que coincidan. Prueba otros filtros o limpia la búsqueda.</p>}
         {storageError && <p role="alert" className="storage-warning">No pudimos guardar los cambios. Mantén esta pestaña abierta y revisa el aviso de almacenamiento.</p>}
-        <div className="kanban-grid" role="region" aria-label="Columnas del tablero" tabIndex={0}>
+        <LayoutGroup id={workspace.id}><div className="kanban-grid" role="region" aria-label="Columnas del tablero" tabIndex={0}>
           {columns.map(column => (
             <KanbanColumn visibleIds={visibleIds} filtered={filtered} key={column.id} column={column} cards={cards.filter(card => card.status === column.id)}
               columns={columns} labels={labels} drag={drag} onSort={sort => { drag.reset(); setColumnSort(column.id, sort) }} onAddCard={addCard} onMoveCard={move}
@@ -84,13 +87,13 @@ export function KanbanBoard({ workspace }: Props) {
               return id
             }} /> : <button className="add-column" onClick={() => setAddingColumn(true)}><Plus size={16} aria-hidden="true" />Agregar columna</button>}
           </div>
-        </div>
+        </div></LayoutGroup>
         <footer className="board-footer">
           <ArrowLeftRight size={15} aria-hidden="true" />Arrastra las tarjetas para cambiar su estado.
           <span className="footer-private">Solo tú, tus ideas y un poco de flow.</span>
         </footer>
         <p className="sr-only" role="status" aria-live="polite">{announcement}</p>
-      </div>
+      </m.div>
       {duplicating && <DuplicateDialog kind="card" title={duplicating.title} onClose={() => setDuplicating(null)} onDuplicate={options => workspace.duplicateCard(duplicating.id, options)} />}
       {editingCard && <CardDetails key={editingCard.id} actor={readActivityActor()} storageError={storageError}
         onComment={body => commentOnCard(editingCard.id, body)} card={editingCard} column={columns.find(column => column.id === editingCard.status)} labels={labels}

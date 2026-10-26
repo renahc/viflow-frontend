@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { dialogVariants } from './motion/presets'
 import { useEffect, useRef } from "react";
 
 type Props = {
@@ -18,7 +20,7 @@ export function ConfirmDeleteModal({ title, description, onCancel, onConfirm, co
   }, []);
 
   return (
-    <dialog
+    <m.dialog variants={dialogVariants} initial="hidden" animate="visible"
       ref={dialogRef}
       className="confirm-modal"
       aria-labelledby="confirm-delete-title"
@@ -36,6 +38,6 @@ export function ConfirmDeleteModal({ title, description, onCancel, onConfirm, co
         <button type="button" className="modal-cancel" autoFocus onClick={onCancel}>Cancelar</button>
         <button type="button" className="modal-delete" onClick={onConfirm}>{confirmLabel}</button>
       </div>
-    </dialog>
+    </m.dialog>
   );
 }

@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { popupVariants } from '../motion/presets'
 import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CalendarDays, Check, Flag, ListFilter, Search, SlidersHorizontal, Tag, X } from 'lucide-react'
@@ -52,7 +54,7 @@ export function BoardFilters({ value, onChange, labels, count, total }: Props) {
         <button type="button" className="filter-clear" onClick={() => onChange({ ...emptyCardFilters })}>Limpiar todo</button>
       </div>}
     </div>
-    {position && createPortal(<div id={id} ref={popup} className="board-filter-popup" style={{ ...position, maxHeight: `calc(100dvh - ${position.top + 12}px)` }} role="dialog" aria-label="Filtros del tablero" onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); close() } }} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null) && event.relatedTarget !== trigger.current) setPosition(null) }}>
+    {position && createPortal(<m.div id={id} ref={popup} variants={popupVariants} initial="hidden" animate="visible" className="board-filter-popup" style={{ ...position, maxHeight: `calc(100dvh - ${position.top + 12}px)` }} role="dialog" aria-label="Filtros del tablero" onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); close() } }} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null) && event.relatedTarget !== trigger.current) setPosition(null) }}>
       <div className="filter-popup-heading"><div><strong>Enfoca tu tablero</strong><p>Quédate con lo que necesitas ver.</p></div><button type="button" className="icon-button" aria-label="Cerrar filtros" onClick={close}><X size={16} /></button></div>
       <div className="filter-popup-body">{groups.map(group => <fieldset key={group.field}><legend><group.icon size={13} />{group.title}</legend><div className="filter-option-list">{group.options.map(([key, title]) => {
         const label = group.field === 'label' ? labels.find(label => label.id === key) : undefined
@@ -60,6 +62,6 @@ export function BoardFilters({ value, onChange, labels, count, total }: Props) {
         return <button type="button" key={key} aria-pressed={value[group.field] === key} onClick={() => update(group.field, value[group.field] === key ? '' : key)}>{color && <span className="filter-label-dot" style={{ background: color }} />}{title}{value[group.field] === key && <Check size={12} />}</button>
       })}{!group.options.length && <span className="filter-no-labels">Aún no hay etiquetas en este tablero.</span>}</div></fieldset>)}</div>
       <div className="filter-popup-footer"><span>{count} {count === 1 ? 'tarjeta visible' : 'tarjetas visibles'}</span><button type="button" onClick={close}>Ver resultados</button></div>
-    </div>, document.body)}
+    </m.div>, document.body)}
   </>
 }

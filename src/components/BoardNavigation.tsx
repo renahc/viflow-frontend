@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { popupVariants, dialogVariants } from './motion/presets'
 import { DuplicateDialog } from './DuplicateDialog'
 import type { DuplicateOptions } from '../lib/duplicate'
 import { NavLink } from 'react-router'
@@ -24,14 +26,14 @@ function RenameBoardModal({ board, onSave, onClose }: { board: WorkspaceBoard; o
     dialog?.showModal()
     return () => dialog?.close()
   }, [])
-  return <dialog ref={ref} className="confirm-modal" aria-labelledby="rename-board-title" onCancel={event => { event.preventDefault(); onClose() }}>
+  return <m.dialog variants={dialogVariants} initial="hidden" animate="visible" ref={ref} className="confirm-modal" aria-labelledby="rename-board-title" onCancel={event => { event.preventDefault(); onClose() }}>
     <h2 id="rename-board-title">Renombrar tablero</h2>
     <form onSubmit={event => { event.preventDefault(); if (title.trim()) onSave(title.trim()) }}>
       <label className="profile-name-label" htmlFor="rename-board-name">Nombre del tablero</label>
       <input id="rename-board-name" className="profile-name-input" autoFocus required maxLength={80} value={title} onChange={event => setTitle(event.target.value)} />
       <div className="confirm-modal-actions"><button type="button" className="modal-cancel" onClick={onClose}>Cancelar</button><button className="primary-button" disabled={!title.trim()}>Guardar</button></div>
     </form>
-  </dialog>
+  </m.dialog>
 }
 
 export function BoardNavigation({ boards, activeBoardId, onCreate, onRename, onDelete, onDuplicate }: Props) {
@@ -91,11 +93,11 @@ export function BoardNavigation({ boards, activeBoardId, onCreate, onRename, onD
               setMenu(current => current === board.id ? null : board.id)
             }}><Ellipsis size={18} aria-hidden="true" /></button>
         </div>
-        {menu === board.id && <div className="board-item-options" style={menuPosition} id={`board-options-${board.id}`}>
+        {menu === board.id && <m.div variants={popupVariants} initial="hidden" animate="visible" className="board-item-options" style={menuPosition} id={`board-options-${board.id}`}>
           <button type="button" onClick={() => { setMenu(null); setAction({ kind: 'rename', board }) }}><SquarePen size={14} aria-hidden="true" />Renombrar</button>
           <button type="button" onClick={() => { setMenu(null); setAction({ kind: 'duplicate', board }) }}><Copy size={14} aria-hidden="true" />Duplicar tablero</button>
           <button type="button" className="board-delete-option" onClick={() => { setMenu(null); setAction({ kind: 'delete', board }) }}><Archive size={14} aria-hidden="true" />Archivar tablero</button>
-        </div>}
+        </m.div>}
       </div>
     ))}</div>
     {creating ? <form className="composer board-composer" onSubmit={event => {

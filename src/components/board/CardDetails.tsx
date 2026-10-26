@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { dialogVariants } from '../motion/presets'
 import { CardChecklist } from './CardChecklist'
 import type { ChecklistItem } from '../../lib/checklist'
 import { priorities } from '../../lib/cardSchedule'
@@ -45,7 +47,7 @@ export function CardDetails({ card, column, labels, onClose, onSave, onToggleLab
   }, [])
 
   return (
-    <dialog ref={dialogRef} className="confirm-modal card-details" aria-labelledby="card-details-title"
+    <m.dialog variants={dialogVariants} initial="hidden" animate="visible" ref={dialogRef} className="confirm-modal card-details" aria-labelledby="card-details-title"
       onCancel={event => { event.preventDefault(); onClose() }}
       onClick={event => {
         if (event.target !== event.currentTarget) return
@@ -100,6 +102,6 @@ export function CardDetails({ card, column, labels, onClose, onSave, onToggleLab
       {labelAnchor && <LabelPicker card={card} labels={labels} anchor={labelAnchor}
         onClose={() => setLabelAnchor(null)} onToggle={onToggleLabel}
         onDelete={onDeleteLabel} onCreate={onCreateLabel} />}
-    </dialog>
+    </m.dialog>
   )
 }

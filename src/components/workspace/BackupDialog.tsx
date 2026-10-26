@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { dialogVariants } from '../motion/presets'
 import { LocalBoardImportPanel } from './LocalBoardImportPanel'
 import { useEffect, useRef, useState } from 'react'
 import { Download, Upload, X } from 'lucide-react'
@@ -21,7 +23,7 @@ export function BackupDialog({ workspace, onClose }: Props) {
     return () => { requestState.sequence++; dialog?.close() }
   }, [])
   const counts = backup ? backupCounts(backup) : null
-  return <dialog ref={dialogRef} className="confirm-modal backup-dialog" aria-labelledby="backup-title" onCancel={event => { event.preventDefault(); if (!busy) onClose() }}>
+  return <m.dialog variants={dialogVariants} initial="hidden" animate="visible" ref={dialogRef} className="confirm-modal backup-dialog" aria-labelledby="backup-title" onCancel={event => { event.preventDefault(); if (!busy) onClose() }}>
     <header className="archive-header"><h2 id="backup-title">Respaldos</h2><button autoFocus type="button" className="icon-button" aria-label="Cerrar respaldos" disabled={busy} onClick={onClose}><X size={18} aria-hidden="true" /></button></header>
     <section className="backup-section"><h3>Exportar espacio de trabajo</h3><p>Descarga todos tus tableros, tarjetas, etiquetas, comentarios y actividad, incluidos los archivados. Tu perfil y foto no se incluyen.</p>
       <button type="button" className="primary-button" onClick={() => {
@@ -66,5 +68,5 @@ export function BackupDialog({ workspace, onClose }: Props) {
     {workspace.copyLocalBoards && <LocalBoardImportPanel workspace={workspace} onClose={onClose} onBusyChange={setBusy} />}
     {error && <p className="label-error" role="alert">{error}</p>}
     <p role="status">{notice}</p>
-  </dialog>
+  </m.dialog>
 }

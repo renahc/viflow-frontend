@@ -1,3 +1,4 @@
+import * as m from 'motion/react-m'
 import { sortColumnCards } from '../../lib/columnSort'
 import type { ColumnSort } from '../../lib/columnSort'
 import { Plus } from 'lucide-react'
@@ -41,7 +42,7 @@ export function KanbanColumn({ visibleIds, filtered, column, cards: manualCards,
   const dotColor = labelColors.find(color => color.id === column.color)?.text
 
   return (
-    <section className={`kanban-column ${isOver ? 'drop-active' : ''}`}
+    <m.section layoutScroll className={`kanban-column ${isOver ? 'drop-active' : ''}`}
       aria-labelledby={`heading-${column.id}`}
       data-sort={column.sort ?? 'manual'}
       onDragOver={event => { if (acceptsDrop) drag.over(event, column.id); else drag.leave(event) }}
@@ -77,6 +78,6 @@ export function KanbanColumn({ visibleIds, filtered, column, cards: manualCards,
       </div>
       {composing ? <CardComposer status={column.id} onAdd={onAddCard} onClose={onCloseComposer} />
         : <button className="add-card" onClick={onOpenComposer}><Plus size={16} aria-hidden="true" />Agregar tarjeta</button>}
-    </section>
+    </m.section>
   )
 }

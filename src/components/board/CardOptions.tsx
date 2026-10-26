@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { popupVariants } from '../motion/presets'
 import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Archive, Copy, Ellipsis } from 'lucide-react'
@@ -20,7 +22,7 @@ export function CardOptions({ title, onDuplicate, onArchive }: Props) {
     if (position) { close(); return }
     const rect=trigger.current!.getBoundingClientRect()
     setPosition({left:Math.max(8,Math.min(rect.right-220,window.innerWidth-228)),top:Math.max(8,Math.min(rect.bottom+6,window.innerHeight-110))})
-  }}><Ellipsis size={16} /></button>{position && createPortal(<div ref={popup} id={id} role="group" aria-label={`Acciones de ${title}`} className="column-options-popup" style={position} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); close(true) } }} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null) && event.relatedTarget !== trigger.current) close() }}>
+  }}><Ellipsis size={16} /></button>{position && createPortal(<m.div ref={popup} variants={popupVariants} initial="hidden" animate="visible" id={id} role="group" aria-label={`Acciones de ${title}`} className="column-options-popup" style={position} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); close(true) } }} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null) && event.relatedTarget !== trigger.current) close() }}>
     <button type="button" onClick={() => { close(true); onDuplicate() }}><Copy size={14} />Duplicar tarjeta</button><div className="column-options-divider" /><button type="button" className="column-delete-option" onClick={() => { close(true); onArchive() }}><Archive size={14} />Archivar tarjeta</button>
-  </div>,document.body)}</>
+  </m.div>,document.body)}</>
 }

@@ -1,3 +1,4 @@
+import * as m from 'motion/react-m'
 import { ArrowLeft, Plus, Search, X } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -73,7 +74,7 @@ export function LabelPicker({ card, labels, anchor, onClose, onToggle, onDelete,
 
   function closeAndFocus() { onClose(); if (anchor.isConnected) anchor.focus() }
 
-  return createPortal(<div ref={popupRef} className="label-dropdown" role="dialog" aria-label={`Etiquetas de ${card.title}`}
+  return createPortal(<m.div ref={popupRef} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="label-dropdown" role="dialog" aria-label={`Etiquetas de ${card.title}`}
     onKeyDown={event => {
       if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeAndFocus() }
     }} onBlur={event => {
@@ -111,5 +112,5 @@ export function LabelPicker({ card, labels, anchor, onClose, onToggle, onDelete,
         <button className="primary-button label-save" disabled={!name.trim()}>Crear y agregar</button>
       </form>
     </>}
-  </div>, anchor.closest('dialog') ?? document.body)
+  </m.div>, anchor.closest('dialog') ?? document.body)
 }

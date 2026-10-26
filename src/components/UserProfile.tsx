@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { popupVariants } from './motion/presets'
 import { useNavigate } from 'react-router';
 import { ProfileAvatar, ProfileEditor } from './ProfileEditor';
 import { useAccountAvatar } from '../hooks/useAccountAvatar';
@@ -68,7 +70,7 @@ export function UserProfile({ sync }: { sync?: ReturnType<typeof useBoard>['sync
         {sync.online === false ? <CloudOff size={15} aria-hidden="true" /> : sync.phase === 'ready' ? <CloudCheck size={15} aria-hidden="true" /> : sync.phase === 'saving' ? <CloudUpload size={15} aria-hidden="true" /> : sync.phase === 'loading' ? <LoaderCircle size={15} className="auth-spinner" aria-hidden="true" /> : <CloudAlert size={15} aria-hidden="true" />}
       </span>}</div><small title={connected ? session?.user.email : undefined}>{connected ? session?.user.email : 'Perfil local'}</small></div>
       <button ref={triggerRef} className="profile-menu-trigger" type="button" aria-label="Opciones de usuario" aria-expanded={open} aria-controls="profile-options" onClick={() => setOpen(current => !current)}><Ellipsis size={18} aria-hidden="true" /></button>
-      {open && <div className="profile-menu" id="profile-options" aria-label="Opciones de usuario">
+      {open && <m.div variants={popupVariants} initial="hidden" animate="visible" className="profile-menu" id="profile-options" aria-label="Opciones de usuario">
         <button type="button" onClick={() => { setOpen(false); if (connected) void navigate('/settings'); else setSettings(true); }}><Settings size={15} aria-hidden="true" />{connected && !name ? 'Completar perfil' : 'Configuración'}</button>
         {sync && <button type="button" disabled={sync.phase !== 'ready'} onClick={() => { setOpen(false); sync.reload(); }}><RefreshCw size={15} aria-hidden="true" />Actualizar tableros</button>}
         <button type="button" disabled={!session || !client || loggingOut} aria-describedby={!session ? "logout-description" : undefined} onClick={async () => {
@@ -83,7 +85,7 @@ export function UserProfile({ sync }: { sync?: ReturnType<typeof useBoard>['sync
         }}><LogOut size={15} aria-hidden="true" />{loggingOut ? 'Cerrando sesión…' : 'Cerrar sesión'}</button>
         {!session && <small id="logout-description">Estás usando el perfil local, sin una sesión conectada.</small>}
         {logoutError && <small role="alert">{logoutError}</small>}
-      </div>}
+      </m.div>}
     </div>
     {settings && <ProfileEditor key={connected ? session?.user.id : 'local'} profile={connected ? { ...profile, name } : profile} account={connected} hasPhoto={hasPhoto} onClose={closeSettings} onSave={async (next, photo) => {
       if (connected) {

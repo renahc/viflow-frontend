@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { dialogVariants } from '../motion/presets'
 import { useEffect, useRef, useState } from 'react'
 import { Archive, RotateCcw, X } from 'lucide-react'
 import type { useBoard } from '../../hooks/useBoard'
@@ -18,7 +20,7 @@ export function ArchiveDialog({ workspace, onClose }: Props) {
     workspace.restoreArchived(boardId, cardId)
     setNotice(`«${title}» restaurado${cardId ? ' en su columna' : ' en el menú lateral'}.`)
   }
-  return <dialog ref={ref} className="confirm-modal archive-dialog" aria-labelledby="archive-title"
+  return <m.dialog variants={dialogVariants} initial="hidden" animate="visible" ref={ref} className="confirm-modal archive-dialog" aria-labelledby="archive-title"
     onCancel={event => { event.preventDefault(); onClose() }}>
     <header className="archive-header"><h2 id="archive-title"><Archive size={18} aria-hidden="true" />Archivados</h2><button autoFocus type="button" className="icon-button" aria-label="Cerrar archivados" onClick={onClose}><X size={18} aria-hidden="true" /></button></header>
     <div className="activity-filters" role="group" aria-label="Tipo de archivo">
@@ -32,5 +34,5 @@ export function ArchiveDialog({ workspace, onClose }: Props) {
     </div>
     <p role="status">{notice}</p>
     {workspace.storageError && <p role="alert">No pudimos guardar en este navegador. Los cambios solo se mantendrán durante esta sesión.</p>}
-  </dialog>
+  </m.dialog>
 }

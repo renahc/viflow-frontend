@@ -1,3 +1,4 @@
+import * as m from 'motion/react-m'
 import { WorkspaceSyncStatus } from './WorkspaceSyncStatus'
 import { UpcomingScreen } from './UpcomingScreen'
 import { Link, useLocation } from 'react-router'
@@ -36,7 +37,7 @@ export function WorkspaceScreen({ workspace }: Props) {
             </div>
           ) : <KanbanBoard key={activeBoardId} workspace={workspace} />}
         </main>
-        {workspace.undoArchive && <div className="archive-toast" role="status"><span>«{workspace.undoArchive.title}» archivado.</span><button type="button" onClick={workspace.undoLastArchive}>Deshacer</button><button type="button" aria-label="Cerrar aviso" onClick={workspace.dismissUndo}>×</button></div>}
+        {workspace.undoArchive && <m.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} style={{ x: '-50%' }} className="archive-toast" role="status"><span>«{workspace.undoArchive.title}» archivado.</span><button type="button" onClick={workspace.undoLastArchive}>Deshacer</button><button type="button" aria-label="Cerrar aviso" onClick={workspace.dismissUndo}>×</button></m.div>}
       </div>
     </div>
   )

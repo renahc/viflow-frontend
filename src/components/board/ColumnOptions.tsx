@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { popupVariants } from '../motion/presets'
 import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ArrowDownWideNarrow, Check, Ellipsis, Trash2 } from 'lucide-react'
@@ -43,7 +45,7 @@ export function ColumnOptions({ column, onSort, onDelete }: Props) {
         const rect = trigger.current!.getBoundingClientRect()
         setPosition({ left: Math.max(8, Math.min(rect.right - 220, window.innerWidth - 228)), top: Math.max(8, Math.min(rect.bottom + 6, window.innerHeight - 200)) })
       }}><Ellipsis size={18} aria-hidden="true" /></button>
-    {position && createPortal(<div ref={popup} id={id} className="column-options-popup" style={position} role="group" aria-label={`Opciones de columna ${column.title}`}
+    {position && createPortal(<m.div ref={popup} variants={popupVariants} initial="hidden" animate="visible" id={id} className="column-options-popup" style={position} role="group" aria-label={`Opciones de columna ${column.title}`}
       onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(true) } }}
       onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null) && event.relatedTarget !== trigger.current) close() }}>
       <p><ArrowDownWideNarrow size={14} aria-hidden="true" />Ordenar por</p>
@@ -53,6 +55,6 @@ export function ColumnOptions({ column, onSort, onDelete }: Props) {
       </button>)}
       <div className="column-options-divider" />
       <button className="column-delete-option" type="button" onClick={() => { close(true); onDelete() }}><Trash2 size={14} aria-hidden="true" />Eliminar columna</button>
-    </div>, document.body)}
+    </m.div>, document.body)}
   </>
 }

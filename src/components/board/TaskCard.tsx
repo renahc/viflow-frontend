@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { useReducedMotion } from 'motion/react'
 import { CardOptions } from './CardOptions'
 import { dueState, formatDueDate, priorities } from '../../lib/cardSchedule'
 import { useEffect, useRef, useState } from 'react'
@@ -25,6 +27,7 @@ type Props = {
 
 export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
   onMoveUp, onMoveDown, onChangeStatus, onOpenLabels, onDelete, onDuplicate, onOpenDetails }: Props) {
+  const reduced = useReducedMotion()
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 60_000)
@@ -43,7 +46,7 @@ export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
     && drag.dropTarget.beforeId === card.id
 
   return (
-    <article
+    <m.div layout={reduced || drag.draggingId ? false : 'position'} layoutId={reduced ? undefined : `card-${card.id}`} initial={false} transition={{ layout: { duration: 0.22, ease: [0.22, 1, 0.36, 1] } }}><article
       draggable
       data-card-id={card.id}
       className={`task-card ${isDragging ? 'is-dragging' : ''} ${isDropTarget ? 'drop-before' : ''}`}
@@ -94,6 +97,6 @@ export function TaskCard({ card, columns, labels, drag, canMoveUp, canMoveDown,
           <ChevronDown size={12} aria-hidden="true" />
         </div>
       </div>
-    </article>
+    </article></m.div>
   )
 }

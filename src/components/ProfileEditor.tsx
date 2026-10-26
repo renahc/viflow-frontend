@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { dialogVariants } from './motion/presets'
 import { useEffect, useRef, useState } from 'react'
 import { avatarSaveError, validateAvatar } from '../services/accountAvatarService'
 type Profile = { name: string; photo: string }
@@ -89,5 +91,5 @@ export function ProfileEditor({ profile, account, hasPhoto, onClose, onSave, emb
       <div className="confirm-modal-actions"><button className="modal-cancel" type="button" disabled={saving} onClick={onClose}>{embedded ? 'Volver al tablero' : 'Cancelar'}</button><button className="primary-button" disabled={!draft.name.trim() || reading || saving}>{saving ? 'Guardando…' : 'Guardar cambios'}</button></div>
     </form>
   </>;
-  return embedded ? <div className="profile-settings settings-profile-editor">{content}</div> : <dialog ref={dialogRef} className="confirm-modal profile-settings" aria-labelledby="profile-settings-title" onCancel={event => { event.preventDefault(); if (!savingRef.current) onClose(); }}>{content}</dialog>;
+  return embedded ? <div className="profile-settings settings-profile-editor">{content}</div> : <m.dialog variants={dialogVariants} initial="hidden" animate="visible" ref={dialogRef} className="confirm-modal profile-settings" aria-labelledby="profile-settings-title" onCancel={event => { event.preventDefault(); if (!savingRef.current) onClose(); }}>{content}</m.dialog>;
 }

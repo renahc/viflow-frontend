@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { dialogVariants } from './motion/presets'
 import { useEffect, useRef, useState } from 'react'
 import { CalendarDays, Copy, Tag } from 'lucide-react'
 import type { DuplicateOptions } from '../lib/duplicate'
@@ -9,7 +11,7 @@ export function DuplicateDialog({ kind, title: original, onClose, onDuplicate }:
   const [keepLabels, setKeepLabels] = useState(true)
   const [error, setError] = useState('')
   useEffect(() => { const dialog=ref.current; dialog?.showModal(); return () => dialog?.close() }, [])
-  return <dialog ref={ref} className="confirm-modal duplicate-dialog" aria-labelledby="duplicate-title" onCancel={event => { event.preventDefault(); onClose() }}>
+  return <m.dialog variants={dialogVariants} initial="hidden" animate="visible" ref={ref} className="confirm-modal duplicate-dialog" aria-labelledby="duplicate-title" onCancel={event => { event.preventDefault(); onClose() }}>
     <span className="duplicate-symbol"><Copy size={21} /></span><h2 id="duplicate-title">Duplicar {kind === 'board' ? 'tablero' : 'tarjeta'}</h2>
     <p>Un nuevo comienzo con la misma estructura.</p>
     <form onSubmit={event => { event.preventDefault(); if (!title.trim()) return; const message=onDuplicate({title,keepDates,keepLabels}); if (message) setError(message); else onClose() }}>
@@ -19,5 +21,5 @@ export function DuplicateDialog({ kind, title: original, onClose, onDuplicate }:
       {error && <p role="alert" className="label-error">{error}</p>}
       <div className="confirm-modal-actions"><button type="button" className="modal-cancel" onClick={onClose}>Cancelar</button><button className="primary-button" disabled={!title.trim()}><Copy size={14} />Crear copia</button></div>
     </form>
-  </dialog>
+  </m.dialog>
 }

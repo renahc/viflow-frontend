@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { viewVariants } from './motion/presets'
 import { useState } from 'react'
 import type { LabelColor } from '../lib/labels'
 import { ColorPicker } from './ColorPicker'
@@ -7,7 +9,7 @@ type Props = { onCreate: (title: string, color: LabelColor) => string | undefine
 export function ColumnComposer({ onCreate, onClose }: Props) {
   const [title, setTitle] = useState('')
   const [color, setColor] = useState<LabelColor>('purple')
-  return <form className="composer column-composer" onSubmit={event => {
+  return <m.form variants={viewVariants} initial="hidden" animate="visible" className="composer column-composer" onSubmit={event => {
     event.preventDefault()
     if (onCreate(title, color)) onClose()
   }} onKeyDown={event => { if (event.key === 'Escape') onClose() }}>
@@ -18,5 +20,5 @@ export function ColumnComposer({ onCreate, onClose }: Props) {
       <button className="primary-button" disabled={!title.trim()}>Crear columna</button>
       <button className="quiet-button" type="button" onClick={onClose}>Cancelar</button>
     </div>
-  </form>
+  </m.form>
 }

@@ -1,3 +1,5 @@
+import * as m from 'motion/react-m'
+import { viewVariants } from '../motion/presets'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { ArrowUpRight, CalendarDays, CalendarRange, CircleCheck, Clock3, Flag, Kanban } from 'lucide-react'
@@ -15,7 +17,7 @@ export function UpcomingScreen({ boards }: { boards: WorkspaceBoard[] }) {
   const [now,setNow]=useState(()=>new Date())
   useEffect(()=>{const timer=window.setInterval(()=>setNow(new Date()),60_000);return()=>window.clearInterval(timer)},[])
   const entries=upcomingCards(boards,now)
-  return <div className="upcoming-screen">
+  return <m.div variants={viewVariants} initial="hidden" animate="visible" className="upcoming-screen">
     <header className="upcoming-header"><span className="upcoming-eyebrow"><CalendarDays size={14} />TU AGENDA</span><h1>Un paso a tiempo<span>.</span></h1><p>Los próximos vencimientos de todos tus tableros, en un solo lugar.</p><span className="upcoming-date">{new Intl.DateTimeFormat('es-CL',{weekday:'long',day:'numeric',month:'long'}).format(now)}</span></header>
     <div className="upcoming-groups">{groups.map(group=> {
       const cards=entries.filter(entry=>entry.group===group.id)
@@ -23,5 +25,5 @@ export function UpcomingScreen({ boards }: { boards: WorkspaceBoard[] }) {
         {cards.length ? <ul>{cards.map(({board,card})=><li key={`${board.id}:${card.id}`}><Link className="upcoming-card" to={`${boardPath(board.id)}?card=${encodeURIComponent(card.id)}`}><span className="upcoming-card-context"><Kanban size={12} />{board.title}<ArrowUpRight size={13} /></span><h3>{card.title}</h3><span className="upcoming-column">{board.columns.find(column=>column.id===card.status)?.title}</span><div className="upcoming-card-meta"><span><CalendarDays size={12} />{formatDueDate(card.dueDate!)}</span>{card.priority && card.priority!=='none' && <span className={`priority-badge priority-${card.priority}`}><Flag size={11} />{priorities[card.priority]}</span>}</div></Link></li>)}</ul> : <div className="upcoming-empty"><CircleCheck size={22} /><p>{group.id==='overdue'?'Todo al día por aquí.':group.id==='today'?'Sin vencimientos para hoy.':'Nada más pendiente esta semana.'}</p></div>}
       </section>
     })}</div><p className="upcoming-footnote">Solo se muestran tarjetas pendientes con fecha. Los tableros y las tarjetas archivados quedan fuera de esta vista.</p>
-  </div>
+  </m.div>
 }
