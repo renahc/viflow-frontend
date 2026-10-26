@@ -697,3 +697,8 @@ a { color: inherit; text-decoration: none; }
   .sidebar > .archive-open-button { margin-top: 6px; padding-block: 7px; }
   .sidebar > .profile { padding-top: 12px; }
 }
+
+.workspace-saving-toast { position: fixed; right: 22px; bottom: 20px; z-index: 90; max-width: min(340px, calc(100vw - 32px)); padding: 11px 15px; border: 1px solid #e2d6ec; border-radius: 11px; background: #fcfaff; color: #8a719e; box-shadow: 0 5px 22px #49325812; font-size: 11px; pointer-events: none; }
+.workspace-saving-toast > span { display: flex; align-items: center; gap: 8px; }
+.workspace-saving-toast > small { display: block; margin-top: 7px; color: #a16b84; font-size: 10px; line-height: 1.6; }
+@media (max-width: 600px) { .workspace-saving-toast { right: 16px; bottom: 16px; } }
